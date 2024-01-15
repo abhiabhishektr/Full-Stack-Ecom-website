@@ -1,0 +1,566 @@
+<%-include('../layout/userHeader')-%>
+
+
+
+
+
+
+
+
+
+        <main class="main">
+        	<div class="page-header text-center" style="background-image: url('assets/images/page-header-bg.jpg')">
+        		<div class="container">
+        			<h1 class="page-title">My Account<span>Shop</span></h1>
+        		</div><!-- End .container -->
+        	</div><!-- End .page-header -->
+            <nav aria-label="breadcrumb" class="breadcrumb-nav mb-3">
+                <div class="container">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                        <li class="breadcrumb-item"><a href="#">Shop</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">My Account</li>
+                    </ol>
+                </div><!-- End .container -->
+            </nav><!-- End .breadcrumb-nav -->
+
+            <div class="page-content">
+            	<div class="dashboard">
+	                <div class="container">
+	                	<div class="row">
+	                		<aside class="col-md-4 col-lg-3">
+	                			<ul class="nav nav-dashboard flex-column mb-3 mb-md-0" role="tablist">
+								    <li class="nav-item">
+								        <a class="nav-link active" id="tab-dashboard-link" data-toggle="tab" href="#tab-dashboard" role="tab" aria-controls="tab-dashboard" aria-selected="true">User Details</a>
+								    </li>
+								    <li class="nav-item">
+								        <a class="nav-link" id="tab-orders-link" data-toggle="tab" href="#tab-orders" role="tab" aria-controls="tab-orders" aria-selected="false">Orders</a>
+								    </li>
+								    <li class="nav-item">
+								        <a class="nav-link" id="tab-downloads-link" data-toggle="tab" href="#tab-downloads" role="tab" aria-controls="tab-downloads" aria-selected="false">Downloads</a>
+								    </li>
+								    <li class="nav-item">
+								        <a class="nav-link" id="tab-address-link" data-toggle="tab" href="#tab-address" role="tab" aria-controls="tab-address" aria-selected="false">Adresses</a>
+								    </li>
+								    <li class="nav-item">
+								        <a class="nav-link" id="tab-account-link" data-toggle="tab" href="#tab-account" role="tab" aria-controls="tab-account" aria-selected="false">Account Details</a>
+								    </li>
+								    <li class="nav-item">
+								        <a class="nav-link" href="#">Sign Out</a>
+								    </li>
+								</ul>
+	                		</aside><!-- End .col-lg-3 -->
+
+	                		<div class="col-md-8 col-lg-9">
+	                			<div class="tab-content">
+								    <div class="tab-pane fade show active" id="tab-dashboard" role="tabpanel" aria-labelledby="tab-dashboard-link">
+
+
+
+								    	<p>Hello <span class="font-weight-normal text-dark">User</span> (not <span class="font-weight-normal text-dark">User</span>? <a href="#">Log out</a>) 
+
+								    	<br>
+
+								    	From your account dashboard you can view your <a href="#tab-orders" class="tab-trigger-link link-underline">recent orders</a>, manage your <a href="#tab-address" class="tab-trigger-link">shipping and billing addresses</a>, and <a href="#tab-account" class="tab-trigger-link">edit your password and account details</a>.</p>
+
+
+
+								    </div><!-- .End .tab-pane -->
+
+								    <div class="tab-pane fade" id="tab-orders" role="tabpanel" aria-labelledby="tab-orders-link">
+								    	<p>No order has been made yet.</p>
+
+                                        <table>
+                                            <tbody>
+                                                <% orders.forEach(order => { %>
+                                                    <% order.Products.forEach(product => { %>
+                                                        <tr>
+                                                            <td colspan="2">
+                                                                <div class="d-flex align-items-center">
+                                                                    <img src="/uploads/<%= product.image %>" alt="Product Image" class="img-fluid rounded mr-3" style="max-width: 120px; max-height: 120px;">
+                                                                    <div>
+                                                                        <div><strong><%= product.name %></strong></div>
+                                                                        <div><%= product.reason || 'N/A' %></div>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td>$<%= product.price.toFixed(2) %></td>
+                                                            <td><%= product.quantity %></td>
+                                                            <td>$<%= product.total.toFixed(2) %></td>
+                                                            <td><%= order.orderStatus %></td>
+                                                            <td><%= order.paymentMode %></td>
+                                                            <td><%= order.date.toLocaleDateString() %></td>
+                                                        </tr>
+                                                    <% }); %>
+                                                <% }); %>
+                                            </tbody>
+                                            
+                                            
+                                            
+                                            
+                                            
+                                    </table>
+								    	<a href="/" class="btn btn-outline-primary-2"><span>Continue Shopping</span><i class="icon-long-arrow-right"></i></a>
+								    </div><!-- .End .tab-pane -->
+
+								    <div class="tab-pane fade" id="tab-downloads" role="tabpanel" aria-labelledby="tab-downloads-link">
+								    	<p>No downloads available yet.</p>
+								    	<a href="category.html" class="btn btn-outline-primary-2"><span>GO SHOP</span><i class="icon-long-arrow-right"></i></a>
+								    </div><!-- .End .tab-pane -->
+
+                                    <div class="tab-pane fade" id="tab-address" role="tabpanel" aria-labelledby="tab-address-link">
+
+                                        <h2 class="checkout-title">Saved Address :</h2>
+                                    
+                                        <div class="d-flex flex-wrap">
+                                                            
+                                            <% let selectedAddressIndex = -1; %>
+                                            <% addresses.forEach(function(address, index) { %>
+                                                <!-- <P><%=  index%></P> -->
+                                                <div class="col-sm-6 col-md-4 col-lg-3 mb-3">
+                                                    <div class="p-3 border rounded" style="cursor: pointer; transition: background-color 0.3s ease;">
+                                                        <p class="mb-1"><strong>Name:</strong> <%= address.firstName %> <%= address.lastName %></p>
+                                                        <p class="mb-1"><strong>Pin Code:</strong> <%= address.postcodeZIP %></p>
+                                                        <p class="mb-1"><strong>Address Name:</strong> <%= address.streetAddress1 %></p>
+                                                        <p class="mb-1"><strong>Phone No:</strong> <%= address.phone %></p>
+                                                        <!-- Add other address fields as needed -->
+                                        
+                                                        <!-- Add a hidden input field to store the address ID -->
+                                                        <input type="hidden" class="address-id" value="<%= address._id %>">
+                                        
+                                                        <!-- Checkmark icon for selected address -->
+                                                        <% if (selectedAddressIndex === index) { %>
+                                                            <span class="selected-icon">&#10003;</span>
+                                                        <% } %>
+
+                                                       <!-- Edit and Delete buttons -->
+                                                       <div class="mt-0 d-flex justify-content-between">
+                                                        <button style="background: linear-gradient(to bottom right, #4CAF50, #45a049); border: 0; border-radius: 8px; color: #FFFFFF; cursor: pointer; font-family: -apple-system, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 500; line-height: 2; outline: transparent; padding: 0.5rem 1rem; text-align: center; text-decoration: none; transition: box-shadow .2s ease-in-out; user-select: none; -webkit-user-select: none; touch-action: manipulation; white-space: nowrap;" 
+                                                            onmouseover="this.style.background = 'linear-gradient(to bottom right, #2196F3, #1976D2)'; this.style.boxShadow = '0 0 .25rem rgba(0, 0, 0, 0.5), -.125rem -.125rem 1rem rgba(33, 150, 243, 0.5), .125rem .125rem 1rem rgba(25, 118, 210, 0.5)';" 
+                                                            onmouseout="this.style.background = 'linear-gradient(to bottom right, #4CAF50, #45a049)'; this.style.boxShadow = 'none';" 
+                                                            onclick="buttoneffect(1, <%=index %>)" >Update</button>
+                                                    
+                                                        <button style="background: linear-gradient(to bottom right, #EF4765, #FF9A5A); border: 0; border-radius: 8px; color: #FFFFFF; cursor: pointer; font-family: -apple-system, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 500; line-height: 2; outline: transparent; padding: 0.5rem 1rem; text-align: center; text-decoration: none; transition: box-shadow .2s ease-in-out; user-select: none; -webkit-user-select: none; touch-action: manipulation; white-space: nowrap;" 
+                                                            onmouseover="this.style.background = 'linear-gradient(to bottom right, #000, #000)'; this.style.boxShadow = '0 0 .25rem rgba(0, 0, 0, 0.5), -.125rem -.125rem 1rem rgba(0, 0, 0, 0.5)';" 
+                                                            onmouseout="this.style.background = 'linear-gradient(to bottom right, #EF4765, #FF9A5A)'; this.style.boxShadow = 'none';" 
+                                                            onclick=" buttoneffect(2, <%= index  %>)">Delete</button>
+                                                    </div>
+                                                    
+                                                    
+                                                    
+                                                    
+
+
+                                                    </div>
+                                                </div>
+                                            <% }); %>
+                                        </div>
+                                        <!-- ============== delete and Edit Address=============== -->
+                                        <script>
+                                          
+
+
+
+
+                                            function buttoneffect (action, index) {
+                                           
+                                                if (action === 1) {
+                                                    // Handle Update button click
+                                                    console.log('Update button clicked for address ID:' , index);
+                                                    //editaddress(index);
+                                                    // You can add your custom logic for the Update action here
+                                                } else if (action === 2) {
+                                                    // Handle Delete button click
+                                                    console.log('Delete button clicked for address ID:', index);
+                                                    // You can add your custom logic for the Delete action here
+                                                    try {
+                                                        const response = fetch(`/deleteAddress/${index}`, {
+                                                            method: 'POST',
+                                                            headers: {
+                                                                'Content-Type': 'application/json',
+                                                            },
+                                                        });
+                                        
+                                                       
+                                                    } catch (error) {
+                                                        console.error('Error during fetch:', error.message);
+                                                        // Handle fetch error
+                                                    }
+                                                }
+                                                }
+                                            
+                                        </script>
+                                         <!-- ============== delete and Edit Address=============== -->
+                                    
+                                        <button type="button" class="btn btn-outline-primary-2 btn-order btn-block btn-auto" onclick="toggleAddAddressForm()">
+                                            <span class="btn-text">Add Address</span>
+                                            <span class="btn-hover-text"> ↓    Proceed to Add New Address    ↓ </span>
+                                        </button>
+                                    
+                                        <!-- Add Address Form -->
+                                        <div id="addAddressForm" style="display: none;">
+                                            <form action="/addAddress/1" method="post">
+                                                <!-- Add Address Form fields here... -->
+                                                <div class="col-lg-12">
+                                                    <h2 class="checkout-title">Shipping Details</h2><!-- End .checkout-title -->
+                                                    <div class="row">
+                                                        <div class="col-sm-6">
+                                                            <label>First Name *</label>
+                                                            <input type="text" class="form-control" name="firstName"  required>
+                                                        </div><!-- End .col-sm-6 -->
+                                            
+                                                        <div class="col-sm-6">
+                                                            <label>Last Name *</label>
+                                                            <input type="text" class="form-control" name="lastName" required>
+                                                        </div><!-- End .col-sm-6 -->
+                                                    </div><!-- End .row -->
+                                            
+                                                    <label>Company Name (Optional)</label>
+                                                    <input type="text" class="form-control" name="companyName">
+                                            
+                                                    <label>Country *</label>
+                                                    <input type="text" class="form-control" name="country" required>
+                                            
+                                                    <label>Street address *</label>
+                                                    <input type="text" class="form-control" name="streetAddress1" placeholder="House number and Street name" required>
+                                                    <input type="text" class="form-control" name="streetAddress2" placeholder="Appartments, suite, unit etc ..." required>
+                                            
+                                                    <div class="row">
+                                                        <div class="col-sm-6">
+                                                            <label>Town / City *</label>
+                                                            <input type="text" class="form-control" name="townCity" required>
+                                                        </div><!-- End .col-sm-6 -->
+                                            
+                                                        <div class="col-sm-6">
+                                                            <label>State / County *</label>
+                                                            <input type="text" class="form-control" name="stateCounty" required>
+                                                        </div><!-- End .col-sm-6 -->
+                                                    </div><!-- End .row -->
+                                            
+                                                    <div class="row">
+                                                        <div class="col-sm-6">
+                                                            <label>Postcode / ZIP *</label>
+                                                            <input type="text" class="form-control" name="postcodeZIP" required>
+                                                        </div><!-- End .col-sm-6 -->
+                                            
+                                                        <div class="col-sm-6">
+                                                            <label>Phone *</label>
+                                                            <input type="tel" class="form-control" name="phone" required>
+                                                        </div><!-- End .col-sm-6 -->
+                                                    </div><!-- End .row -->
+                                            
+                                                </div><!-- End .col-lg-9 -->
+                                    
+                                                <button type="submit" class="btn btn-outline-primary-2 btn-order btn-block" >
+                                                    <span class="btn-text">Add Address</span>
+                                                    <span class="btn-hover-text">Proceed to Add Address</span>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    
+                                    <script>
+                                        function toggleAddAddressForm() {
+                                            const addAddressForm = document.getElementById('addAddressForm');
+                                            if (addAddressForm.style.display === 'none') {
+                                                addAddressForm.style.display = 'block';
+                                            } else {
+                                                addAddressForm.style.display = 'none';
+                                            }
+                                        }
+                                    </script>
+                                    
+
+								    <div class="tab-pane fade" id="tab-account" role="tabpanel" aria-labelledby="tab-account-link">
+								    	<form action="#">
+			                				<div class="row">
+			                					<div class="col-sm-6">
+			                						<label>First Name *</label>
+			                						<input type="text" class="form-control" required>
+			                					</div><!-- End .col-sm-6 -->
+
+			                					<div class="col-sm-6">
+			                						<label>Last Name *</label>
+			                						<input type="text" class="form-control" required>
+			                					</div><!-- End .col-sm-6 -->
+			                				</div><!-- End .row -->
+
+		            						<label>Display Name *</label>
+		            						<input type="text" class="form-control" required>
+		            						<small class="form-text">This will be how your name will be displayed in the account section and in reviews</small>
+
+		                					<label>Email address *</label>
+		        							<input type="email" class="form-control" required>
+
+		            						<label>Current password (leave blank to leave unchanged)</label>
+		            						<input type="password" class="form-control">
+
+		            						<label>New password (leave blank to leave unchanged)</label>
+		            						<input type="password" class="form-control">
+
+		            						<label>Confirm new password</label>
+		            						<input type="password" class="form-control mb-2">
+
+		                					<button type="submit" class="btn btn-outline-primary-2">
+			                					<span>SAVE CHANGES</span>
+			            						<i class="icon-long-arrow-right"></i>
+			                				</button>
+			                			</form>
+								    </div><!-- .End .tab-pane -->
+								</div>
+	                		</div><!-- End .col-lg-9 -->
+	                	</div><!-- End .row -->
+	                </div><!-- End .container -->
+                </div><!-- End .dashboard -->
+            </div><!-- End .page-content -->
+        </main><!-- End .main -->
+
+        <footer class="footer">
+        	<div class="footer-middle">
+	            <div class="container">
+	            	<div class="row">
+	            		<div class="col-sm-6 col-lg-3">
+	            			<div class="widget widget-about">
+	            				<img src="assets/images/logo.png" class="footer-logo" alt="Footer Logo" width="105" height="25">
+	            				<p>Praesent dapibus, neque id cursus ucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. </p>
+
+	            				<div class="social-icons">
+	            					<a href="#" class="social-icon" target="_blank" title="Facebook"><i class="icon-facebook-f"></i></a>
+	            					<a href="#" class="social-icon" target="_blank" title="Twitter"><i class="icon-twitter"></i></a>
+	            					<a href="#" class="social-icon" target="_blank" title="Instagram"><i class="icon-instagram"></i></a>
+	            					<a href="#" class="social-icon" target="_blank" title="Youtube"><i class="icon-youtube"></i></a>
+	            					<a href="#" class="social-icon" target="_blank" title="Pinterest"><i class="icon-pinterest"></i></a>
+	            				</div><!-- End .soial-icons -->
+	            			</div><!-- End .widget about-widget -->
+	            		</div><!-- End .col-sm-6 col-lg-3 -->
+
+	            		<div class="col-sm-6 col-lg-3">
+	            			<div class="widget">
+	            				<h4 class="widget-title">Useful Links</h4><!-- End .widget-title -->
+
+	            				<ul class="widget-list">
+	            					<li><a href="about.html">About Molla</a></li>
+	            					<li><a href="#">How to shop on Molla</a></li>
+	            					<li><a href="#">FAQ</a></li>
+	            					<li><a href="contact.html">Contact us</a></li>
+	            					<li><a href="login.html">Log in</a></li>
+	            				</ul><!-- End .widget-list -->
+	            			</div><!-- End .widget -->
+	            		</div><!-- End .col-sm-6 col-lg-3 -->
+
+	            		<div class="col-sm-6 col-lg-3">
+	            			<div class="widget">
+	            				<h4 class="widget-title">Customer Service</h4><!-- End .widget-title -->
+
+	            				<ul class="widget-list">
+	            					<li><a href="#">Payment Methods</a></li>
+	            					<li><a href="#">Money-back guarantee!</a></li>
+	            					<li><a href="#">Returns</a></li>
+	            					<li><a href="#">Shipping</a></li>
+	            					<li><a href="#">Terms and conditions</a></li>
+	            					<li><a href="#">Privacy Policy</a></li>
+	            				</ul><!-- End .widget-list -->
+	            			</div><!-- End .widget -->
+	            		</div><!-- End .col-sm-6 col-lg-3 -->
+
+	            		<div class="col-sm-6 col-lg-3">
+	            			<div class="widget">
+	            				<h4 class="widget-title">My Account</h4><!-- End .widget-title -->
+
+	            				<ul class="widget-list">
+	            					<li><a href="#">Sign In</a></li>
+	            					<li><a href="cart.html">View Cart</a></li>
+	            					<li><a href="#">My Wishlist</a></li>
+	            					<li><a href="#">Track My Order</a></li>
+	            					<li><a href="#">Help</a></li>
+	            				</ul><!-- End .widget-list -->
+	            			</div><!-- End .widget -->
+	            		</div><!-- End .col-sm-6 col-lg-3 -->
+	            	</div><!-- End .row -->
+	            </div><!-- End .container -->
+	        </div><!-- End .footer-middle -->
+
+	        <div class="footer-bottom">
+	        	<div class="container">
+	        		<p class="footer-copyright">Copyright © 2019 Molla Store. All Rights Reserved.</p><!-- End .footer-copyright -->
+	        		<figure class="footer-payments">
+	        			<img src="assets/images/payments.png" alt="Payment methods" width="272" height="20">
+	        		</figure><!-- End .footer-payments -->
+	        	</div><!-- End .container -->
+	        </div><!-- End .footer-bottom -->
+        </footer><!-- End .footer -->
+    </div><!-- End .page-wrapper -->
+    <button id="scroll-top" title="Back to Top"><i class="icon-arrow-up"></i></button>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu-overlay"></div><!-- End .mobil-menu-overlay -->
+
+    <div class="mobile-menu-container">
+        <div class="mobile-menu-wrapper">
+            <span class="mobile-menu-close"><i class="icon-close"></i></span>
+
+            <form action="#" method="get" class="mobile-search">
+                <label for="mobile-search" class="sr-only">Search</label>
+                <input type="search" class="form-control" name="mobile-search" id="mobile-search" placeholder="Search in..." required>
+                <button class="btn btn-primary" type="submit"><i class="icon-search"></i></button>
+            </form>
+            
+            
+
+            <div class="social-icons">
+                <a href="#" class="social-icon" target="_blank" title="Facebook"><i class="icon-facebook-f"></i></a>
+                <a href="#" class="social-icon" target="_blank" title="Twitter"><i class="icon-twitter"></i></a>
+                <a href="#" class="social-icon" target="_blank" title="Instagram"><i class="icon-instagram"></i></a>
+                <a href="#" class="social-icon" target="_blank" title="Youtube"><i class="icon-youtube"></i></a>
+            </div><!-- End .social-icons -->
+        </div><!-- End .mobile-menu-wrapper -->
+    </div><!-- End .mobile-menu-container -->
+
+    <!-- Sign in / Register Modal -->
+    <div class="modal fade" id="signin-modal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true"><i class="icon-close"></i></span>
+                    </button>
+
+                    <div class="form-box">
+                        <div class="form-tab">
+                            <ul class="nav nav-pills nav-fill" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="signin-tab" data-toggle="tab" href="#signin" role="tab" aria-controls="signin" aria-selected="true">Sign In</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="register-tab" data-toggle="tab" href="#register" role="tab" aria-controls="register" aria-selected="false">Register</a>
+                                </li>
+                            </ul>
+                            <div class="tab-content" id="tab-content-5">
+                                <div class="tab-pane fade show active" id="signin" role="tabpanel" aria-labelledby="signin-tab">
+                                    <form action="#">
+                                        <div class="form-group">
+                                            <label for="singin-email">Username or email address *</label>
+                                            <input type="text" class="form-control" id="singin-email" name="singin-email" required>
+                                        </div><!-- End .form-group -->
+
+                                        <div class="form-group">
+                                            <label for="singin-password">Password *</label>
+                                            <input type="password" class="form-control" id="singin-password" name="singin-password" required>
+                                        </div><!-- End .form-group -->
+
+                                        <div class="form-footer">
+                                            <button type="submit" class="btn btn-outline-primary-2">
+                                                <span>LOG IN</span>
+                                                <i class="icon-long-arrow-right"></i>
+                                            </button>
+
+                                            <div class="custom-control custom-checkbox">
+                                                <input type="checkbox" class="custom-control-input" id="signin-remember">
+                                                <label class="custom-control-label" for="signin-remember">Remember Me</label>
+                                            </div><!-- End .custom-checkbox -->
+
+                                            <a href="#" class="forgot-link">Forgot Your Password?</a>
+                                        </div><!-- End .form-footer -->
+                                    </form>
+                                    <div class="form-choice">
+                                        <p class="text-center">or sign in with</p>
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <a href="#" class="btn btn-login btn-g">
+                                                    <i class="icon-google"></i>
+                                                    Login With Google
+                                                </a>
+                                            </div><!-- End .col-6 -->
+                                            <div class="col-sm-6">
+                                                <a href="#" class="btn btn-login btn-f">
+                                                    <i class="icon-facebook-f"></i>
+                                                    Login With Facebook
+                                                </a>
+                                            </div><!-- End .col-6 -->
+                                        </div><!-- End .row -->
+                                    </div><!-- End .form-choice -->
+                                </div><!-- .End .tab-pane -->
+                                <div class="tab-pane fade" id="register" role="tabpanel" aria-labelledby="register-tab">
+                                    <form action="#">
+                                        <div class="form-group">
+                                            <label for="register-email">Your email address *</label>
+                                            <input type="email" class="form-control" id="register-email" name="register-email" required>
+                                        </div><!-- End .form-group -->
+
+                                        <div class="form-group">
+                                            <label for="register-password">Password *</label>
+                                            <input type="password" class="form-control" id="register-password" name="register-password" required>
+                                        </div><!-- End .form-group -->
+
+                                        <div class="form-footer">
+                                            <button type="submit" class="btn btn-outline-primary-2">
+                                                <span>SIGN UP</span>
+                                                <i class="icon-long-arrow-right"></i>
+                                            </button>
+
+                                            <div class="custom-control custom-checkbox">
+                                                <input type="checkbox" class="custom-control-input" id="register-policy" required>
+                                                <label class="custom-control-label" for="register-policy">I agree to the <a href="#">privacy policy</a> *</label>
+                                            </div><!-- End .custom-checkbox -->
+                                        </div><!-- End .form-footer -->
+                                    </form>
+                                    <div class="form-choice">
+                                        <p class="text-center">or sign in with</p>
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <a href="#" class="btn btn-login btn-g">
+                                                    <i class="icon-google"></i>
+                                                    Login With Google
+                                                </a>
+                                            </div><!-- End .col-6 -->
+                                            <div class="col-sm-6">
+                                                <a href="#" class="btn btn-login  btn-f">
+                                                    <i class="icon-facebook-f"></i>
+                                                    Login With Facebook
+                                                </a>
+                                            </div><!-- End .col-6 -->
+                                        </div><!-- End .row -->
+                                    </div><!-- End .form-choice -->
+                                </div><!-- .End .tab-pane -->
+                            </div><!-- End .tab-content -->
+                        </div><!-- End .form-tab -->
+                    </div><!-- End .form-box -->
+                </div><!-- End .modal-body -->
+            </div><!-- End .modal-content -->
+        </div><!-- End .modal-dialog -->
+    </div><!-- End .modal -->
+
+
+
+
+
+
+
+<!-- ================= for Switching between Tags ========== -->
+<script>
+    // Function to get URL parameters
+    function getParameterByName(name, url) {
+        if (!url) url = window.location.href;
+        name = name.replace(/[\[\]]/g, "\\$&");
+        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+            results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, " "));
+    }
+
+    // Use JavaScript to switch to the specified tab
+    $(document).ready(function () {
+        const selectedTab = getParameterByName('tab');
+        if (selectedTab) {
+            $(`#tab-${selectedTab}-link`).tab('show');
+        }
+    });
+</script>
+
+
+
+
+
+
+<%-include('../layout/userFoot')-%>
