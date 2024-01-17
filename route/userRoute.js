@@ -61,12 +61,10 @@ router.get('/profile',userController.profile)
 router.get('/editAddress',userController.editAddress)
 router.post('/deleteAddress/:id',userController.deleteAddress)
 
-
-
-
-
-
-
+router.put('/orderStatusUpdation/:id',userController.orderStatusUpdation)
+router.patch('/updateMobile',userController.updateMobile)
+router.patch('/passwordChange',userController.passwordChange)
+router.post('/updateAddress/:id',userController.updateAddress)
 
   
 

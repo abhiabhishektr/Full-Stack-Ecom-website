@@ -56,6 +56,10 @@ const userSchema = mongoose.Schema({
         type: String,
         required: true
     },
+    phoneNo: {
+        type: String,
+
+    },
     is_admin: {
         type: Number,
         required: true,

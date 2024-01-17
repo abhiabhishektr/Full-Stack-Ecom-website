@@ -288,7 +288,7 @@ const checkOut= async (req,res)=>{
         await Cartdb.findOneAndDelete({ user: savedOrder.user });
 
         // Send a response indicating success
-        res.redirect('/cart')
+        res.redirect('/profile?tab=orders')
 
         // res.status(200).json({ message: 'Order placed successfully', order: savedOrder });
 
@@ -301,7 +301,7 @@ const checkOut= async (req,res)=>{
 
 
 
-
+ 
 }
 
 module.exports = {

@@ -63,12 +63,258 @@
 
 								    	From your account dashboard you can view your <a href="#tab-orders" class="tab-trigger-link link-underline">recent orders</a>, manage your <a href="#tab-address" class="tab-trigger-link">shipping and billing addresses</a>, and <a href="#tab-account" class="tab-trigger-link">edit your password and account details</a>.</p>
 
+                                  <!-- Main -->
+                                
+                                <!-- Add these script tags in the head section if not already present -->
+
+                                <div class="container-fluid mt-3">
+                                    <div class="col-md-8">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <table>
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td><strong>Name</strong></td>
+                                                                    <td>:</td>
+                                                                    <td  id="Nname"><%= userdata.name %></td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td><strong>Email</strong></td>
+                                                                    <td>:</td>
+                                                                    <td id="myUserEmail"><%= userdata.email %></td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td><strong>Mobile </strong></td>
+                                                                    <td>:</td>
+                                                                    <td>
+                                                                        <% if (userdata.phoneNo) { %>
+                                                                         <span id="mobile"> <%= userdata.phoneNo %></span>  
+                                                                        <% } else { %>
+                                                                            <span id="noMobile">No mobile no added</span>
+                                                                        <% } %>
+                                                                      
+                                                                    </td>
+                                                                    
+                                                                    
+                                                                    <td>
+                                                                       
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td><strong>Password</strong></td>
+                                                                    <td>:</td>
+                                                                    <td>******</td>
+                                                                    <td>
+                                                                       
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                               
+                                                        
+                                                    
+                                      
+                                                </div>
+                                                
+                                                <button type="button" class="btn btn-primary" onclick="showPasswordInput()">Change</button>
+                                                <button type="button" class="btn btn-primary" onclick="showMobileInput()">Update Details</button>
+                                                
+                                            </div>
+                                            <div class="col-md-6">
+                                                <!-- Mobile Input -->
+                                                <div id="mobileInput" style="display: none;">
+                                                    <label for="newMobile">Mobile No</label>
+                                                    <input type="text" class="form-control" id="newMobile" required>
+                                                    <label for="newMobile">Name</label>
+                                                    <input type="text" class="form-control" id="newName" required>
+                                                    <div class="row mt-2">
+                                                        <div class="col-md-6">
+                                                    <button type="button" class="btn btn-primary mr-2" onclick="changeMobile()">Submit</button>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <button type="button" class="btn btn-secondary" onclick="cancelMobileChange()">Cancel</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <span id="mobileTd" style="color: red; font-weight:  padding: 5px;"></span>
+                                                </div>
+                        
+                                                <!-- Password Input -->
+                                                <div id="passwordInput" style="display: none;">
+                                                    <label for="newPassword">New Password</label>
+                                                    <input placeholder="Enter the Password" type="password" class="form-control" id="newPassword" required>
+                                                    <label for="confirmPassword">Confirm Password</label>
+                                                    <input type="password" class="form-control" id="confirmPassword" required>
+                                                           <div class="row mt-2">
+                                                            <div class="col-md-6">
+                                                    <button type="button" class="btn btn-primary mt-2" onclick="changePassword()">Submit</button>
+                                                </div>
+                                                    <div class="col-md-6">
+                                                    <button type="button" class="btn btn-secondary mt-2" onclick="cancelPasswordChange()">Cancel</button>
+                                                </div>
+                                                        </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                                <script>
+                                    function cancelPasswordChange() {
+                                        document.getElementById('passwordInput').style.display = 'none';
+                                    }
+                                    function showMobileInput() {
+                                        document.getElementById('mobileInput').style.display = 'block';
+                                        document.getElementById('noMobile').style.display = 'none';
+                                    }
+                                
+                                    function showPasswordInput() {
+                                       
+                                        document.getElementById('passwordInput').style.display = 'block';
+                                    }
+                                
+                                    async function changeMobile() {
+                                        const newMobile = document.getElementById('newMobile').value;
+                                        const newName = document.getElementById('newName').value;
+                                        if (!/^\d{10}$/.test(newMobile)) {
+                                            // Create an error message element
+                                            const errorMessage = document.createElement('div');
+                                            errorMessage.className = 'error-message';
+                                            errorMessage.textContent = 'Please enter a 10-digit mobile number.';
+                                    
+                                            // Append the error message to the same <td> element
+                                            const mobileTd = document.getElementById('mobileTd');
+                                            mobileTd.innerHTML = ''; // Clear existing content
+                                            mobileTd.appendChild(errorMessage);
+                                    
+                                            return;
+                                        }
+                                        // Make a PATCH request to update mobile number
+                                       //  const userEmail =  document.getElementById("myUserEmail").innerHTML;
+                                        // Replace with your actual order ID
+                                        const response = await fetch(`/updateMobile`, {
+                                            method: 'PATCH',
+                                            headers: {
+                                                'Content-Type': 'application/json',
+                                            },
+                                            body: JSON.stringify({ newMobile: newMobile,newName:newName }),
+                                        });
+                                              
+                                        if (response.ok) {
+                                            // Reload specific part of the page
+                                           document.getElementById('mobile').innerHTML=newMobile
+                                           document.getElementById('Nname').innerHTML=newName
+                                            const orderDetailsElement = document.getElementById('orderDetails');
+                                            if (orderDetailsElement) {
+                                                const updatedContent = await fetch(`/getOrderDetails/${orderId}`).then(response => response.text());
+                                                orderDetailsElement.innerHTML = updatedContent;
+                                            } else {
+                                                console.error('Element with id "orderDetails" not found.');
+                                            }
+                                
+                                            // Hide the mobile input after successful update
+                                            document.getElementById('mobileInput').style.display = 'none';
+                                        } else {
+                                            console.error('Failed to update mobile number');
+                                        }
+                                    }
+                                
+                                
 
 
-								    </div><!-- .End .tab-pane -->
+                                    
+                                    function cancelMobileChange() {
+                                        document.getElementById('mobileInput').style.display = 'none';
+                                        // You can add additional logic here if needed
+                                    }
+                                
+                                    async function changePassword() {
+                                        var newPassword = document.getElementById('newPassword').value;
+                                        var confirmPassword = document.getElementById('confirmPassword').value;
+                                    
+                                        // Validate if passwords match
+                                        if (newPassword !== confirmPassword) {
+                                            // Passwords do not match
+                                            displayErrorMessage('Passwords do not match.');
+                                            return;
+                                        } else if (newPassword.length < 6) {
+                                            // Password is too short
+                                            displayErrorMessage('Password must be at least 6 characters long.');
+                                            return;
+                                        } else if (/\s/.test(newPassword)) {
+                                            // Password contains spaces
+                                            displayErrorMessage('Password cannot contain spaces.');
+                                            return;
+                                        } else {
+                                            // Passwords match and meet criteria
+                                            // You can implement your logic here
+                                            displaySuccessMessage('Password changed successfully.');
+                                    
+                                            document.getElementById('passwordInput').style.display = 'none';
+                                    
+                                            try {
+                                                const response = await fetch(`/passwordChange`, {
+                                                    method: 'PATCH',
+                                                    headers: {
+                                                        'Content-Type': 'application/json',
+                                                    },
+                                                    body: JSON.stringify({ passChange: newPassword }),
+                                                });
+                                    
+                                                if (!response.ok) {
+                                                    // Handle error if needed
+                                                    console.error('Failed to change password');
+                                                }
+                                            } catch (error) {
+                                                // Handle fetch error
+                                                console.error('Error during fetch:', error);
+                                            }
+                                        }
+                                    }
+                                    
+                                    function displayErrorMessage(message) {
+                                        const errorMessage = document.createElement('div');
+                                        errorMessage.className = 'error-message';
+                                        errorMessage.textContent = message;
+                                    
+                                        // Append the error message to the same <td> element
+                                        const mobileTd = document.getElementById('mobileTd');
+                                        mobileTd.innerHTML = ''; // Clear existing content
+                                        mobileTd.appendChild(errorMessage);
+                                    }
+                                    
+                                    function displaySuccessMessage(message) {
+                                        const successMessage = document.createElement('div');
+                                        successMessage.className = 'success-message';
+                                        successMessage.textContent = message;
+                                    
+                                        // Append the success message to the same <td> element
+                                        const mobileTd = document.getElementById('mobileTd');
+                                        mobileTd.innerHTML = ''; // Clear existing content
+                                        mobileTd.appendChild(successMessage);
+                                    }
+                                    
+                                </script>
+                                
+
+   
+                                    
+                                     
+
+
+      
+    
 
 								    <div class="tab-pane fade" id="tab-orders" role="tabpanel" aria-labelledby="tab-orders-link">
-								    	<p>No order has been made yet.</p>
+                                        
+                                        <% if (orders.length === 0) { %>
+                                            <h4>There are no orders. Shop now!</h4>
+                                          <% } %>
+                                          
 
                                         <table>
                                             <tbody>
@@ -90,6 +336,14 @@
                                                             <td><%= order.orderStatus %></td>
                                                             <td><%= order.paymentMode %></td>
                                                             <td><%= order.date.toLocaleDateString() %></td>
+                                                            <td>
+                                                                <% if (order.orderStatus === 'delivered') { %>
+                                                                    <button class="btn btn-warning return-button" data-order-id="<%= order._id %>">Return</button>
+                                                                <% } else { %>
+                                                                    <button class="btn btn-danger cancel-button" data-order-id="<%= order._id %>">Cancel</button>
+                                                                <% } %>
+                                                            </td>
+                                                            
                                                         </tr>
                                                     <% }); %>
                                                 <% }); %>
@@ -98,8 +352,59 @@
                                             
                                             
                                             
-                                            
                                     </table>
+
+<script>
+
+    document.querySelectorAll('.cancel-button, .return-button').forEach(button => {
+        button.addEventListener('click', function() {
+            const orderId = this.dataset.orderId;
+            let action;
+    
+            if (this.classList.contains('cancel-button')) {
+                action = 'cancel';
+            } else if (this.classList.contains('return-button')) {
+                action = 'return';
+            }
+    
+            Swal.fire({
+                title: 'Are you sure?',
+                text: `You are about to ${action} your order. We're sad to see you go.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, proceed',
+                cancelButtonText: 'No, keep my order',
+                input: 'text',
+                inputPlaceholder: 'Enter your reason here',
+                preConfirm: async (reason) => {
+                    if (!reason) {
+                        Swal.showValidationMessage('Please enter a reason for the cancellation');
+                    } else {
+                        const response = await fetch(`/orderStatusUpdation/${orderId}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ reason: reason }),
+                        });
+    
+                        if (response.ok) {
+                            Swal.fire('Updated!', `Your ${action} request has been submitted`, 'success');
+                           // window.location.reload()
+                           const urlWithTabParam = window.location.href.split('?')[0] + '?tab=orders';
+window.location.href = urlWithTabParam;
+                        } else {
+                            Swal.showValidationMessage('Failed to submit your request');
+                        }
+                    }
+                }
+            });
+        });
+    });
+    
+
+</script>
+
 								    	<a href="/" class="btn btn-outline-primary-2"><span>Continue Shopping</span><i class="icon-long-arrow-right"></i></a>
 								    </div><!-- .End .tab-pane -->
 
@@ -138,7 +443,7 @@
                                                         <button style="background: linear-gradient(to bottom right, #4CAF50, #45a049); border: 0; border-radius: 8px; color: #FFFFFF; cursor: pointer; font-family: -apple-system, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 500; line-height: 2; outline: transparent; padding: 0.5rem 1rem; text-align: center; text-decoration: none; transition: box-shadow .2s ease-in-out; user-select: none; -webkit-user-select: none; touch-action: manipulation; white-space: nowrap;" 
                                                             onmouseover="this.style.background = 'linear-gradient(to bottom right, #2196F3, #1976D2)'; this.style.boxShadow = '0 0 .25rem rgba(0, 0, 0, 0.5), -.125rem -.125rem 1rem rgba(33, 150, 243, 0.5), .125rem .125rem 1rem rgba(25, 118, 210, 0.5)';" 
                                                             onmouseout="this.style.background = 'linear-gradient(to bottom right, #4CAF50, #45a049)'; this.style.boxShadow = 'none';" 
-                                                            onclick="buttoneffect(1, <%=index %>)" >Update</button>
+                                                            onclick="buttoneffect(1, <%=index %>,<%=address%>)" >Update</button>
                                                     
                                                         <button style="background: linear-gradient(to bottom right, #EF4765, #FF9A5A); border: 0; border-radius: 8px; color: #FFFFFF; cursor: pointer; font-family: -apple-system, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 500; line-height: 2; outline: transparent; padding: 0.5rem 1rem; text-align: center; text-decoration: none; transition: box-shadow .2s ease-in-out; user-select: none; -webkit-user-select: none; touch-action: manipulation; white-space: nowrap;" 
                                                             onmouseover="this.style.background = 'linear-gradient(to bottom right, #000, #000)'; this.style.boxShadow = '0 0 .25rem rgba(0, 0, 0, 0.5), -.125rem -.125rem 1rem rgba(0, 0, 0, 0.5)';" 
@@ -159,14 +464,27 @@
                                         <script>
                                           
 
+// let firstName=address[index].firstName
+                                                  // let lastName =address[index].lastName
+                                                  // let companyName=address[index].companyName
+                                                  // let country=address[index].country
+                                                  // let streetAddress1=address[index].streetAddress1
+                                                  // let streetAddress2  =address[index].streetAddress2
+                                                  // let townCity      =address[index].townCity
+                                                  // 
+                                                  // let stateCounty=address[index].stateCounty
+                                                  // let postcodeZIP=address[index].postcodeZIP
+                                                  // let phone=address[index].phone
 
 
-
-                                            function buttoneffect (action, index) {
-                                           
+                                            function buttoneffect (action, index,address) {
                                                 if (action === 1) {
                                                     // Handle Update button click
                                                     console.log('Update button clicked for address ID:' , index);
+                                                  
+
+
+                                                    toggleAddAddressFormWithData(address , index)
                                                     //editaddress(index);
                                                     // You can add your custom logic for the Update action here
                                                 } else if (action === 2) {
@@ -199,72 +517,130 @@
                                     
                                         <!-- Add Address Form -->
                                         <div id="addAddressForm" style="display: none;">
-                                            <form action="/addAddress/1" method="post">
+                                          
+                                             
+                                        
+                                            <form id="addAddressFormOg" action="" method="post">
+
+                                         
                                                 <!-- Add Address Form fields here... -->
                                                 <div class="col-lg-12">
                                                     <h2 class="checkout-title">Shipping Details</h2><!-- End .checkout-title -->
                                                     <div class="row">
                                                         <div class="col-sm-6">
                                                             <label>First Name *</label>
-                                                            <input type="text" class="form-control" name="firstName"  required>
+                                                            <input type="text" class="form-control" name="firstName" value="<%=locals.firstName ? locals.firstName : '' %>" required>
                                                         </div><!-- End .col-sm-6 -->
                                             
                                                         <div class="col-sm-6">
                                                             <label>Last Name *</label>
-                                                            <input type="text" class="form-control" name="lastName" required>
+                                                            <input type="text" class="form-control" name="lastName" value="<%= locals.lastName ? locals.lastName : '' %>" required>
                                                         </div><!-- End .col-sm-6 -->
                                                     </div><!-- End .row -->
                                             
                                                     <label>Company Name (Optional)</label>
-                                                    <input type="text" class="form-control" name="companyName">
+                                                    <input type="text" class="form-control" name="companyName" value="<%=locals.companyName ? locals.companyName : '' %>">
                                             
                                                     <label>Country *</label>
-                                                    <input type="text" class="form-control" name="country" required>
+                                                    <input type="text" class="form-control" name="country" value="<%=locals.country ? locals.country : '' %>" required>
                                             
                                                     <label>Street address *</label>
-                                                    <input type="text" class="form-control" name="streetAddress1" placeholder="House number and Street name" required>
-                                                    <input type="text" class="form-control" name="streetAddress2" placeholder="Appartments, suite, unit etc ..." required>
+                                                    <input type="text" class="form-control" name="streetAddress1" placeholder="House number and Street name" value="<%= locals.streetAddress1 ? locals.streetAddress1 : '' %>" required>
+                                                    <input type="text" class="form-control" name="streetAddress2" placeholder="Appartments, suite, unit etc ..."  value="<%= locals.streetAddress2 ? locals.streetAddress2 : '' %>" required>
                                             
                                                     <div class="row">
                                                         <div class="col-sm-6">
                                                             <label>Town / City *</label>
-                                                            <input type="text" class="form-control" name="townCity" required>
+                                                            <input type="text" class="form-control" name="townCity" value="<%= locals.townCity ? locals.townCity : '' %>" required>
                                                         </div><!-- End .col-sm-6 -->
                                             
                                                         <div class="col-sm-6">
                                                             <label>State / County *</label>
-                                                            <input type="text" class="form-control" name="stateCounty" required>
+                                                            <input type="text" class="form-control" name="stateCounty" value="<%= locals.stateCounty ? locals.stateCounty : '' %>" required>
                                                         </div><!-- End .col-sm-6 -->
                                                     </div><!-- End .row -->
                                             
                                                     <div class="row">
                                                         <div class="col-sm-6">
                                                             <label>Postcode / ZIP *</label>
-                                                            <input type="text" class="form-control" name="postcodeZIP" required>
+                                                            <input type="text" class="form-control" name="postcodeZIP" value="<%= locals.postcodeZIP ? locals.postcodeZIP : '' %>" required>
                                                         </div><!-- End .col-sm-6 -->
                                             
                                                         <div class="col-sm-6">
                                                             <label>Phone *</label>
-                                                            <input type="tel" class="form-control" name="phone" required>
+                                                            <input type="tel" class="form-control" name="phone" value="<%= locals.phone ? locals.phone : '' %>" required>
                                                         </div><!-- End .col-sm-6 -->
                                                     </div><!-- End .row -->
                                             
                                                 </div><!-- End .col-lg-9 -->
                                     
-                                                <button type="submit" class="btn btn-outline-primary-2 btn-order btn-block" >
-                                                    <span class="btn-text">Add Address</span>
-                                                    <span class="btn-hover-text">Proceed to Add Address</span>
-                                                </button>
+                                                
+                                                    
+                                                        <button id="submitButton" type="submit" class="btn btn-outline-primary-2 btn-order btn-block">
+                                                        <span class="btn-text">Add Address</span>
+                                                        <span class="btn-hover-text">Proceed to Add Address</span>
+                                                    </button>
+                                                  
+                                               
                                             </form>
                                         </div>
                                     </div>
                                     
                                     <script>
-                                        function toggleAddAddressForm() {
+                                        
+                                        function toggleAddAddressFormWithData(address, index) {
                                             const addAddressForm = document.getElementById('addAddressForm');
+                                            const submitButton = document.getElementById('submitButton');
+                                        
+                                            // Set the form action based on the provided address data
+                                            addAddressFormOg.action = address.companyName ? `/updateAddress/${index}` : '/addAddress/1';
+                                            console.log('Form action set to:', addAddressForm.action);
+                                        
                                             if (addAddressForm.style.display === 'none') {
                                                 addAddressForm.style.display = 'block';
+                                        
+                                                // Set values for each input field based on the provided address data
+                                                const formFields = [
+                                                    'firstName', 'lastName', 'companyName', 'country',
+                                                    'streetAddress1', 'streetAddress2', 'townCity',
+                                                    'stateCounty', 'postcodeZIP', 'phone'
+                                                ];
+                                        
+                                                formFields.forEach(field => {
+                                                    const inputElement = document.querySelector(`#addAddressForm [name="${field}"]`);
+                                                    if (inputElement) {
+                                                        inputElement.value = address[field] || '';
+                                                    }
+                                                });
+                                        
+                                                // Update the button text based on whether it's an update or an add action
+                                                submitButton.innerHTML = address.companyName ?
+                                                    '<span class="btn-text">Update Address</span><span class="btn-hover-text">Proceed to Update Address</span>' :
+                                                    '<span class="btn-text">Add Address</span><span class="btn-hover-text">Proceed to Add Address</span>';
                                             } else {
+                                                addAddressForm.style.display = 'none';
+                                            }
+                                        }
+                                        
+
+
+
+                                        function toggleAddAddressForm() {
+                                            const addAddressForm = document.getElementById('addAddressForm');
+                                    
+                                            if (addAddressForm.style.display === 'none') {
+                                                // Show the form
+                                                addAddressForm.style.display = 'block';
+                                                   // Set the form action for adding a new address
+                                                   addAddressFormOg.action = '/addAddress/1';
+                                                  // Clear all form fields
+                                                const formFields = addAddressForm.querySelectorAll('input');
+                                                formFields.forEach(field => {
+                                                    field.value = '';
+                                                });
+                                              
+                                            } else {
+                                                // Hide the form
                                                 addAddressForm.style.display = 'none';
                                             }
                                         }

@@ -225,17 +225,18 @@ const profile=async(req,res)=>{
     const userId = await req.session.userid;  // Corrected syntax
     const userdata = await user.findById(userId);
     const addresses= await userdata.addresses
-    const orders = await orderdb.find().populate({
-        path: "Products.products",
-        model: "Product", // Make sure it matches the model name for the Product
-});
-
+    const orders = await orderdb.find({user:userId}) // Find one order that matches the user ID
+    .populate({ // Populate the order with...
+        path: "Products.products", // the products in the order
+        model: "Product" // from the Product model
+    }) || 0; // If the query doesn't return a result, return 0
+    
 const selectedTab = await req.query.tab || 'defaultTab';
 
-    res.render("profile",{addresses,orders,selectedTab,userId});
-
+    res.render("profile",{addresses,orders,selectedTab,userId,userdata});
 
 }
+ 
 
 // =====================delete Address ====================
 const deleteAddress = async (req, res) => {
@@ -307,8 +308,143 @@ const editAddress = async (req, res) => {
     }
   };
 
+  
+
+const orderStatusUpdation = async (req, res) => {
+    const { id } = req.params;
+    const { reason } = req.body; // Accessing the reason here
+console.log(reason,id);
+    try {
+        const order = await orderdb.findById(id);
+console.log(order.reason);
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        let changeStatus
+        if (order.orderStatus =='placed') {
+            changeStatus='requested cancellation'
+        }else if(order.orderStatus =='delivered'){
+            changeStatus='request return'
+        }
+        const orderafter = await orderdb.findOneAndUpdate(
+            { _id: id, 'Products.reason': { $exists: true } }, 
+            { $set: { 'Products.$.reason': reason, orderStatus: changeStatus } }, 
+            { new: true, useFindAndModify: false }
+        );
+        
+           
+        console.log(orderafter);
+        await orderafter.save();
+
+        res.json({ message: 'Order status updated successfully' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+
+};
+
+const updateMobile = async (req, res) => {
+    const userId = req.session.userid;
+    const newMobile = req.body.newMobile;
+    const newName =req.body.newName;
+
+    try {
+        let update = await user.updateOne(
+            { _id: userId },
+            { $set: { phoneNo: newMobile ,name:newName} },{new: true }
+        )
+           
+
+       
+        res.status(200).send('Mobile number updated successfully');
+    } catch (err) {
+        console.error("Error updating mobile number:", err);
+        res.status(500).send('Error updating mobile number');
+    }
+};
 
 
+const passwordChange = async (req, res) => {
+    const userId = req.session.userid; // Assuming the user ID is stored in the session
+    const passChange = req.body.passChange;
+
+    if (!userId) {
+        console.error("User ID not found in the session.");
+        return res.status(500).send('User ID not found in the session.');
+    }
+
+    console.log("New Password:", passChange);
+
+    try {
+        const hashedPassword = await crypting(passChange);
+
+        let update = await user.updateOne(
+            { _id: userId },
+            { $set: { password: hashedPassword } }
+        );
+
+        console.log("Update Result:", update);
+
+        if (update.ok) {
+            console.log("Password updated successfully");
+            return res.status(200).send('Password updated successfully');
+        } else {
+            console.error("Failed to update password");
+            return res.status(500).send('Failed to update password');
+        }
+    } catch (err) {
+        console.error("Error updating password:", err);
+        return res.status(500).send('Error updating password');
+    }
+};
+
+
+const updateAddress = async (req, res) => {
+    try {
+        const userId = req.session.userid;
+        const index = req.params.id;
+
+        const addressData = {
+            firstName: req.body.firstName,
+            lastName: req.body.lastName,
+            companyName: req.body.companyName,
+            country: req.body.country,
+            streetAddress1: req.body.streetAddress1,
+            streetAddress2: req.body.streetAddress2,
+            townCity: req.body.townCity,
+            stateCounty: req.body.stateCounty,
+            postcodeZIP: req.body.postcodeZIP,
+            phone: req.body.phone,
+        };
+
+        // Assuming your user model is named 'user'
+        const user = await user.findById(userId);
+
+        if (user) {
+            // Find the index of the address to update
+            const addressIndex = user.addresses.findIndex(address => address.index == index);
+
+            if (addressIndex !== -1) {
+                // Update the found address with the new data
+                user.addresses[addressIndex] = { ...user.addresses[addressIndex], ...addressData };
+
+                // Save the updated user document
+                await user.save();
+
+                res.status(200).json({ message: 'Address updated successfully' });
+            } else {
+                res.status(404).json({ message: 'Address not found' });
+            }
+        } else {
+            res.status(404).json({ message: 'User not found' });
+        }
+    } catch (error) {
+        console.error('Error updating address:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
 
 
 
@@ -330,5 +466,9 @@ module.exports = {
     //=========profile =========
     profile,
     deleteAddress,
-    editAddress
+    editAddress,
+    orderStatusUpdation,
+    updateMobile,// changing the name also
+    passwordChange,
+    updateAddress
 };
