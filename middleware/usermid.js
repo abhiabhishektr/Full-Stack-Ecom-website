@@ -7,7 +7,7 @@ const islogin=async(req,res,next)=>{
 
         }
         else{
-            res.render('/')
+            res.redirect('/login')
 
         }
 

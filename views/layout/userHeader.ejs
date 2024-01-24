@@ -87,13 +87,8 @@
                         </ul><!-- End .top-menu -->
 
                         <div class="header-dropdown">
-                            <a href="#">USD</a>
-                            <div class="header-menu">
-                                <ul>
-                                    <li><a href="#">Eur</a></li>
-                                    <li><a href="#">Usd</a></li>
-                                </ul>
-                            </div><!-- End .header-menu -->
+                            <a href="/profile">Profile</a>
+                            
                         </div><!-- End .header-dropdown -->
 
                         <div class="header-dropdown">
@@ -131,18 +126,31 @@
                     </div><!-- End .header-left -->
 
                     <div class="header-right">
-                        <a href="/cart" class="wishlist-link">
+                        <a href="/wishlist" class="wishlist-link">
                             <i class="icon-heart-o"></i>
-                            <span class="wishlist-count">3</span>
-                            <span class="wishlist-txt">My Wishlist</span>
+                            <% if (locals.wishlistCount) { %>
+                                <span class="wishlist-count"><%= wishlistCount %></span>
+                                <span class="wishlist-txt">My Wishlist</span>
+                            <% } else { %>
+                                <span class="wishlist-count">0</span>
+                                <span class="wishlist-txt">My Wishlist</span>
+                            <% } %>
                         </a>
+                        
 
                         <div class="dropdown cart-dropdown">
+                       
                             <a href="/cart" class="dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-display="static">
                                 <i class="icon-shopping-cart"></i>
-                                <span class="cart-count">2</span>
-                                <span class="cart-txt">$ 164,00</span>
+                                <% if (locals.cartCount) { %>
+                                    <span class="cart-count"><%= cartCount %></span>
+                                    <span class="cart-txt">$ 164,00</span>
+                                <% } else { %>
+                                    <span class="cart-count">0</span>
+                                    <span class="cart-txt">$ 0.00</span>
+                                <% } %>
                             </a>
+                            
 
                             <div class="dropdown-menu dropdown-menu-right">
                                 <div class="dropdown-cart-products">
@@ -209,16 +217,16 @@
                         <nav class="main-nav">
                             <ul class="menu sf-arrows">
                                 <li class="megamenu-container active">
-                                    <a href="#" >Home</a>
+                                    <a href="/" >Home</a>
 
                                 
                                 </li>
                                 <li>
                                     <!-- <a href="#" class="sf-with-ul">Shop</a> -->
-                                    <li><a href="category-list.html">Shop For Men</a></li>
-                                    <li><a href="category-2cols.html">Shop For Women</a></li>
-                                    <li><a href="category.html">Shop For Kids</a></li>
-                                    <li><a href="/fullpdt">See all Product</a></li>
+                                    <li><a href="/fullpdt/Men">Shop For Men</a></li>
+                                    <li><a href="/fullpdt/Women">Shop For Women</a></li>
+                                    <li><a href="/fullpdt/Kids">Shop For Kids</a></li>
+                                    <li><a href="/fullpdt/0">See all Product</a></li>
                                     
                                 </li>
                                 

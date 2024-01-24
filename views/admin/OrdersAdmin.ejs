@@ -21,16 +21,18 @@
                 </tr>
             </thead>
             <tbody>
-                <% orders.forEach(order => { %>
-                    <% order.Products.forEach(product => { %>
+                <% orders.reverse().forEach(order => { %>
+                    <% order.Products.reverse().forEach(product => { %>
                         <tr>
                             <td class="w-5" style="font-size: 12px; line-height: 1; padding: 6px; height: 20px;"><%= order._id %></td>
                             <td><%= product.products.name %></td>
                             <td>$<%= product.price.toFixed(2) %></td>
                             <td><%= product.quantity %></td>
                             <td>$<%= product.total.toFixed(2) %></td>
+                            <!-- <%= product.orderStatus %> -->
                             <td class="d-none d-md-table-cell">
-                                <select class="form-select" name="orderStatus" id="<%= order._id %>">
+                                <select class="form-select" name="orderStatus"  id="<%= order._id %>">
+                                    <option disabled selected style="color: gray;" value=""><%= order.orderStatus %></option>
                                     <option <%= order.orderStatus === 'placed' ? 'selected' : '' %> value="placed">Placed</option>
                                     <option <%= order.orderStatus === 'shipped' ? 'selected' : '' %> value="shipped">Shipped</option>
                                     <option <%= order.orderStatus === 'delivered' ? 'selected' : '' %> value="delivered">Delivered</option>

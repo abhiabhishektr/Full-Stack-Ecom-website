@@ -590,13 +590,22 @@
                                         <div class="form-group">
                                             <label for="otp-input">Enter 4-Digit OTP *</label>
                                             <div class="otp-input-container">
-                                                <input type="text" name="otpInput1" maxlength="1" pattern="\d" inputmode="numeric" required style="padding: 10px; font-size: 16px; text-align: center; width: 50px; margin: 10px;">
-                                                <input type="text" name="otpInput2" maxlength="1" pattern="\d" inputmode="numeric" required style="padding: 10px; font-size: 16px; text-align: center; width: 50px; margin: 10px;">
-                                                <input type="text" name="otpInput3" maxlength="1" pattern="\d" inputmode="numeric" required style="padding: 10px; font-size: 16px; text-align: center; width: 50px; margin: 10px;">
+                                                <input type="text" name="otpInput1" maxlength="1" pattern="\d" inputmode="numeric" required style="padding: 10px; font-size: 16px; text-align: center; width: 50px; margin: 10px;" oninput="moveToNextInput(this, 'otpInput2')">
+                                                <input type="text" name="otpInput2" maxlength="1" pattern="\d" inputmode="numeric" required style="padding: 10px; font-size: 16px; text-align: center; width: 50px; margin: 10px;" oninput="moveToNextInput(this, 'otpInput3')">
+                                                <input type="text" name="otpInput3" maxlength="1" pattern="\d" inputmode="numeric" required style="padding: 10px; font-size: 16px; text-align: center; width: 50px; margin: 10px;" oninput="moveToNextInput(this, 'otpInput4')">
                                                 <input type="text" name="otpInput4" maxlength="1" pattern="\d" inputmode="numeric" required style="padding: 10px; font-size: 16px; text-align: center; width: 50px; margin: 10px;">
                                             </div>
                                             <input type="hidden" name="email" value="<%= email %>">
                                         </div>
+                                        
+                                        <script>
+                                            function moveToNextInput(currentInput, nextInputName) {
+                                                if (currentInput.value.length === 1) {
+                                                    document.getElementsByName(nextInputName)[0].focus();
+                                                }
+                                            }
+                                        </script>
+                                        
                                 
                                         <!-- "Send OTP" button -->
                                         <button type="button" id="sendOtpButton" class="btn btn-outline-primary-2" onclick="sendOtp('<%= email %>')" style="margin-top: 10px;">

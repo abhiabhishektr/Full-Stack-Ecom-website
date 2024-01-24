@@ -29,7 +29,7 @@
                                 <% let subtotal = 0; %>
                                 <% if (cartData && cartData.products && cartData.products.length > 0) { %>
                                   <% cartData.products.forEach(product => { %>
-                                    <tr data-product-id="<%= product.productId._id %>">
+                                    <tr data-product-id="<%=product.productId._id %>">
                                       <td class="product-col">
                                         <div class="product">
                                           <figure class="product-media">
@@ -138,12 +138,16 @@
                                 </tbody>
                             </table><!-- End .table table-summary -->
 
-                            <button type="submit" class="btn btn-outline-primary-2 btn-order btn-block">PROCEED TO CHECKOUT</button>
+                            <!-- <button type="submit" class="btn btn-outline-primary-2 btn-order btn-block">PROCEED TO CHECKOUT</button> -->
+                            <button type="submit" class="btn btn-outline-primary-2 btn-order btn-block" <% if (!(cartData && cartData.products && cartData.products.length > 0)) { %> disabled style="opacity: 0.5; cursor: not-allowed;" <% } %>>
+                                PROCEED TO CHECKOUT
+                              </button>
+                              
                         </form>
                         </div><!-- End .summary -->
                 
 
-                        <a href="/allproducts" class="btn btn-outline-dark-2 btn-block mb-3"><span>CONTINUE SHOPPING</span><i class="icon-refresh"></i></a>
+                        <a href="/" class="btn btn-outline-dark-2 btn-block mb-3"><span>CONTINUE SHOPPING</span><i class="icon-refresh"></i></a>
 
 
                     </aside><!-- End .col-lg-3 -->
@@ -181,6 +185,32 @@
     <script src="/user/assets/js/bootstrap-input-spinner.js"></script>
     <!-- Main JS File -->
     <script src="/user/assets/js/main.js"></script>
+    <script>
+        // In your client-side JavaScript
+function removeFromCart(productId) {
+    fetch(`/cart/${productId}`, {
+        method: 'PUT', // Use PUT instead of POST
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        // No need for JSON.stringify if the payload is a simple object
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.reload();
+            // Optionally, you can update the UI to reflect the removal
+        } else {
+            alert('Failed to remove the product from the cart.'); // Display error message
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while removing the product from the cart.');
+    });
+}
+
+    </script>
     <script>
       document.addEventListener('DOMContentLoaded', function () {
           const quantityInputs = document.querySelectorAll('[id]');

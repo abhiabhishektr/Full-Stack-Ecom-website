@@ -1,0 +1,233 @@
+<%-include("../layout/userHeader")%>
+
+
+
+
+        <main class="main">
+            <div class="login-page bg-image pt-8 pb-8 pt-md-12 pb-md-12 pt-lg-17 pb-lg-17" style="background-image: url('user/assets/images/backgrounds/login-bg.jpg')">
+            	<div class="container">
+            		<div class="form-box">
+            			<div class="form-tab">
+
+							<div class="tab-content">
+
+
+									  <% orders.forEach(order => { %>
+										<div class="row align-items-center h-100">
+									
+											<div class="card card-stepper " style="border-radius: 16px;">
+											  <div class="card-header p-4">
+												<div class="d-flex justify-content-between align-items-center">
+												  <div>
+													<p class="text-muted mb-2"> Order ID <span class="fw-bold text-body"><%= order._id %></span></p>
+													<p class="text-muted mb-0"> Place On <span class="fw-bold text-body"> <%= order.date.toLocaleDateString('en-US',
+														{
+														year:'numeric',
+														month: 'short'
+														,
+														day: '2-digit'
+														}).replace(/\//g, '-'
+														)
+														%></span> </p>
+														<p class="mt-1">TOTAL AMOUNT: &nbsp; ₹ <span style="font-size: medium; color: black;" >  <%=order.total%></span></p> <br>
+														<p>Address</p><br>
+														<p><%=order.address%></p>
+                            <p class="mt-4"><%=order.paymentMode%></p>
+												  </div>
+												</div>
+											  </div>
+											  <div class="card-body p-4 ">
+												<% order.Products.forEach(product => { %>
+												  <div class="d-flex flex-row mb-4 pb-2 mt-4 ">
+													<div class="flex-fill">
+													  <h5 class="bold"> <a href="/singleproduct/<%=product._id%>"><%= product.name %></a></h5>
+													  <p class="text-muted"> Qt: <%= product.quantity %> item</p>
+													  <h4 class="mb-3">₹ <%= product.total %> <span class="small text-muted">  </span></h4>
+													</div>
+													<div>
+													  <img class="align-self-center img-fluid " style="margin-left: 190px;" src="/uploads/<%=product.image%>" width="120">
+													</div>
+												  </div>
+												  <% if(product.Status=="placed"){%>
+														<p class="text-primary"><%=product.Status%></p>
+												  <div class="card-footer p-4">
+													<div class="d-flex justify-content-between">
+													  <h5 class="fw-normal mb-0">
+														<a href="#" class="mb-4" onclick="removefromorder('<%=order._id%>' , '<%=product._id%>')">Cancel</a>
+													  </h5>
+													  <div class="border-start h-100"></div>
+													</div>
+												  </div>
+												  <%}%>
+													<%if(product.Status=="shipped"){%>
+													<h6 class="text-primary " style="margin-left: 20px; margin-bottom: 30px;" ><%=product.Status%></h6>
+													<div class="card-footer p-4">
+														<div class="d-flex justify-content-between">
+														  <h5 class="fw-normal mb-0">
+															<a href="#" class="mb-4" onclick="removefromorder('<%=order._id%>' , '<%=product._id%>')">Cancel</a>
+														  </h5>
+														  <div class="border-start h-100"></div>
+														</div>
+													  </div>
+													<%}%>
+													<%if(product.Status=="delivered"){%>
+														<h6 class="text-success"><%=product.Status%></h6>
+														<button class="btn btn-danger" id="returnRequestButton" onclick="returnRequest('<%=order._id%>' , '<%=product._id%>')">Return</button>
+														<%}%>
+														<%if(product.Status=="cancelled"){%>
+															<h6 class="text-danger" id="status" ><%=product.Status%></h6>
+															<%}%>
+															<%if(product.Status=="request return"){%>
+																<h6 class="text-danger" id="status" ><%=product.Status%></h6>
+																<%}%>
+																<%if(product.Status=="returned"){%>
+																	<h6 class="text-success" id="status" ><%=product.Status%></h6>
+																	<%}%>
+												<% }); %>
+											  </div>
+											</div>
+
+										</div>
+									  <% }); %>
+
+							</div><!-- End .tab-content -->
+						</div><!-- End .form-tab -->
+            		</div><!-- End .form-box -->
+            	</div><!-- End .container -->
+            </div><!-- End .login-page section-bg -->
+        </main><!-- End .main -->
+
+
+
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+	  function removefromorder(orderId,productid) {
+        // Show SweetAlert confirmation dialog
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'You are about to cancel the order. This action cannot be undone!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, cancel it!',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // If user clicks "Yes" on the confirmation dialog
+
+                // Make a fetch request to your server to cancel the product from the order
+                fetch(/cancelOrder/${orderId}/${productid}, {
+                    method: 'POST',
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Handle the response from the server
+                        console.log('Order cancelled successfully:', data);
+
+                        // Show SweetAlert success message
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Order Cancelled!',
+                            text: 'Your order has been cancelled successfully.',
+                        }).then(() => {
+						window.location.reload()
+                        });
+                    })
+                    .catch(error => {
+                        // Handle errors
+                        console.error('There was a problem cancelling the order:', error.message);
+
+                        // Show SweetAlert error message
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'There was a problem cancelling the order. Please try again.',
+                        });
+                    });
+            }
+        });
+    }
+
+
+	function returnRequest(orderId, productid) {
+    // Disable the button
+    const returnRequestButton = document.getElementById('returnRequestButton'); // Replace 'returnRequestButton' with the actual ID or class of your button
+    returnRequestButton.disabled = true;
+
+    // Show SweetAlert confirmation dialog with input field for the reason
+    Swal.fire({
+        title: 'Return Request',
+        text: 'Please provide a reason for the return:',
+        input: 'text',
+        inputPlaceholder: 'Enter reason...',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Submit',
+    }).then((result) => {
+        if (result.isConfirmed && result.value) {
+            const reason = result.value;
+
+            // Make a fetch request to your server to handle the return request
+            fetch(/returnrequest/${orderId}/${productid}, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ reason }),
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Return request submitted successfully:', data);
+
+                    // Show SweetAlert success message
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Return Request Submitted!',
+                        text: 'Your return request has been submitted successfully.',
+                    }).then(() => {
+                        // Enable the button after the SweetAlert is closed
+                        returnRequestButton.disabled = false;
+                        window.location.reload();
+                    });
+                })
+                .catch(error => {
+                    console.error('There was a problem submitting the return request:', error.message);
+
+                    // Show SweetAlert error message
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'There was a problem submitting the return request. Please try again.',
+                    }).then(() => {
+                        // Enable the button after the SweetAlert is closed
+                        returnRequestButton.disabled = false;
+                    });
+                });
+        } else {
+            // Enable the button if the user cancels the SweetAlert
+            returnRequestButton.disabled = false;
+        }
+    });
+}
+
+
+</script>
+
+
+<%-include("../layout/userFoot")%>

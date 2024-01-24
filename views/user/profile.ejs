@@ -318,28 +318,33 @@
 
                                         <table>
                                             <tbody>
-                                                <% orders.forEach(order => { %>
-                                                    <% order.Products.forEach(product => { %>
+                                                <% orders.reverse().forEach(order => { %>
+                                                    <% order.Products.reverse().forEach(product => { %>
                                                         <tr>
                                                             <td colspan="2">
                                                                 <div class="d-flex align-items-center">
-                                                                    <img src="/uploads/<%= product.image %>" alt="Product Image" class="img-fluid rounded mr-3" style="max-width: 120px; max-height: 120px;">
-                                                                    <div>
-                                                                        <div><strong><%= product.name %></strong></div>
-                                                                        <div><%= product.reason || 'N/A' %></div>
+                                                                    <a href="/orderDetails/<%=order._id%>">
+                                                                    <img src="/uploads/<%= product.image %>" alt="Product Image" class="img-fluid rounded mr-3" style="max-width: 120px; max-height: 120px;" >
+                                                                   </a> <div>
+                                                                        <div><strong><%= product.products.name %> &nbsp;&nbsp;</strong></div>
+                                                               
                                                                     </div>
                                                                 </div>
                                                             </td>
-                                                            <td>$<%= product.price.toFixed(2) %></td>
-                                                            <td><%= product.quantity %></td>
-                                                            <td>$<%= product.total.toFixed(2) %></td>
-                                                            <td><%= order.orderStatus %></td>
-                                                            <td><%= order.paymentMode %></td>
-                                                            <td><%= order.date.toLocaleDateString() %></td>
+                                                            <td>$<%= product.price.toFixed(2) %> &nbsp;&nbsp;</td>
+                                                         
+                                                            <td> qty:<%= product.quantity %> &nbsp;&nbsp; </td>
+
+                                                            <td>total <%= product.total.toFixed(2) %> &nbsp;&nbsp;&nbsp;</td>
+                                                            <td> <%= order.orderStatus %> &nbsp;&nbsp;</td>
+                                                            <td> <%= order.paymentMode %> &nbsp;&nbsp;</td>
+                                                            <td> <%= order.date.toLocaleDateString() %> &nbsp;&nbsp;</td>
                                                             <td>
                                                                 <% if (order.orderStatus === 'delivered') { %>
+                                                                    &nbsp;&nbsp;
                                                                     <button class="btn btn-warning return-button" data-order-id="<%= order._id %>">Return</button>
                                                                 <% } else { %>
+                                                                    &nbsp;&nbsp;
                                                                     <button class="btn btn-danger cancel-button" data-order-id="<%= order._id %>">Cancel</button>
                                                                 <% } %>
                                                             </td>
@@ -348,10 +353,7 @@
                                                     <% }); %>
                                                 <% }); %>
                                             </tbody>
-                                            
-                                            
-                                            
-                                            
+                                                                                                                                                                          
                                     </table>
 
 <script>
@@ -404,7 +406,7 @@ window.location.href = urlWithTabParam;
     
 
 </script>
-
+<br><br>
 								    	<a href="/" class="btn btn-outline-primary-2"><span>Continue Shopping</span><i class="icon-long-arrow-right"></i></a>
 								    </div><!-- .End .tab-pane -->
 
@@ -443,7 +445,8 @@ window.location.href = urlWithTabParam;
                                                         <button style="background: linear-gradient(to bottom right, #4CAF50, #45a049); border: 0; border-radius: 8px; color: #FFFFFF; cursor: pointer; font-family: -apple-system, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 500; line-height: 2; outline: transparent; padding: 0.5rem 1rem; text-align: center; text-decoration: none; transition: box-shadow .2s ease-in-out; user-select: none; -webkit-user-select: none; touch-action: manipulation; white-space: nowrap;" 
                                                             onmouseover="this.style.background = 'linear-gradient(to bottom right, #2196F3, #1976D2)'; this.style.boxShadow = '0 0 .25rem rgba(0, 0, 0, 0.5), -.125rem -.125rem 1rem rgba(33, 150, 243, 0.5), .125rem .125rem 1rem rgba(25, 118, 210, 0.5)';" 
                                                             onmouseout="this.style.background = 'linear-gradient(to bottom right, #4CAF50, #45a049)'; this.style.boxShadow = 'none';" 
-                                                            onclick="buttoneffect(1, <%=index %>,<%=address%>)" >Update</button>
+                                                            onclick="buttoneffect(1, <%= index  %>,'<%= address.id  %>','<%= address.firstName %>', '<%= address.lastName %>', '<%= address.companyName %>', '<%= address.country %>', '<%= address.streetAddress1 %>', '<%= address.streetAddress2 %>', '<%= address.townCity %>', '<%= address.stateCounty %>', '<%= address.postcodeZIP %>', '<%= address.phone %>')"  >Update</button>
+                                                          <!-- <%=address.id%> -->
                                                     
                                                         <button style="background: linear-gradient(to bottom right, #EF4765, #FF9A5A); border: 0; border-radius: 8px; color: #FFFFFF; cursor: pointer; font-family: -apple-system, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 500; line-height: 2; outline: transparent; padding: 0.5rem 1rem; text-align: center; text-decoration: none; transition: box-shadow .2s ease-in-out; user-select: none; -webkit-user-select: none; touch-action: manipulation; white-space: nowrap;" 
                                                             onmouseover="this.style.background = 'linear-gradient(to bottom right, #000, #000)'; this.style.boxShadow = '0 0 .25rem rgba(0, 0, 0, 0.5), -.125rem -.125rem 1rem rgba(0, 0, 0, 0.5)';" 
@@ -451,16 +454,14 @@ window.location.href = urlWithTabParam;
                                                             onclick=" buttoneffect(2, <%= index  %>)">Delete</button>
                                                     </div>
                                                     
-                                                    
-                                                    
-                                                    
-
+                                        
 
                                                     </div>
                                                 </div>
                                             <% }); %>
                                         </div>
                                         <!-- ============== delete and Edit Address=============== -->
+                                        
                                         <script>
                                           
 
@@ -475,16 +476,31 @@ window.location.href = urlWithTabParam;
                                                   // let stateCounty=address[index].stateCounty
                                                   // let postcodeZIP=address[index].postcodeZIP
                                                   // let phone=address[index].phone
+                                                 // buttoneffect (2, index)
+                                                 
 
-
-                                            function buttoneffect (action, index,address) {
+                                            function buttoneffect (action, index,id, firstName, lastName, companyName, country, streetAddress1, streetAddress2, townCity, stateCounty, postcodeZIP, phone) {
+                                          
+                                                  
                                                 if (action === 1) {
                                                     // Handle Update button click
-                                                    console.log('Update button clicked for address ID:' , index);
-                                                  
+                                                    var address = {
+                                                        firstName: firstName,
+                                                        lastName: lastName,
+                                                        companyName: companyName,
+                                                        country: country,
+                                                        streetAddress1: streetAddress1,
+                                                        streetAddress2: streetAddress2,
+                                                        townCity: townCity,
+                                                        stateCounty: stateCounty,
+                                                        postcodeZIP: postcodeZIP,
+                                                        phone: phone
+                                                    };
+                                                
+                                                    console.log(address,id);
 
 
-                                                    toggleAddAddressFormWithData(address , index)
+                                                    toggleAddAddressFormWithData(address , id)
                                                     //editaddress(index);
                                                     // You can add your custom logic for the Update action here
                                                 } else if (action === 2) {
@@ -497,16 +513,37 @@ window.location.href = urlWithTabParam;
                                                             headers: {
                                                                 'Content-Type': 'application/json',
                                                             },
-                                                        });
-                                        
-                                                       
+                                                        }).then((response)=>{
+                                                            if(response.ok){
+                                                                console.log(response)
+                                                                reloadAddressTab()
+                                                            }
+                                                           
+                                                        })
+                                                                                               
                                                     } catch (error) {
                                                         console.error('Error during fetch:', error.message);
                                                         // Handle fetch error
                                                     }
                                                 }
                                                 }
+                                                // for reloading the page 
+                                                function reloadAddressTab() {
+                                                    // Use vanilla JavaScript to fetch the content and update the specific div
+                                                    fetch(window.location.href, { method: 'GET' })
+                                                        .then(response => response.text())
+                                                        .then(html => {
+                                                            // Extract the content of the 'tab-address' div from the fetched HTML
+                                                            const tabAddressContent = new DOMParser().parseFromString(html, 'text/html')
+                                                                .getElementById('tab-address').innerHTML;
                                             
+                                                            // Update the content of the 'tab-address' div
+                                                            document.getElementById('tab-address').innerHTML = tabAddressContent;
+                                                        })
+                                                        .catch(error => {
+                                                            console.error('Error reloading address tab:', error);
+                                                        });
+                                                }
                                         </script>
                                          <!-- ============== delete and Edit Address=============== -->
                                     
@@ -579,53 +616,125 @@ window.location.href = urlWithTabParam;
                                                         <button id="submitButton" type="submit" class="btn btn-outline-primary-2 btn-order btn-block">
                                                         <span class="btn-text">Add Address</span>
                                                         <span class="btn-hover-text">Proceed to Add Address</span>
-                                                    </button>
-                                                  
-                                               
-                                            </form>
-                                        </div>
-                                    </div>
-                                    
-                                    <script>
-                                        
-                                        function toggleAddAddressFormWithData(address, index) {
-                                            const addAddressForm = document.getElementById('addAddressForm');
-                                            const submitButton = document.getElementById('submitButton');
-                                        
-                                            // Set the form action based on the provided address data
-                                            addAddressFormOg.action = address.companyName ? `/updateAddress/${index}` : '/addAddress/1';
-                                            console.log('Form action set to:', addAddressForm.action);
-                                        
-                                            if (addAddressForm.style.display === 'none') {
-                                                addAddressForm.style.display = 'block';
-                                        
-                                                // Set values for each input field based on the provided address data
-                                                const formFields = [
-                                                    'firstName', 'lastName', 'companyName', 'country',
-                                                    'streetAddress1', 'streetAddress2', 'townCity',
-                                                    'stateCounty', 'postcodeZIP', 'phone'
-                                                ];
-                                        
-                                                formFields.forEach(field => {
-                                                    const inputElement = document.querySelector(`#addAddressForm [name="${field}"]`);
-                                                    if (inputElement) {
-                                                        inputElement.value = address[field] || '';
-                                                    }
-                                                });
-                                        
-                                                // Update the button text based on whether it's an update or an add action
-                                                submitButton.innerHTML = address.companyName ?
-                                                    '<span class="btn-text">Update Address</span><span class="btn-hover-text">Proceed to Update Address</span>' :
-                                                    '<span class="btn-text">Add Address</span><span class="btn-hover-text">Proceed to Add Address</span>';
-                                            } else {
-                                                addAddressForm.style.display = 'none';
-                                            }
-                                        }
-                                        
+                                                   </button>
+                                                 
+                                              
+                                           </form>
+                                       </div>
+                                   </div>
+                                   
+                                   <script>
+                         //              // buttoneffect(2, index);
+                         //               //console.log("this is my index",+index)
+                         //               function toggleAddAddressFormWithData(address, index) {
+                         //                   const addAddressForm = document.getElementById('addAddressForm');
+                         //                   const submitButton = document.getElementById('submitButton');
+                         //               
+                         //                   // Set the form action based on the provided address data
+                         //                   addAddressFormOg.action = address.companyName ? `/updateAddress/${index}` : '/addAddress/1';
+                         //                   console.log('Form action set to:', addAddressForm.action);
+                         //               
+                         //                   if (addAddressForm.style.display === 'none') {
+                         //                       addAddressForm.style.display = 'block';
+                         //               
+                         //                       // Set values for each input field based on the provided address data
+                         //                       const formFields = [
+                         //                           'firstName', 'lastName', 'companyName', 'country',
+                         //                           'streetAddress1', 'streetAddress2', 'townCity',
+                         //                           'stateCounty', 'postcodeZIP', 'phone'
+                         //                       ];
+                         //               
+                         //                       formFields.forEach(field => {
+                         //                           const inputElement = document.querySelector(`#addAddressForm [name="${field}"]`);
+                         //                           if (inputElement) {
+                         //                               inputElement.value = address[field] || '';
+                         //                           }
+                         //                       });
+                         //               
+                         //                       // Update the button text based on whether it's an update or an add action
+                         //                       submitButton.innerHTML = address.companyName ?
+                         //                           '<span class="btn-text">Update Address</span><span class="btn-hover-text">Proceed to Update Address</span>' :
+                         //                           '<span class="btn-text">Add Address</span><span class="btn-hover-text">Proceed to Add Address</span>';
+                         //                   } else {
+                         //                       addAddressForm.style.display = 'none';
+//                         //                   }
+//                         //               }
+//                         //               
+
+function toggleAddAddressFormWithData  (address, index) {
+    const addAddressForm = document.getElementById('addAddressForm');
+    const submitButton = document.getElementById('submitButton');
+
+    // Set the form action based on the provided address data
+    addAddressFormOg.action = address.companyName ? `/updateAddress/${index}` : '/addAddress/1';
+    console.log('Form action set to:', addAddressForm.action);
+
+    if (addAddressForm.style.display === 'none') {
+        addAddressForm.style.display = 'block';
+
+        // Set values for each input field based on the provided address data
+        const formFields = [
+            'firstName', 'lastName', 'companyName', 'country',
+            'streetAddress1', 'streetAddress2', 'townCity',
+            'stateCounty', 'postcodeZIP', 'phone'
+        ];
+
+        formFields.forEach(field => {
+            const inputElement = document.querySelector(`#addAddressForm [name="${field}"]`);
+            if (inputElement) {
+                inputElement.value = address[field] || '';
+            }
+        });
+
+        // Update the button text based on whether it's an update or an add action
+        submitButton.innerHTML = address.companyName ?
+            '<span class="btn-text">Update Address</span><span class="btn-hover-text">Proceed to Update Address</span>' :
+            '<span class="btn-text">Add Address</span><span class="btn-hover-text">Proceed to Add Address</span>';
+
+        // Make a fetch request to update the address on the server
+        fetch(`/updateAddress/${index}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                // Include the updated address data in the request body
+                firstName: document.querySelector('#addAddressForm [name="firstName"]').value,
+                lastName: document.querySelector('#addAddressForm [name="lastName"]').value,
+                companyName: document.querySelector('#addAddressForm [name="companyName"]').value,
+                country: document.querySelector('#addAddressForm [name="country"]').value,
+                streetAddress1: document.querySelector('#addAddressForm [name="streetAddress1"]').value,
+                streetAddress2: document.querySelector('#addAddressForm [name="streetAddress2"]').value,
+                townCity: document.querySelector('#addAddressForm [name="townCity"]').value,
+                stateCounty: document.querySelector('#addAddressForm [name="stateCounty"]').value,
+                postcodeZIP: document.querySelector('#addAddressForm [name="postcodeZIP"]').value,
+                phone: document.querySelector('#addAddressForm [name="phone"]').value,
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Update Address response:', data);
+            console.log(index);
+            console.log(data.message)
+            // Call the buttoneffect function with the appropriate arguments
+         //if(data.message){
+         //     buttoneffect(2, index); 
+         //  }
+            
+
+            // You can handle the update response as needed
+        })
+        .catch(error => {
+            console.error('Update Address error:', error);
+            // Handle errors as needed
+        });
+    } else {
+        addAddressForm.style.display = 'none';
+    }
+}
 
 
-
-                                        function toggleAddAddressForm() {
+            function toggleAddAddressForm() {
                                             const addAddressForm = document.getElementById('addAddressForm');
                                     
                                             if (addAddressForm.style.display === 'none') {

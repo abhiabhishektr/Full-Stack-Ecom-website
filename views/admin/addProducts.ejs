@@ -430,60 +430,44 @@
 
 
 
-<div class="row">
-    <div class="col-md-3">
-        <div class="form-group">
-            <label for="image1">Product Image 1:</label>
-            <input type="file" class="form-control" id="image1" name="image1" accept="image/*" onchange="previewImage(this, 'preview1')">
-            <img id="preview1" src="#" alt="Preview" style="max-width: 100%; display: none;">
-        </div>
-    </div>
-
-    <div class="col-md-3">
-        <div class="form-group">
-            <label for="image2">Product Image 2:</label>
-            <input type="file" class="form-control" id="image2" name="image2" accept="image/*" onchange="previewImage(this, 'preview2')">
-            <img id="preview2" src="#" alt="Preview" style="max-width: 100%; display: none;">
-        </div>
-    </div>
-
-    <div class="col-md-3">
-        <div class="form-group">
-            <label for="image3">Product Image 3:</label>
-            <input type="file" class="form-control" id="image3" name="image3" accept="image/*" onchange="previewImage(this, 'preview3')">
-            <img id="preview3" src="#" alt="Preview" style="max-width: 100%; display: none;">
-        </div>
-    </div>
-
-    <div class="col-md-3">
-        <div class="form-group">
-            <label for="image4">Product Image 4:</label>
-            <input type="file" class="form-control" id="image4" name="image4" accept="image/*" onchange="previewImage(this, 'preview4')">
-            <img id="preview4" src="#" alt="Preview" style="max-width: 100%; display: none;">
-        </div>
-    </div>
-</div>
-
-<script>
-function previewImage(input, previewId) {
-    var preview = document.getElementById(previewId);
-    var file = input.files[0];
-    var reader = new FileReader();
-
-    reader.onload = function(e) {
-        preview.src = e.target.result;
-        preview.style.display = 'block';
-    };
-
-    if (file) {
-        reader.readAsDataURL(file);
-    } else {
-        preview.src = '#';
-        preview.style.display = 'none';
-    }
-}
-</script>
-
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="images">Product Image 1:</label>
+                                <input type="file" class="form-control" id="image1" name="images" accept="image/*" onchange="previewImage(this, 'preview1')">
+                                <img id="preview1" src="#" alt="Preview" style="max-width: 100%; display: none;">
+                                <button type="button" class="btn btn-danger" onclick="deleteImage('image1', 'preview1')">Delete</button>
+                            </div>
+                        </div>
+                    
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="images">Product Image 2:</label>
+                                <input type="file" class="form-control" id="image2" name="images" accept="image/*" onchange="previewImage(this, 'preview2')">
+                                <img id="preview2" src="#" alt="Preview" style="max-width: 100%; display: none;">
+                                <button type="button" class="btn btn-danger" onclick="deleteImage('image2', 'preview2')">Delete</button>
+                            </div>
+                        </div>
+                    
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="images">Product Image 3:</label>
+                                <input type="file" class="form-control" id="image3" name="images" accept="image/*" onchange="previewImage(this, 'preview3')">
+                                <img id="preview3" src="#" alt="Preview" style="max-width: 100%; display: none;">
+                                <button type="button" class="btn btn-danger" onclick="deleteImage('image3', 'preview3')">Delete</button>
+                            </div>
+                        </div>
+                    
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="images">Product Image 4:</label>
+                                <input type="file" class="form-control" id="image4" name="images" accept="image/*" onchange="previewImage(this, 'preview4')">
+                                <img id="preview4" src="#" alt="Preview" style="max-width: 100%; display: none;">
+                                <button type="button" class="btn btn-danger" onclick="deleteImage('image4', 'preview4')">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                    
                     
                 
                     <button type="submit" class="btn btn-primary">Add Product</button>
@@ -492,6 +476,36 @@ function previewImage(input, previewId) {
             </div>
         
         
+<script>
+    function deleteImage(inputId, previewId) {
+        // Clear the file input
+        document.getElementById(inputId).value = '';
+    
+        // Hide the preview image
+        var preview = document.getElementById(previewId);
+        preview.src = '#';
+        preview.style.display = 'none';
+    }
+    
+    function previewImage(input, previewId) {
+        var preview = document.getElementById(previewId);
+        var file = input.files[0];
+        var reader = new FileReader();
+    
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+        };
+    
+        if (file) {
+            reader.readAsDataURL(file);
+        } else {
+            preview.src = '#';
+            preview.style.display = 'none';
+        }
+    }
+    
+</script>
 
 
 

@@ -41,7 +41,7 @@ const addressSchema = mongoose.Schema({
         type: String,
         required: true
     }
-}, { _id: false });
+});
 
 const userSchema = mongoose.Schema({
     name: {
@@ -75,7 +75,12 @@ const userSchema = mongoose.Schema({
         required: true,
         default: true
     },
-    addresses: [addressSchema] // An array of address objects
+    addresses: [addressSchema], // An array of address objects
+    token: {
+        type: String,
+        required: false,
+        index: { expireAfterSeconds: 120 } // TTL index, expires in 5 minutes
+    }
 }, { versionKey: false });
 
 module.exports = mongoose.model('user', userSchema);

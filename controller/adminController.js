@@ -480,6 +480,9 @@ const updateproduct = async (req, res) => {
     const replacedImageUrls = req.files ? req.files.map((file) => file.filename) : [];
 
 
+    const existingProduct= await newProduct.findOne({_id:id})
+    const existingImageUrls = existingProduct.imageUrls
+    const updatedImageUrls = replacedImageUrls.length > 0 ? [...existingImageUrls, ...replacedImageUrls] : existingImageUrls;
     try {
         // Update the product based on the provided ID
         const result = await newProduct.updateOne(
@@ -494,7 +497,7 @@ const updateproduct = async (req, res) => {
                     gender: gender,
                     manufacturer: productManufacturer,
                     stockQuantity: stockQuantity,
-                    imageUrls: replacedImageUrls
+                    imageUrls: updatedImageUrls
                 }
                 // $ push: {
                 //     imageUrls: imgg,
@@ -588,7 +591,7 @@ const addproduct = (req, res) => {
 
     const imageUrls = req.files.map((file) => file.filename);
 
-    const newProduct = new newProduct({
+    const newProducts = new newProduct({
         name,
         description,
         price,
@@ -600,7 +603,7 @@ const addproduct = (req, res) => {
         imageUrls,
     });
 
-    newProduct.save()
+    newProducts.save()
         .then((savedProduct) => {
             console.log("Product added successfully:", savedProduct);
             res.redirect("/allproducts");
@@ -687,9 +690,11 @@ const deleteimage = async (req, res) => {
             // Update the database to remove the image reference
             await newProduct.findByIdAndUpdate(product._id, { $pull: { imageUrls: filenameToDelete } });
 
-            // Send a success JSON response
-            res.status(200).json({ message: 'Image deleted successfully' });
+            // Send a success JSON responser
+            res.redirect(`/editproduct/${req.query.id}`)
+            //res.status(200).json({ message: 'Image deleted successfully' });
         } else {
+            
             // Send an error JSON response if the index is out of bounds
             res.status(400).json({ error: 'Invalid index' });
         }

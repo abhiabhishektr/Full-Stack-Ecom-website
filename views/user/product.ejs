@@ -152,21 +152,59 @@
                                     
                                     
                                     
-                                    <div class="details-filter-row details-row-size">
+                                    <!-- <div class="details-filter-row details-row-size">
                                         <label for="qty">Qty:</label>
                                         <div class="product-details-quantity">
                                             <input type="number" id="qty" class="form-control" value="1" min="1" max="10" step="1" data-decimals="0" required>
-                                        </div><!-- End .product-details-quantity -->
-                                    </div><!-- End .details-filter-row -->
+                                        </div>
+                                    </div> -->
 
                                     <div class="product-details-action">
-                                        <a href="/updatecart/<%= product._id %>" class="btn-product btn-cart"><span>add to cart</span></a>
+                                        <button id="add-to-cart" class="btn-product btn-cart" <% if (product.stockQuantity === 0) { %>disabled style="opacity: 0.5; cursor: not-allowed;" <% } %>>add to cart</button>
+
+                                        <p>
+                                            <% if (product.stockQuantity === 0) { %>
+                                              <span style="color: red;"> &nbsp;&nbsp; Out of Stock</span>
+                                            <% } else if (product.stockQuantity < 10) { %>
+                                              <span style="color: rgba(255, 140, 0, 0.868);">  &nbsp;&nbsp; Available Stock: <%= product.stockQuantity %></span>
+                                            <% } else { %>
+                                              <span style="color: blue;"> &nbsp;&nbsp;  Available Stock: <%= product.stockQuantity %></span>
+                                            <% } %>
+                                          </p>
+                                          
+
 
                                         <div class="details-action-wrapper">
                                             <a href="#" class="btn-product btn-wishlist" title="Wishlist"><span>Add to Wishlist</span></a>
-                                            <a href="#" class="btn-product btn-compare" title="Compare"><span>Add to Compare</span></a>
+                                           
                                         </div><!-- End .details-action-wrapper -->
                                     </div><!-- End .product-details-action -->
+
+
+<script>
+    $(".btn-product.btn-cart").click(function(event) {
+        event.preventDefault();
+    
+        let productId = '<%= product._id %>';
+    
+        $.ajax({
+        url: '/updatecart/' + productId,
+        type: 'PUT',
+        success: function(response) {
+            if (response.status === 'success') {
+                Swal.fire('Success!', response.message, 'success');
+            } else if (response.status === 'error') {
+                Swal.fire('Error!', response.message, 'error');
+            }
+        },
+        error: function(error) {
+            Swal.fire('Error!', 'An error occurred while updating the cart.', 'error');
+        }
+    });
+});
+    
+</script>
+ <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 
                                     <div class="product-details-footer">
                                         <div class="product-cat">

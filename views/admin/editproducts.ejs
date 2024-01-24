@@ -324,10 +324,10 @@
             <label for="stockQuantity">Stock Quantity:</label>
             <input type="number" class="form-control" id="stockQuantity" name="stockQuantity" value="<%= product.stockQuantity %>">
         </div>
+       
 
 
-        <div class="mb-4">
-            <label class="form-label">Replace All Images</label>
+        <div class="mb-4">New Images</label>
             <input type="file" class="form-control" name="replaceImages" accept="image/*" multiple id="replaceImagesInput">
         </div>
 
@@ -371,6 +371,25 @@
 
 </div>
 <script>
+    document.getElementById('replaceImagesInput').addEventListener('change', function(event) {
+        const fileInput = event.target;
+        const selectedFiles = fileInput.files;
+    
+        // Check if more than 4 images are selected
+        if (selectedFiles.length > 4) {
+            // Show a SweetAlert notification
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'You can only upload up to 4 images.',
+            });
+    
+            // Clear the file input to prevent further uploads
+            fileInput.value = '';
+        }
+    });
+    </script>
+<script>
     // Function to validate the form
     function validateForm() {
         var name = document.getElementById('name').value;
@@ -395,6 +414,8 @@
 </script>
 
 
+<!-- Add this in your HTML file -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
         <script src="/admin/src/assets/libs/jquery/dist/jquery.min.js"></script>
         <script src="/admin/src/assets/libs/popper.js/dist/umd/popper.min.js"></script>

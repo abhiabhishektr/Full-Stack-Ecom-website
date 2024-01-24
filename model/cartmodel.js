@@ -8,7 +8,6 @@ const cartSchema = new mongoose.Schema({
     },
     userEmail: {
         type: String,  // Assuming the user's email is stored as a string
-        required: true
     },
     products: [
         {
