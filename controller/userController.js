@@ -2,8 +2,9 @@ const user = require("../model/usermodel");
 const ptd = require("../model/pdtmodel");
 const catdb = require("../model/category");
 const orderdb = require("../model/order");
-const cartdb=require("../model/cartmodel")
+const cartdb = require("../model/cartmodel");
 const bcrypt = require("bcrypt");
+const mongoose = require("mongoose");
 
 const home = async (req, res) => {
     try {
@@ -87,48 +88,48 @@ const forgotPasswordReset = async (req, res) => {
             return res.json({ success: false, message: "User does not exist." });
         }
         // if (!users.token) {
-            // Token field does not exist, update the document
-            const result = await user.updateOne({ email: email }, { $set: { token: generettedOtp } });
+        // Token field does not exist, update the document
+        const result = await user.updateOne({ email: email }, { $set: { token: generettedOtp } });
 
-            console.log("hai this is generateToken ", generettedOtp);
-            console.log(result);
-            if (result.modifiedCount > 0) {
-                console.log("Token added successfully.");
+        console.log("hai this is generateToken ", generettedOtp);
+        console.log(result);
+        if (result.modifiedCount > 0) {
+            console.log("Token added successfully.");
 
-                const transporter = nodemailer.createTransport({
-                    service: "gmail",
-                    auth: {
-                        user: "abhishekabtr@gmail.com",
-                        pass: "ynvf qhpi ykrm nwdm",
-                    },
-                });
+            const transporter = nodemailer.createTransport({
+                service: "gmail",
+                auth: {
+                    user: "abhishekabtr@gmail.com",
+                    pass: "ynvf qhpi ykrm nwdm",
+                },
+            });
 
-                const mailOptions = {
-                    from: "abhishekabtr@gmail.com",
-                    to: email,
-                    subject: "Reset Password",
-                    text: `Click the link to reset your password: http://localhost:3000/resetPassword?name=${users.email}&token=${generettedOtp}`,
-                };
+            const mailOptions = {
+                from: "abhishekabtr@gmail.com",
+                to: email,
+                subject: "Reset Password",
+                text: `Click the link to reset your password: http://localhost:3000/resetPassword?name=${users.email}&token=${generettedOtp}`,
+            };
 
-                transporter.sendMail(mailOptions, (error, info) => {
-                    if (error) {
-                        console.error("Error:", error);
-                        res.json({ success: false, message: "Failed to send email." });
-                    } else {
-                        console.log("Email sent:", info.response);
-                        res.json({ success: true, message: "Email sent successfully." });
-                    }
-                });
+            transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                    console.error("Error:", error);
+                    res.json({ success: false, message: "Failed to send email." });
+                } else {
+                    console.log("Email sent:", info.response);
+                    res.json({ success: true, message: "Email sent successfully." });
+                }
+            });
 
-                if (users) {
-                    return res.json({ success: false, message: "Reset Mail has Sent to Your email" });
-            
+            if (users) {
+                return res.json({ success: false, message: "Reset Mail has Sent to Your email" });
+
                 // return res.json({ success: true, message: "Token added successfully." });
             } else {
                 console.error("Error:");
                 return res.json({ success: false, message: "ERROR." });
-            }   
-         }
+            }
+        }
         // } else {
         //     console.log("Token already exists.");
         //     // return res.json({ success: true, message: "Token already exists." });
@@ -161,10 +162,10 @@ const resetPasswordPost = async (req, res) => {
         if (users.token === token) {
             users.token = null;
         }
-     
+
         // Reset the token to null (or remove the token field if not needed anymore)
         // users.addresses.forEach((address) => {
-           
+
         // });
 
         // Save the updated user document
@@ -302,7 +303,7 @@ const sendotp = async (req, res) => {
     });
 
     res.json({ message: "OTP sent successfully" });
-};  
+};
 
 // const logincheck = async (req, res) => {
 //     // console.log(req.body.email);
@@ -355,7 +356,6 @@ const logincheck = async (req, res) => {
     }
 };
 
-
 // userController
 
 const fullpdt = async (req, res) => {
@@ -364,11 +364,27 @@ const fullpdt = async (req, res) => {
 
         if (MainCat === "Men" || MainCat === "Women" || MainCat === "Kids") {
             // Fetch products based on the specified gender category
-            const products = await ptd.find({ gender: MainCat.toLowerCase(), status: "Active" });
+            const products = await ptd.find({
+                gender: MainCat.toLowerCase(),
+                status: "Active",
+                productDeleted: { $ne: "deleted" },
+            });
+            let mainCatLower = MainCat.toLowerCase();
+            const categories = await catdb.find({ Name: mainCatLower });
 
+            // Extract unique subName values from the categories array
+            const uniqueSubNames = [...new Set(categories.map((category) => category.subName))];
+
+
+            const brands = await ptd.find({
+                status: 'Active',
+                productDeleted: { $ne: 'deleted' },
+            }).distinct('manufacturer');
+    
+            
             // Render the 'fullpdt' template and pass the filtered products as a variable
-            res.render("fullpdt", { products });
-        } else {
+            res.render("fullpdt", { products, uniqueSubNames,brands, cartCount: req.cartCount });
+        } else if (MainCat == 0) {
             // Fetch categories with Status set to true
             const activeCategories = await catdb.find({ Status: true });
 
@@ -376,17 +392,68 @@ const fullpdt = async (req, res) => {
             const activeCategoryNames = activeCategories.map((category) => category.subName);
 
             // Fetch all products that belong to the active categories
-            const products = await ptd.find({ category: { $in: activeCategoryNames }, status: "Active" });
+            const products = await ptd.find({
+                category: { $in: activeCategoryNames },
+                status: "Active",
+                productDeleted: { $ne: "deleted" },
+            });
+            const categories = await catdb.find();
+
+            // Extract unique subName values from the categories array
+            const uniqueSubNames = [...new Set(categories.map((category) => category.subName))];
+
+
+            const brands = await ptd.find({
+                status: 'Active',
+                productDeleted: { $ne: 'deleted' },
+            }).distinct('manufacturer');
+    
+            
 
             // Render the 'fullpdt' template and pass the filtered products as a variable
-            res.render("fullpdt", { products });
+            res.render("fullpdt", { products, uniqueSubNames,brands, cartCount: req.cartCount });
+
+        } else //for sraching 
+        {
+            console.log(MainCat); // this is the search text 
+            const regex = new RegExp(MainCat, 'i');
+            const products = await ptd.find({
+                $or: [
+                    { name: regex },
+                    { manufacturer: regex }
+                    // Add more fields if needed
+                ]
+            });
+            
+            // res.json(products);
+            console.log(products);
+
+            const categories = await catdb.find();
+
+            // Extract unique subName values from the categories array
+            const uniqueSubNames = [...new Set(categories.map((category) => category.subName))];
+            console.log('Rendering fullpdt page');
+            // Render the 'fullpdt' template and pass the filtered products as a variable
+            
+            const brands = await ptd.find({
+                status: 'Active',
+                productDeleted: { $ne: 'deleted' },
+            }).distinct('manufacturer');
+    
+            
+         
+
+
+
+            res.render("fullpdt", { products, uniqueSubNames,brands, cartCount: req.cartCount });
+           
         }
+
     } catch (error) {
         console.error("Error fetching products:", error);
         res.status(500).send("Internal Server Error");
     }
 };
-
 
 // =====================product ====================
 
@@ -397,7 +464,7 @@ const product = async (req, res) => {
         const product = await ptd.findOne({ _id: productId });
         const products = await ptd.find().limit(4); // Use find() instead of findOne()
 
-        res.render("product", { product, products });
+        res.render("product", { product, products, cartCount: req.cartCount });
     } catch (error) {
         console.error("Error finding product:", error);
     }
@@ -422,7 +489,7 @@ const profile = async (req, res) => {
 
     const selectedTab = (await req.query.tab) || "defaultTab";
 
-    res.render("profile", { addresses, orders, selectedTab, userId, userdata });
+    res.render("profile", { addresses, orders, selectedTab, userId, userdata, cartCount: req.cartCount });
 };
 
 // =====================delete Address ====================
@@ -556,47 +623,13 @@ const passwordChange = async (req, res) => {
     }
 };
 
-// const updateAddress = async (req, res) => {
-//     try {
-//         const userId = req.session.userid;
-//         const index = req.params.id;
-
-//         const addressData = {
-//             firstName: req.body.firstName,
-//             lastName: req.body.lastName,
-//             companyName: req.body.companyName,
-//             country: req.body.country,
-//             streetAddress1: req.body.streetAddress1,
-//             streetAddress2: req.body.streetAddress2,
-//             townCity: req.body.townCity,
-//             stateCounty: req.body.stateCounty,
-//             postcodeZIP: req.body.postcodeZIP,
-//             phone: req.body.phone,
-//         };
-
-//         // Construct the update query to set the new address at the specified index
-//         const setQuery = { $set: { [`addresses.${index}`]: addressData } };
-
-//         // Update the user document to set the new address
-//         await user.findByIdAndUpdate(userId, setQuery);
-
-//         // Construct the update query to pull (remove) null values from the addresses array
-//         const pullQuery = { $pull: { addresses: null } };
-
-//         // Update the user document to remove null values from the addresses array
-//         await user.findByIdAndUpdate(userId, pullQuery);
-
-//         res.status(200).json({ message: "Address updated successfully" });
-//     } catch (error) {
-//         console.error("Error updating address:", error);
-//         res.status(500).json({ message: "Internal server error" });
-//     }
-// };
 const updateAddress = async (req, res) => {
     try {
         const userId = req.session.userid; // Assuming you're using sessions
         const addressId = req.params.id;
-
+        console.log("thids", addressId);
+        console.log("uuuu", userId);
+        // 65b15f700fc2c9c55e5bb4db
         const addressData = {
             firstName: req.body.firstName,
             lastName: req.body.lastName,
@@ -610,47 +643,51 @@ const updateAddress = async (req, res) => {
             phone: req.body.phone,
         };
 
-        const updatedUser = await user.findOne(
+        const updatedUser = await user.findOneAndUpdate(
+            { _id: userId, "addresses._id": addressId },
             {
-                _id: userId,
-                addresses: { $elemMatch: { _id: addressId } },
+                $set: {
+                    "addresses.$.firstName": addressData.firstName,
+                    "addresses.$.lastName": addressData.lastName,
+                    "addresses.$.companyName": addressData.companyName,
+                    "addresses.$.country": addressData.country,
+                    "addresses.$.streetAddress1": addressData.streetAddress1,
+                    "addresses.$.streetAddress2": addressData.streetAddress2,
+                    "addresses.$.townCity": addressData.townCity,
+                    "addresses.$.stateCounty": addressData.stateCounty,
+                    "addresses.$.postcodeZIP": addressData.postcodeZIP,
+                    "addresses.$.phone": addressData.phone,
+                },
             },
-            
+            { new: true }
         );
-        console.log(updatedUser);
 
         if (updatedUser) {
-            // Successfully updated the address
-            res.status(200).json({ message: "Address updated successfully" });
+            res.redirect("/profile?tab=address");
+            // res.json({});
         } else {
-            // Address not found
-            res.status(404).json({ message: "Address not found" });
+            res.status(404).json({ message: "Address not found or not updated" });
         }
-
     } catch (error) {
         console.error("Error updating address:", error);
         res.status(500).json({ message: "Internal server error" });
     }
 };
 
-
 const orderDetails = async (req, res) => {
     try {
         // Assuming you want to find orders based on the orderId
-        const orderId = req.params.orderId
+        const orderId = req.params.orderId;
         console.log(orderId);
         // Find orders from the database using the orderId
-        const orders = await orderdb.find({ _id: orderId }).populate('user Products.products');
+        const orders = await orderdb.find({ _id: orderId }).populate("user Products.products");
 
         res.render("orderDetails", { orders });
     } catch (error) {
-        console.error('Error fetching orders:', error);
-        res.status(500).send('Internal Server Error');
+        console.error("Error fetching orders:", error);
+        res.status(500).send("Internal Server Error");
     }
 };
-
-
-
 
 module.exports = {
     home,
@@ -674,5 +711,7 @@ module.exports = {
     forgotPasswordReset,
     resetPassword,
     resetPasswordPost,
-    orderDetails
+    orderDetails,
 };
+
+//<!-- <div><strong><%= product.products.name %> &nbsp;&nbsp;</strong></div> -->

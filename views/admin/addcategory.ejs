@@ -11,6 +11,36 @@
 
 <!-- Rest of your HTML form and content -->
 
+<!-- <div class="container mt-5">
+  <h2 class="mb-4"><% if (locals.updateMode) { %>Update<% } else { %>Add<% } %> Category</h2>
+
+  <form action="<% if (locals.updateMode) { %>/Cupdate/<%= categoryId %><% } else { %>/category<% } %>" method="POST" class="needs-validation" novalidate>
+      <div class="form-group">
+          <label for="mainCategory">Main Category:</label>
+          <select class="form-control" id="mainCategory" name="main" required>
+              <option value="men" <% if (locals.updateMode && categoryData.Name === 'men') { %>selected<% } %>>Men</option>
+              <option value="women" <% if (locals.updateMode && categoryData.Name === 'women') { %>selected<% } %>>Women</option>
+              <option value="kids" <% if (locals.updateMode && categoryData.Name === 'kids') { %>selected<% } %>>Kids</option>
+          </select>
+      </div>
+
+      <div class="form-group">
+          <label for="subcategoryName">Subcategory:</label>
+          <input type="text" class="form-control" id="subcategoryName" name="subName" required value="<%= locals.updateMode ? categoryData.subName : '' %>">
+          <div class="invalid-feedback">Please provide a subcategory name.</div>
+      </div>
+
+      <div class="form-group">
+          <label for="categoryDescription">Category Description:</label>
+          <textarea class="form-control" id="categoryDescription" name="Description" required><%= locals.updateMode ? categoryData.Description : '' %></textarea>
+          <div class="invalid-feedback">Please provide a category description.</div>
+      </div>
+
+      <button type="submit" class="btn btn-<%= locals.updateMode ? 'info' : 'primary' %>">
+          <% if (locals.updateMode) { %>Update<% } else { %>Add<% } %> Category
+      </button>
+  </form>
+</div> -->
 
         
                 <form action="/category" method="POST" class="needs-validation" novalidate>
@@ -27,14 +57,14 @@
                     
                     <div class="form-group">
                         <label for="subcategoryName">Subcategory:</label>
-                        <input type="text" class="form-control" id="subcategoryName" name="subName" required>
+                        <input type="text" class="form-control" id="subcategoryName" name="subName" required pattern="^\S+$">
                         <div class="invalid-feedback">Please provide a subcategory name.</div>
                     </div>
                     
                     
                     <div class="form-group">
                         <label for="categoryDescription">Category Description:</label>
-                        <textarea class="form-control" id="categoryDescription" name="Description" required></textarea>
+                        <textarea class="form-control" id="categoryDescription" name="Description" required pattern="^\S+$"></textarea>
                         <div class="invalid-feedback">Please provide a category description.</div>
                     </div>
                     

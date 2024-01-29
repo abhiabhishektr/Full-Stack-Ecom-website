@@ -5,6 +5,7 @@ const admin=require('./route/adminRoute')
 const user=require('./route/userRoute')
 const path=require('path')
 const nocache = require("nocache");
+// const cartCountMiddleware = require('./middleware/cartCountMiddleware');
 
 require('dotenv').config()
 const PORT=process.env.PORT||3000
@@ -19,6 +20,7 @@ app.set('views','views')
 
 app.use(express.static(path.join(__dirname,'public')))
 // app.use("/public", express.static(path.join(__dirname, 'public')));
+// app.use(cartCountMiddleware);
 
 app.use('/',user)
 app.use('/',admin)

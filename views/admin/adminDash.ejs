@@ -1,430 +1,573 @@
 <!DOCTYPE html>
 <html dir="ltr" lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <!-- Tell the browser to be responsive to screen width -->
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <!-- Favicon icon -->
+        <link rel="icon" type="image/png" sizes="16x16" href="/admin/src/assets/images/favicon.png" />
+        <title>Adminmart Template - The Ultimate Multipurpose admin template</title>
+        <!-- Custom CSS -->
+        <link href="/admin/src/assets/extra-libs/c3/c3.min.css" rel="stylesheet" />
+        <link href="/admin/src/assets/libs/chartist/dist/chartist.min.css" rel="stylesheet" />
+        <link href="/admin/src/assets/extra-libs/jvector/jquery-jvectormap-2.0.2.css" rel="stylesheet" />
+        <!-- Custom CSS -->
+        <link href="/admin/src/dist/css/style.min.css" rel="stylesheet" />
+    </head>
 
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <!-- Tell the browser to be responsive to screen width -->
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <!-- Favicon icon -->
-    <link rel="icon" type="image/png" sizes="16x16" href="/admin/src/assets/images/favicon.png">
-    <title>Adminmart Template - The Ultimate Multipurpose admin template</title>
-    <!-- Custom CSS -->
-    <link href="/admin/src/assets/extra-libs/c3/c3.min.css" rel="stylesheet">
-    <link href="/admin/src/assets/libs/chartist/dist/chartist.min.css" rel="stylesheet">
-    <link href="/admin/src/assets/extra-libs/jvector/jquery-jvectormap-2.0.2.css" rel="stylesheet" />
-    <!-- Custom CSS -->
-    <link href="/admin/src/dist/css/style.min.css" rel="stylesheet">
-  
-</head>
-
-<body>
-    <!-- ============================================================== -->
-    <!-- Preloader - style you can find in spinners.css -->
-    <!-- ============================================================== -->
-    <div class="preloader">
-        <div class="lds-ripple">
-            <div class="lds-pos"></div>
-            <div class="lds-pos"></div>
+    <body>
+        <!-- ============================================================== -->
+        <!-- Preloader - style you can find in spinners.css -->
+        <!-- ============================================================== -->
+        <div class="preloader">
+            <div class="lds-ripple">
+                <div class="lds-pos"></div>
+                <div class="lds-pos"></div>
+            </div>
         </div>
-    </div>
-    <!-- ============================================================== -->
-    <!-- Main wrapper - style you can find in pages.scss -->
-    <!-- ============================================================== -->
-    <div id="main-wrapper" data-theme="light" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
-        data-sidebar-position="fixed" data-header-position="fixed" data-boxed-layout="full">
         <!-- ============================================================== -->
-        <!-- Topbar header - style you can find in pages.scss -->
+        <!-- Main wrapper - style you can find in pages.scss -->
         <!-- ============================================================== -->
-        <header class="topbar" data-navbarbg="skin6">
-            <nav class="navbar top-navbar navbar-expand-md">
-                <div class="navbar-header" data-logobg="skin6">
-                    <!-- This is for the sidebar toggle which is visible on mobile only -->
-                    <a class="nav-toggler waves-effect waves-light d-block d-md-none" href="javascript:void(0)"><i
-                            class="ti-menu ti-close"></i></a>
-                    <!-- ============================================================== -->
-                    <!-- Logo -->
-                    <!-- ============================================================== -->
-                    <div class="navbar-brand">
-                        <!-- Logo icon -->
-                        <a href="index.html">
-                            <b class="logo-icon">
-                                <!-- Dark Logo icon -->
-                                <img src="/admin/src/assets/images/logo-icon.png" alt="homepage" class="dark-logo" />
-                                <!-- Light Logo icon -->
-                                <img src="/admin/src/assets/images/logo-icon.png" alt="homepage" class="light-logo" />
-                            </b>
-                            <!--End Logo icon -->
-                            <!-- Logo text -->
-                            <span class="logo-text">
-                                <!-- dark Logo text -->
-                                <img src="/admin/src/assets/images/logo-text.png" alt="homepage" class="dark-logo" />
-                                <!-- Light Logo text -->
-                                <img src="/admin/src/assets/images/logo-light-text.png" class="light-logo" alt="homepage" />
-                            </span>
-                        </a>
+        <div
+            id="main-wrapper"
+            data-theme="light"
+            data-layout="vertical"
+            data-navbarbg="skin6"
+            data-sidebartype="full"
+            data-sidebar-position="fixed"
+            data-header-position="fixed"
+            data-boxed-layout="full"
+        >
+            <!-- ============================================================== -->
+            <!-- Topbar header - style you can find in pages.scss -->
+            <!-- ============================================================== -->
+            <header class="topbar" data-navbarbg="skin6">
+                <nav class="navbar top-navbar navbar-expand-md">
+                    <div class="navbar-header" data-logobg="skin6">
+                        <!-- This is for the sidebar toggle which is visible on mobile only -->
+                        <a class="nav-toggler waves-effect waves-light d-block d-md-none" href="javascript:void(0)"
+                            ><i class="ti-menu ti-close"></i
+                        ></a>
+                        <!-- ============================================================== -->
+                        <!-- Logo -->
+                        <!-- ============================================================== -->
+                        <div class="navbar-brand">
+                            <!-- Logo icon -->
+                            <a href="index.html">
+                                <b class="logo-icon">
+                                    <!-- Dark Logo icon -->
+                                    <img src="/admin/src/assets/images/logo-icon.png" alt="homepage" class="dark-logo" />
+                                    <!-- Light Logo icon -->
+                                    <img src="/admin/src/assets/images/logo-icon.png" alt="homepage" class="light-logo" />
+                                </b>
+                                <!--End Logo icon -->
+                                <!-- Logo text -->
+                                <span class="logo-text">
+                                    <!-- dark Logo text -->
+                                    <img src="/admin/src/assets/images/logo-text.png" alt="homepage" class="dark-logo" />
+                                    <!-- Light Logo text -->
+                                    <img
+                                        src="/admin/src/assets/images/logo-light-text.png"
+                                        class="light-logo"
+                                        alt="homepage"
+                                    />
+                                </span>
+                            </a>
+                        </div>
+                        <!-- ============================================================== -->
+                        <!-- End Logo -->
+                        <!-- ============================================================== -->
+                        <!-- ============================================================== -->
+                        <!-- Toggle which is visible on mobile only -->
+                        <!-- ============================================================== -->
+                        <a
+                            class="topbartoggler d-block d-md-none waves-effect waves-light"
+                            href="javascript:void(0)"
+                            data-toggle="collapse"
+                            data-target="#navbarSupportedContent"
+                            aria-controls="navbarSupportedContent"
+                            aria-expanded="false"
+                            aria-label="Toggle navigation"
+                            ><i class="ti-more"></i
+                        ></a>
                     </div>
                     <!-- ============================================================== -->
                     <!-- End Logo -->
                     <!-- ============================================================== -->
-                    <!-- ============================================================== -->
-                    <!-- Toggle which is visible on mobile only -->
-                    <!-- ============================================================== -->
-                    <a class="topbartoggler d-block d-md-none waves-effect waves-light" href="javascript:void(0)"
-                        data-toggle="collapse" data-target="#navbarSupportedContent"
-                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><i
-                            class="ti-more"></i></a>
-                </div>
-                <!-- ============================================================== -->
-                <!-- End Logo -->
-                <!-- ============================================================== -->
-                <div class="navbar-collapse collapse" id="navbarSupportedContent">
-                    <!-- ============================================================== -->
-                    <!-- toggle and nav items -->
-                    <!-- ============================================================== -->
-                    <ul class="navbar-nav float-left mr-auto ml-3 pl-1">
-                        <!-- Notification -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle pl-md-3 position-relative" href="javascript:void(0)"
-                                id="bell" role="button" data-toggle="dropdown" aria-haspopup="true"
-                                aria-expanded="false">
-                                <span><i data-feather="bell" class="svg-icon"></i></span>
-                                <span class="badge badge-primary notify-no rounded-circle">5</span>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-left mailbox animated bounceInDown">
-                                
-                            </div>
-                        </li>
-                        <!-- End Notification -->
+                    <div class="navbar-collapse collapse" id="navbarSupportedContent">
                         <!-- ============================================================== -->
-                        <!-- create new -->
+                        <!-- toggle and nav items -->
                         <!-- ============================================================== -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i data-feather="settings" class="svg-icon"></i>
-                            </a>
-                            
-                        </li>
-                        <li class="nav-item d-none d-md-block">
-                            <a class="nav-link" href="javascript:void(0)">
-                                <div class="customize-input">
-                                    <select
-                                        class="custom-select form-control bg-white custom-radius custom-shadow border-0">
-                                        <option selected>EN</option>
-                                      
-                                    </select>
-                                </div>
-                            </a>
-                        </li>
-                    </ul>
-                    <!-- ============================================================== -->
-                    <!-- Right side toggle and nav items -->
-                    <!-- ============================================================== -->
-                    <ul class="navbar-nav float-right">
-                        <!-- ============================================================== -->
-                        <!-- Search -->
-                        <!-- ============================================================== -->
-                        <li class="nav-item d-none d-md-block">
-                            <a class="nav-link" href="javascript:void(0)">
-                                <form>
+                        <ul class="navbar-nav float-left mr-auto ml-3 pl-1">
+                            <!-- Notification -->
+                            <li class="nav-item dropdown">
+                                <a
+                                    class="nav-link dropdown-toggle pl-md-3 position-relative"
+                                    href="javascript:void(0)"
+                                    id="bell"
+                                    role="button"
+                                    data-toggle="dropdown"
+                                    aria-haspopup="true"
+                                    aria-expanded="false"
+                                >
+                                    <span><i data-feather="bell" class="svg-icon"></i></span>
+                                    <span class="badge badge-primary notify-no rounded-circle">5</span>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-left mailbox animated bounceInDown"></div>
+                            </li>
+                            <!-- End Notification -->
+                            <!-- ============================================================== -->
+                            <!-- create new -->
+                            <!-- ============================================================== -->
+                            <li class="nav-item dropdown">
+                                <a
+                                    class="nav-link dropdown-toggle"
+                                    href="#"
+                                    id="navbarDropdown"
+                                    role="button"
+                                    data-toggle="dropdown"
+                                    aria-haspopup="true"
+                                    aria-expanded="false"
+                                >
+                                    <i data-feather="settings" class="svg-icon"></i>
+                                </a>
+                            </li>
+                            <li class="nav-item d-none d-md-block">
+                                <a class="nav-link" href="javascript:void(0)">
                                     <div class="customize-input">
-                                        <input class="form-control custom-shadow custom-radius border-0 bg-white"
-                                            type="search" placeholder="Search" aria-label="Search">
-                                        <i class="form-control-icon" data-feather="search"></i>
+                                        <select
+                                            class="custom-select form-control bg-white custom-radius custom-shadow border-0"
+                                        >
+                                            <option selected>EN</option>
+                                        </select>
                                     </div>
-                                </form>
-                            </a>
-                        </li>
+                                </a>
+                            </li>
+                        </ul>
                         <!-- ============================================================== -->
-                        <!-- User profile and search -->
+                        <!-- Right side toggle and nav items -->
                         <!-- ============================================================== -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="javascript:void(0)" data-toggle="dropdown"
-                                aria-haspopup="true" aria-expanded="false">
-                                <img src="/admin/src/assets/images/users/profile-pic.jpg" alt="user" class="rounded-circle"
-                                    width="40">
-                                <span class="ml-2 d-none d-lg-inline-block"><span>Hello,</span> <span
-                                        class="text-dark">Jason Doe</span> <i data-feather="chevron-down"
-                                        class="svg-icon"></i></span>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-right user-dd animated flipInY">
-                                <a class="dropdown-item" href="javascript:void(0)"><i data-feather="user"
-                                        class="svg-icon mr-2 ml-1"></i>
-                                    My Profile</a>
-                               
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="javascript:void(0)"><i data-feather="settings"
-                                        class="svg-icon mr-2 ml-1"></i>
-                                    Account Setting</a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="/adminsignout"><i data-feather="power"
-                                        class="svg-icon mr-2 ml-1"></i>
-                                    Logout</a>
-                                
-                              
-                            </div>
-                        </li>
-                        <!-- ============================================================== -->
-                        <!-- User profile and search -->
-                        <!-- ============================================================== -->
-                    </ul>
-                </div>
-            </nav>
-        </header>
-        <!-- ============================================================== -->
-        <!-- End Topbar header -->
-        <!-- ============================================================== -->
-        <!-- ============================================================== -->
-        <!-- Left Sidebar - style you can find in sidebar.scss  -->
-        <!-- ============================================================== -->
-        <aside class="left-sidebar" data-sidebarbg="skin6">
-            <!-- Sidebar scroll-->
-            <div class="scroll-sidebar" data-sidebarbg="skin6">
-                <!-- Sidebar navigation-->
-                <nav class="sidebar-nav">
-                    <ul id="sidebarnav">
-                        <li class="sidebar-item"> <a class="sidebar-link sidebar-link" href="/admin"
-                                aria-expanded="false"><i data-feather="home" class="feather-icon"></i><span
-                                    class="hide-menu">Dashboard</span></a></li>
-                        <li class="list-divider"></li>
-                        <li class="nav-small-cap"><span class="hide-menu">Applications</span></li>
-
-                     
-                   
-          <!-- <li class="list-divider"></li>
-                        <li class="nav-small-cap"><span class="hide-menu">Authentication</span></li> -->
-     
-              
-
-                        <li class="sidebar-item"> <a class="sidebar-link sidebar-link" href="/allusers"
-                                aria-expanded="false"><i data-feather="feather" class="feather-icon"></i><span
-                                    class="hide-menu">All Users
-                                </span></a>
-                        </li>
-                        <li class="sidebar-item"> <a class="sidebar-link sidebar-link"
-                                href="/allproducts" aria-expanded="false"><i data-feather="feather"
-                                    class="feather-icon"></i><span class="hide-menu">All Products
-                                </span></a>
-                        </li>
-                        <li class="sidebar-item"> <a class="sidebar-link sidebar-link"
-                            href="/newproducts" aria-expanded="false"><i data-feather="feather"
-                                class="feather-icon"></i><span class="hide-menu">Add a new Product
-                            </span></a>
-                    </li>
-                    <li class="sidebar-item"> <a class="sidebar-link sidebar-link"
-                        href="/category" aria-expanded="false"><i data-feather="feather"
-                            class="feather-icon"></i><span class="hide-menu">Category   
-                        </span></a>
-                </li>
-
-
-
-                    </ul>
-                </nav>
-                <!-- End Sidebar navigation -->
-            </div>
-            <!-- End Sidebar scroll-->
-        </aside>
-
-        
-        <!-- ============================================================== -->
-        <!-- End Left Sidebar - style you can find in sidebar.scss  -->
-        <!-- ============================================================== -->
-        <!-- ============================================================== -->
-        <!-- Page wrapper  -->
-        <!-- ============================================================== -->
-        <div class="page-wrapper">
-            <!-- ============================================================== -->
-            <!-- Bread crumb and right sidebar toggle -->
-            <!-- ============================================================== -->
-            <div class="page-breadcrumb">
-                <div class="row">
-                    <div class="col-7 align-self-center">
-                        <h3 class="page-title text-truncate text-dark font-weight-medium mb-1">Good Morning Admin!</h3>
-                        <div class="d-flex align-items-center">
-                            <nav aria-label="breadcrumb">
-                                <ol class="breadcrumb m-0 p-0">
-                                    <li class="breadcrumb-item"><a href="index.html">Dashboard</a>
-                                    </li>
-                                </ol>
-                            </nav>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-            <!-- ============================================================== -->
-            <!-- End Bread crumb and right sidebar toggle -->
-            <!-- ============================================================== -->
-            <!-- ============================================================== -->
-            <!-- Container fluid  -->
-            <!-- ============================================================== -->
-            <div class="container-fluid">
-                <!-- *************************************************************** -->
-                <!-- Start First Cards -->
-                <!-- *************************************************************** -->
-                <div class="card-group">
-                    <div class="card border-right">
-                        <div class="card-body">
-                            <div class="d-flex d-lg-flex d-md-block align-items-center">
-                                <div>
-                                    <div class="d-inline-flex align-items-center">
-                                        <h2 class="text-dark mb-1 font-weight-medium">236</h2>
-                                        <span
-                                            class="badge bg-primary font-12 text-white font-weight-medium badge-pill ml-2 d-lg-block d-md-none">+18.33%</span>
-                                    </div>
-                                    <h6 class="text-muted font-weight-normal mb-0 w-100 text-truncate">New Clients</h6>
-                                </div>
-                                <div class="ml-auto mt-md-3 mt-lg-0">
-                                    <span class="opacity-7 text-muted"><i data-feather="user-plus"></i></span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card border-right">
-                        <div class="card-body">
-                            <div class="d-flex d-lg-flex d-md-block align-items-center">
-                                <div>
-                                    <h2 class="text-dark mb-1 w-100 text-truncate font-weight-medium"><sup
-                                            class="set-doller">$</sup>18,306</h2>
-                                    <h6 class="text-muted font-weight-normal mb-0 w-100 text-truncate">Earnings of Month
-                                    </h6>
-                                </div>
-                                <div class="ml-auto mt-md-3 mt-lg-0">
-                                    <span class="opacity-7 text-muted"><i data-feather="dollar-sign"></i></span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card border-right">
-                        <div class="card-body">
-                            <div class="d-flex d-lg-flex d-md-block align-items-center">
-                                <div>
-                                    <div class="d-inline-flex align-items-center">
-                                        <h2 class="text-dark mb-1 font-weight-medium">1538</h2>
-                                      
-                                    </div>
-                                    <h6 class="text-muted font-weight-normal mb-0 w-100 text-truncate">Total Orders</h6>
-                                </div>
-                                <div class="ml-auto mt-md-3 mt-lg-0">
-                                    <span class="opacity-7 text-muted"><i data-feather="file-plus"></i></span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="d-flex d-lg-flex d-md-block align-items-center">
-                                <div>
-                                    <h2 class="text-dark mb-1 font-weight-medium badge-pill bg-danger ">864</h2>
-                                    <h6 class="text-muted font-weight-normal mb-0 w-100 text-truncate">Undelivered Orders</h6>
-                                </div>
-                                <div class="ml-auto mt-md-3 mt-lg-0">
-                                    <span class="opacity-7 text-muted"><i data-feather="globe"></i></span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- *************************************************************** -->
-                <!-- End First Cards -->
-                <!-- *************************************************************** -->
-                <!-- *************************************************************** -->
-                <!-- Start Sales Charts Section -->
-                <!-- *************************************************************** -->
-                <div class="row">
-                    <div class="col-lg-4 col-md-12">
-                        <div class="card">
-                            <div class="card-body">
-                                <h4 class="card-title">Total Sales</h4>
-                                <div id="campaign-v2" class="mt-2" style="height:283px; width:100%;"></div>
-                                <ul class="list-style-none mb-0">
-                                    <li>
-                                        <i class="fas fa-circle text-primary font-10 mr-2"></i>
-                                        <span class="text-muted">Direct Sales</span>
-                                        <span class="text-dark float-right font-weight-medium">$2346</span>
-                                    </li>
-                                    <li class="mt-3">
-                                        <i class="fas fa-circle text-danger font-10 mr-2"></i>
-                                        <span class="text-muted">Referral Sales</span>
-                                        <span class="text-dark float-right font-weight-medium">$2108</span>
-                                    </li>
-                                    <li class="mt-3">
-                                        <i class="fas fa-circle text-cyan font-10 mr-2"></i>
-                                        <span class="text-muted">Affiliate Sales</span>
-                                        <span class="text-dark float-right font-weight-medium">$1204</span>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-12">
-                        <div class="card">
-                            <div class="card-body">
-                                <h4 class="card-title">Net Income</h4>
-                                <div class="net-income mt-4 position-relative" style="height:294px;"></div>
-                                <ul class="list-inline text-center mt-5 mb-2">
-                                    <li class="list-inline-item text-muted font-italic">Sales for this month</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-12">
-                        <div class="card">
-                                    <div class="card-body">
-                                        <h4 class="card-title">Recent Orders</h4>
-                                        <div class="mt-4 activity">
-                                            <div class="d-flex align-items-start border-left-line pb-3">
-                                                <div>
-                                                    <a href="javascript:void(0)" class="btn btn-info btn-circle mb-2 btn-item">
-                                                        <i data-feather="shopping-cart"></i>
-                                                    </a>
-                                                </div>
-                                                <div class="ml-3 mt-2">
-                                                    <h5 class="text-dark font-weight-medium mb-2">New Product Sold!</h5>
-                                                    <p class="font-14 mb-2 text-muted">John Musa just purchased <br> Cannon 5M
-                                                        Camera.
-                                                    </p>
-                                                    <span class="font-weight-light font-14 text-muted">10 Minutes Ago</span>
-                                                </div>
-                                            </div>
-                                            <div class="d-flex align-items-start border-left-line pb-3">
-                                                <div>
-                                                    <a href="javascript:void(0)" class="btn btn-info btn-circle mb-2 btn-item">
-                                                        <i data-feather="shopping-cart"></i>
-                                                    </a>
-                                                </div>
-                                                <div class="ml-3 mt-2">
-                                                    <h5 class="text-dark font-weight-medium mb-2">New Product Sold!</h5>
-                                                    <p class="font-14 mb-2 text-muted">John Musa just purchased <br> Cannon 5M
-                                                        Camera.
-                                                    </p>
-                                                    <span class="font-weight-light font-14 text-muted">10 Minutes Ago</span>
-                                                </div>
-                                            </div>
-                                            <div class="d-flex align-items-start border-left-line pb-3">
-                                                <div>
-                                                    <a href="javascript:void(0)" class="btn btn-info btn-circle mb-2 btn-item">
-                                                        <i data-feather="shopping-cart"></i>
-                                                    </a>
-                                                </div>
-                                                <div class="ml-3 mt-2">
-                                                    <h5 class="text-dark font-weight-medium mb-2">New Product Sold!</h5>
-                                                    <p class="font-14 mb-2 text-muted">John Musa just purchased <br> Cannon 5M
-                                                        Camera.
-                                                    </p>
-                                                    <span class="font-weight-light font-14 text-muted">10 Minutes Ago</span>
-                                                </div>
-                                            </div>
-
+                        <ul class="navbar-nav float-right">
+                            <!-- ============================================================== -->
+                            <!-- Search -->
+                            <!-- ============================================================== -->
+                            <li class="nav-item d-none d-md-block">
+                                <a class="nav-link" href="javascript:void(0)">
+                                    <form>
+                                        <div class="customize-input">
+                                            <input
+                                                class="form-control custom-shadow custom-radius border-0 bg-white"
+                                                type="search"
+                                                placeholder="Search"
+                                                aria-label="Search"
+                                            />
+                                            <i class="form-control-icon" data-feather="search"></i>
                                         </div>
+                                    </form>
+                                </a>
+                            </li>
+                            <!-- ============================================================== -->
+                            <!-- User profile and search -->
+                            <!-- ============================================================== -->
+                            <li class="nav-item dropdown">
+                                <a
+                                    class="nav-link dropdown-toggle"
+                                    href="javascript:void(0)"
+                                    data-toggle="dropdown"
+                                    aria-haspopup="true"
+                                    aria-expanded="false"
+                                >
+                                    <img
+                                        src="/admin/src/assets/images/users/profile-pic.jpg"
+                                        alt="user"
+                                        class="rounded-circle"
+                                        width="40"
+                                    />
+                                    <span class="ml-2 d-none d-lg-inline-block"
+                                        ><span>Hello,</span> <span class="text-dark">Jason Doe</span>
+                                        <i data-feather="chevron-down" class="svg-icon"></i
+                                    ></span>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-right user-dd animated flipInY">
+                                    <a class="dropdown-item" href="javascript:void(0)"
+                                        ><i data-feather="user" class="svg-icon mr-2 ml-1"></i> My Profile</a
+                                    >
+
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="javascript:void(0)"
+                                        ><i data-feather="settings" class="svg-icon mr-2 ml-1"></i> Account Setting</a
+                                    >
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="/adminsignout"
+                                        ><i data-feather="power" class="svg-icon mr-2 ml-1"></i> Logout</a
+                                    >
+                                </div>
+                            </li>
+                            <!-- ============================================================== -->
+                            <!-- User profile and search -->
+                            <!-- ============================================================== -->
+                        </ul>
+                    </div>
+                </nav>
+            </header>
+            <!-- ============================================================== -->
+            <!-- End Topbar header -->
+            <!-- ============================================================== -->
+            <!-- ============================================================== -->
+            <!-- Left Sidebar - style you can find in sidebar.scss  -->
+            <!-- ============================================================== -->
+            <aside class="left-sidebar" data-sidebarbg="skin6">
+                <!-- Sidebar scroll-->
+                <div class="scroll-sidebar" data-sidebarbg="skin6">
+                    <!-- Sidebar navigation-->
+                    <nav class="sidebar-nav">
+                        <ul id="sidebarnav">
+                            <li class="sidebar-item">
+                                <a class="sidebar-link sidebar-link" href="/admin" aria-expanded="false"
+                                    ><i data-feather="home" class="feather-icon"></i
+                                    ><span class="hide-menu">Dashboard</span></a
+                                >
+                            </li>
+                            <li class="list-divider"></li>
+                            <li class="nav-small-cap"><span class="hide-menu">Applications</span></li>
+
+                            <!-- <li class="list-divider"></li>
+                        <li class="nav-small-cap"><span class="hide-menu">Authentication</span></li> -->
+
+                            <li class="sidebar-item">
+                                <a class="sidebar-link sidebar-link" href="/allusers" aria-expanded="false"
+                                    ><i data-feather="feather" class="feather-icon"></i
+                                    ><span class="hide-menu">All Users </span></a
+                                >
+                            </li>
+                            <li class="sidebar-item">
+                                <a class="sidebar-link sidebar-link" href="/allproducts" aria-expanded="false"
+                                    ><i data-feather="feather" class="feather-icon"></i
+                                    ><span class="hide-menu">All Products </span></a
+                                >
+                            </li>
+                            <li class="sidebar-item">
+                                <a class="sidebar-link sidebar-link" href="/newproducts" aria-expanded="false"
+                                    ><i data-feather="feather" class="feather-icon"></i
+                                    ><span class="hide-menu">Add a new Product </span></a
+                                >
+                            </li>
+                            <li class="sidebar-item">
+                                <a class="sidebar-link sidebar-link" href="/category" aria-expanded="false"
+                                    ><i data-feather="feather" class="feather-icon"></i
+                                    ><span class="hide-menu">Category </span></a
+                                >
+                            </li>
+                        </ul>
+                    </nav>
+                    <!-- End Sidebar navigation -->
+                </div>
+                <!-- End Sidebar scroll-->
+            </aside>
+
+            <!-- ============================================================== -->
+            <!-- End Left Sidebar - style you can find in sidebar.scss  -->
+            <!-- ============================================================== -->
+            <!-- ============================================================== -->
+            <!-- Page wrapper  -->
+            <!-- ============================================================== -->
+            <div class="page-wrapper">
+                <!-- ============================================================== -->
+                <!-- Bread crumb and right sidebar toggle -->
+                <!-- ============================================================== -->
+                <div class="page-breadcrumb">
+                    <div class="row">
+                        <div class="col-7 align-self-center">
+                            <h3 class="page-title text-truncate text-dark font-weight-medium mb-1">Good Morning Admin!</h3>
+                            <div class="d-flex align-items-center">
+                                <nav aria-label="breadcrumb">
+                                    <ol class="breadcrumb m-0 p-0">
+                                        <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
+                                    </ol>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- ============================================================== -->
+                <!-- End Bread crumb and right sidebar toggle -->
+                <!-- ============================================================== -->
+                <!-- ============================================================== -->
+                <!-- Container fluid  -->
+                <!-- ============================================================== -->
+                <div class="container-fluid">
+                    <!-- *************************************************************** -->
+                    <!-- Start First Cards -->
+                    <!-- *************************************************************** -->
+                    <div class="card-group">
+                        <div class="card border-right">
+                            <div class="card-body">
+                                <div class="d-flex d-lg-flex d-md-block align-items-center">
+                                    <div>
+                                        <div class="d-inline-flex align-items-center">
+                                            <h2 class="text-dark mb-1 font-weight-medium"><%=totalusers%></h2>
+                                            <span
+                                                class="badge bg-primary font-12 text-white font-weight-medium badge-pill ml-2 d-lg-block d-md-none"
+                                                >+18.33%</span
+                                            >
+                                        </div>
+                                        <h6 class="text-muted font-weight-normal mb-0 w-100 text-truncate">New Clients</h6>
+                                    </div>
+                                    <div class="ml-auto mt-md-3 mt-lg-0">
+                                        <span class="opacity-7 text-muted"><i data-feather="user-plus"></i></span>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                        <div class="card border-right">
+                            <div class="card-body">
+                                <div class="d-flex d-lg-flex d-md-block align-items-center">
+                                    <div>
+                                        <h2 class="text-dark mb-1 w-100 text-truncate font-weight-medium">
+                                            <sup class="set-doller">₹</sup><%=totalearnings%>
+                                        </h2>
+                                        <h6 class="text-muted font-weight-normal mb-0 w-100 text-truncate">
+                                            total Earnings
+                                        </h6>
+                                    </div>
+                                    <div class="ml-auto mt-md-3 mt-lg-0">
+                                        <span class="opacity-7 text-muted"><i data-feather="dollar-sign"></i></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card border-right">
+                            <div class="card-body">
+                                <div class="d-flex d-lg-flex d-md-block align-items-center">
+                                    <div>
+                                        <div class="d-inline-flex align-items-center">
+                                            <h2 class="text-dark mb-1 font-weight-medium"><%=TotalOrders%></h2>
+                                        </div>
+                                        <h6 class="text-muted font-weight-normal mb-0 w-100 text-truncate">Total Orders</h6>
+                                    </div>
+                                    <div class="ml-auto mt-md-3 mt-lg-0">
+                                        <span class="opacity-7 text-muted"><i data-feather="file-plus"></i></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex d-lg-flex d-md-block align-items-center">
+                                    <div>
+                                        <h2 class="text-dark mb-1 font-weight-medium badge-pill bg-danger">
+                                            <%=undelivered%>
+                                        </h2>
+                                        <h6 class="text-muted font-weight-normal mb-0 w-100 text-truncate">
+                                            Undelivered Orders
+                                        </h6>
+                                    </div>
+                                    <div class="ml-auto mt-md-3 mt-lg-0">
+                                        <span class="opacity-7 text-muted"><i data-feather="globe"></i></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- *************************************************************** -->
+                    <!-- End First Cards -->
+                    <!-- *************************************************************** -->
+                    <!-- *************************************************************** -->
+                    <!-- Start Sales Charts Section -->
+                    <!-- *************************************************************** -->
+                    <div class="row">
+                        <div class="col-lg-4 col-md-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h4 class="card-title">Total Sales</h4>
+                                    <canvas id="totalSalesChart" class="mt-2" style="height: 283px; width: 100%"></canvas>
+                                    <ul class="list-style-none mb-0">
+                                        <br />
+                                        <li>
+                                            <i class="fas fa-circle text-primary font-10 mr-2"></i>
+                                            <span class="text-muted"
+                                                >Online Payment (<span id="onlinePaymentCount"></span>)</span
+                                            >
+                                            <span class="text-dark float-right font-weight-medium" id="onlinePaymentAmount"
+                                                >₹0</span
+                                            >
+                                        </li>
+                                        <li class="mt-3">
+                                            <i class="fas fa-circle text-danger font-10 mr-2"></i>
+                                            <span class="text-muted"
+                                                >Cash on Delivery (<span id="cashOnDeliveryCount"></span>)</span
+                                            >
+                                            <span class="text-dark float-right font-weight-medium" id="cashOnDeliveryAmount"
+                                                >₹0</span
+                                            >
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <script>
+                            fetch("/adminDash/pie")
+                                .then((response) => response.json())
+                                .then((data) => {
+                                    // Extracting data for the chart
+                                    const onlinePaymentCount = data.onlinePaymentCount;
+                                    const cashOnDeliveryCount = data.cashOnDeliveryCount;
+                                    const onlinePaymentAmount = data.onlinePaymentAmount;
+                                    const cashOnDeliveryAmount = data.cashOnDeliveryAmount;
+
+                                    // Updating the HTML with the fetched data
+                                    document.getElementById("onlinePaymentCount").innerText = onlinePaymentCount;
+                                    document.getElementById("cashOnDeliveryCount").innerText = cashOnDeliveryCount;
+                                    document.getElementById("onlinePaymentAmount").innerText = `₹${onlinePaymentAmount}`;
+                                    document.getElementById("cashOnDeliveryAmount").innerText = `₹${cashOnDeliveryAmount}`;
+
+                                    // Render the pie chart with the fetched data
+                                    var ctx = document.getElementById("totalSalesChart").getContext("2d");
+                                    var totalSalesChart = new Chart(ctx, {
+                                        type: "pie",
+                                        data: {
+                                            labels: ["Online Payment", "Cash on Delivery"],
+                                            datasets: [
+                                                {
+                                                    data: [onlinePaymentAmount, cashOnDeliveryAmount],
+                                                    backgroundColor: ["rgba(75, 192, 192, 0.2)", "rgba(255, 99, 132, 0.2)"],
+                                                    borderColor: ["rgba(75, 192, 192, 1)", "rgba(255, 99, 132, 1)"],
+                                                    borderWidth: 1,
+                                                },
+                                            ],
+                                        },
+                                        options: {
+                                            rotation: -Math.PI,
+                                            animation: {
+                                                animateRotate: true,
+                                                animateScale: true,
+                                            },
+                                            hover: {
+                                                mode: "nearest",
+                                                intersect: true,
+                                            },
+                                            legend: {
+                                                position: "right",
+                                            },
+                                            title: {
+                                                display: true,
+                                                text: "Total Sales Distribution",
+                                            },
+                                            tooltips: {
+                                                callbacks: {
+                                                    label: function (tooltipItem, data) {
+                                                        var label = data.labels[tooltipItem.index];
+                                                        var value = data.datasets[0].data[tooltipItem.index];
+                                                        return `${label}: ₹${value}`;
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    });
+                                })
+                                .catch((error) => console.error("Error fetching data:", error));
+                        </script>
+
+                        <div class="col-lg-4 col-md-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h4 class="card-title">Net Income</h4>
+                                    <canvas id="netIncomeChart" height="300"></canvas>
+                                    <ul class="list-inline text-center mt-5 mb-2">
+                                        <li class="list-inline-item text-muted font-italic">Sales for this month</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Add this in your HTML file -->
+                        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                        <script>
+                            fetch("/adminDash/netIncome")
+                                .then((response) => response.json())
+                                .then((data) => {
+                                    const months = [
+                                        "January",
+                                        "February",
+                                        "March",
+                                        "April",
+                                        "May",
+                                        "June",
+                                        "July",
+                                        "August",
+                                        "September",
+                                        "October",
+                                        "November",
+                                        "December",
+                                    ];
+
+                                    // Extracting data for the chart
+                                    const labels = data.monthlySales.map((entry) => months[entry.month - 1]); // Assuming month numbers are 1-indexed
+                                    const salesData = data.monthlySales.map((entry) => entry.totalSales);
+
+                                    // Render the chart with the fetched data
+                                    var ctx = document.getElementById("netIncomeChart").getContext("2d");
+                                    var netIncomeChart = new Chart(ctx, {
+                                        type: "bar",
+                                        data: {
+                                            labels: labels,
+                                            datasets: [
+                                                {
+                                                    label: "Monthly Sales",
+                                                    data: salesData,
+                                                    backgroundColor: "rgba(75, 192, 192, 0.2)",
+                                                    borderColor: "rgba(75, 192, 192, 1)",
+                                                    borderWidth: 1,
+                                                },
+                                            ],
+                                        },
+                                        options: {
+                                            scales: {
+                                                y: {
+                                                    beginAtZero: true,
+                                                },
+                                            },
+                                        },
+                                    });
+                                })
+                                .catch((error) => console.error("Error fetching data:", error));
+                        </script>
+
+                        <div class="col-lg-4 col-md-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h4 class="card-title">Recent Orders</h4>
+                                    <div class="mt-4 activity">
+                                        <% recentOrders.forEach(order => { %>
+                                        <div class="d-flex align-items-start border-left-line pb-3">
+                                            <div>
+                                                <a href="javascript:void(0)" class="btn btn-info btn-circle mb-2 btn-item">
+                                                    <i data-feather="shopping-cart"></i>
+                                                </a>
+                                            </div>
+                                            <div class="ml-3 mt-2">
+                                                <h5 class="text-dark font-weight-medium mb-2">New Product Sold!</h5>
+                                                <p class="font-14 mb-2 text-muted">
+                                                    <%= order.user.name %> just purchased <br />
+                                                    <% order.Products.forEach(product => { %> <%= product.name %> x<%=
+                                                    product.quantity %> for ₹<%= product.total %><br />
+                                                    <% }); %>
+                                                </p>
+                                                <span class="font-weight-light font-14 text-muted">
+                                                    <%= order.date.toLocaleString('en-US', { dateStyle: 'medium', timeStyle:
+                                                    'medium' }) %>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <% }); %>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <!-- *************************************************************** -->
                 <!-- End Sales Charts Section -->
@@ -434,15 +577,21 @@
                 <!-- *************************************************************** -->
                 <div class="row">
                     <div class="col-md-6 col-lg-8">
+
                         <div class="card">
                             <div class="card-body">
                                 <div class="d-flex align-items-start">
                                     <h4 class="card-title mb-0">Earning Statistics</h4>
                                     <div class="ml-auto">
                                         <div class="dropdown sub-dropdown">
-                                            <button class="btn btn-link text-muted dropdown-toggle" type="button"
-                                                id="dd1" data-toggle="dropdown" aria-haspopup="true"
-                                                aria-expanded="false">
+                                            <button
+                                                class="btn btn-link text-muted dropdown-toggle"
+                                                type="button"
+                                                id="dd1"
+                                                data-toggle="dropdown"
+                                                aria-haspopup="true"
+                                                aria-expanded="false"
+                                            >
                                                 <i data-feather="more-vertical"></i>
                                             </button>
                                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dd1">
@@ -454,97 +603,177 @@
                                     </div>
                                 </div>
                                 <div class="pl-4 mb-5">
-                                    <div class="stats ct-charts position-relative" style="height: 315px;"></div>
+                                    <canvas
+                                        id="earningChart"
+                                        class="ct-charts position-relative"
+                                        style="height: 315px"
+                                    ></canvas>
                                 </div>
                                 <ul class="list-inline text-center mt-4 mb-0">
                                     <li class="list-inline-item text-muted font-italic">Earnings for this month</li>
                                 </ul>
                             </div>
                         </div>
+
+                        <script>
+                            fetch("/adminDash/earningWave") // Replace with the appropriate endpoint in your backend
+                                .then((response) => response.json())
+                                .then((data) => {
+                                    // Render the wave diagram chart with the fetched data
+                                    var ctx = document.getElementById("earningChart").getContext("2d");
+                                    var earningChart = new Chart(ctx, {
+                                        type: "line",
+                                        data: {
+                                            labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+                                            datasets: [
+                                                {
+                                                    label: "Earnings",
+                                                    data: data.dailyEarnings,
+                                                    borderColor: "rgba(75, 192, 192, 1)",
+                                                    borderWidth: 2,
+                                                    fill: false,
+                                                    pointRadius: 5,
+                                                    pointBackgroundColor: "rgba(75, 192, 192, 1)",
+                                                },
+                                            ],
+                                        },
+                                        options: {
+                                            scales: {
+                                                y: {
+                                                    beginAtZero: true,
+                                                },
+                                            },
+                                        },
+                                    });
+                                })
+                                .catch((error) => console.error("Error fetching data:", error));
+                        </script>
+                        
                     </div>
-                   
-                <!-- *************************************************************** -->
-                <!-- End Location and Earnings Charts Section -->
-                <!-- *************************************************************** -->
-                <!-- *************************************************************** -->
-                <!-- Start Top Leader Table -->
-                <!-- *************************************************************** -->
-                
-                <!-- *************************************************************** -->
-                <!-- End Top Leader Table -->
-                <!-- *************************************************************** -->
+                    <div class="col-lg-4 col-md-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title">Statuses</h4>
+                                <div class="mt-4">
+                                    <canvas id="statusChart" class="activity"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    <script>
+                        fetch('/adminDash/orderStatus')
+                        .then(response => response.json())
+                        .then(data => {
+                            renderGroupedBarChart(data);
+                        })
+                        .catch(error => console.error('Error fetching data:', error));
+                    
+                    function renderGroupedBarChart(data) {
+                        const labels = ['Placed', 'Shipped', 'Delivered', 'Request Return', 'Returned', 'Requested Cancellation', 'Cancelled'];
+                    
+                        const datasets = labels.map((label, index) => ({
+                            label: label,
+                            backgroundColor: `rgba(${getColor(index)}, 0.5)`,
+                            borderColor: `rgba(${getColor(index)}, 1)`,
+                            borderWidth: 1,
+                            data: [data[label.toLowerCase()]]
+                        }));
+                    
+                        const ctx = document.getElementById('statusChart').getContext('2d');
+                        const statusChart = new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: labels,
+                                datasets: datasets
+                            },
+                            options: {
+                                indexAxis: 'y', // Display bars horizontally
+                                scales: {
+                                    x: {
+                                        beginAtZero: true
+                                    }
+                                }
+                            }
+                        });
+                    }
+                    
+                    function getColor(index) {
+                        const colors = [
+                            '255, 99, 132', '54, 162, 235', '255, 206, 86',
+                            '75, 192, 192', '153, 102, 255', '255, 159, 64', '201, 203, 207'
+                        ];
+                    
+                        return colors[index % colors.length];
+                    }
+                    
+                    </script>
+                    <!-- *************************************************************** -->
+                    <!-- End Location and Earnings Charts Section -->
+                    <!-- *************************************************************** -->
+                    <!-- *************************************************************** -->
+                    <!-- Start Top Leader Table -->
+                    <!-- *************************************************************** -->
+
+                    <!-- *************************************************************** -->
+                    <!-- End Top Leader Table -->
+                    <!-- *************************************************************** -->
+                </div>
+                <!-- ============================================================== -->
+                <!-- End Container fluid  -->
+                <!-- ============================================================== -->
+                <!-- ============================================================== -->
+                <!-- footer -->
+                <!-- ============================================================== -->
+                <footer class="footer text-center">All rights reserved &copy; 2023 Shoe Rack</footer>
+
+                <footer class="footer text-center text-muted">
+                    Designed by <a href="https://wrappixel.com">WrapPixel</a> Developed by
+                    <a href="https://linkedin.com/in/abhiabhishektr/">Abhishek</a>
+                </footer>
+
+                <!-- ============================================================== -->
+                <!-- End footer -->
+                <!-- ============================================================== -->
             </div>
             <!-- ============================================================== -->
-            <!-- End Container fluid  -->
-            <!-- ============================================================== -->
-            <!-- ============================================================== -->
-            <!-- footer -->
-            <!-- ============================================================== -->
-            <footer class="footer text-center">
-                All rights reserved &copy; 2023 Shoe Rack
-            </footer>
-
-            <footer class="footer text-center text-muted">
-                 Designed by <a href="https://wrappixel.com">WrapPixel</a>
-                 Developed  by <a href="https://linkedin.com/in/abhiabhishektr/">Abhishek</a> 
-            </footer>
-          
-            <!-- ============================================================== -->
-            <!-- End footer -->
+            <!-- End Page wrapper  -->
             <!-- ============================================================== -->
         </div>
         <!-- ============================================================== -->
-        <!-- End Page wrapper  -->
+        <!-- End Wrapper -->
         <!-- ============================================================== -->
-    </div>
-    <!-- ============================================================== -->
-    <!-- End Wrapper -->
-    <!-- ============================================================== -->
-    <!-- End Wrapper -->
-    <!-- ============================================================== -->
-    <!-- All Jquery -->
-    <!-- ============================================================== -->
+        <!-- End Wrapper -->
+        <!-- ============================================================== -->
+        <!-- All Jquery -->
+        <!-- ============================================================== -->
 
+        <!-- ============================================================== -->
+        <!-- Footer -->
+        <!-- ============================================================== -->
 
+        <!-- ============================================================== -->
+        <!-- End Footer -->
+        <!-- ============================================================== -->
 
-
-
-
-
-    <!-- ============================================================== -->
-<!-- Footer -->
-<!-- ============================================================== -->
-
-<!-- ============================================================== -->
-<!-- End Footer -->
-<!-- ============================================================== -->
-
-
-
-
-
-
-
-
-    <script src="/admin/src/assets/libs/jquery/dist/jquery.min.js"></script>
-    <script src="/admin/src/assets/libs/popper.js/dist/umd/popper.min.js"></script>
-    <script src="/admin/src/assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
-    <!-- apps -->
-    <!-- apps -->
-    <script src="/admin/src/dist/js/app-style-switcher.js"></script>
-    <script src="/admin/src/dist/js/feather.min.js"></script>
-    <script src="/admin/src/assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js"></script>
-    <script src="/admin/src/dist/js/sidebarmenu.js"></script>
-    <!--Custom JavaScript -->
-    <script src="/admin/src/dist/js/custom.min.js"></script>
-    <!--This page JavaScript -->
-    <script src="/admin/src/assets/extra-libs/c3/d3.min.js"></script>
-    <script src="/admin/src/assets/extra-libs/c3/c3.min.js"></script>
-    <script src="/admin/src/assets/libs/chartist/dist/chartist.min.js"></script>
-    <script src="/admin/src/assets/libs/chartist-plugin-tooltips/dist/chartist-plugin-tooltip.min.js"></script>
-    <script src="/admin/src/assets/extra-libs/jvector/jquery-jvectormap-2.0.2.min.js"></script>
-    <script src="/admin/src/assets/extra-libs/jvector/jquery-jvectormap-world-mill-en.js"></script>
-    <script src="/admin/src/dist/js/pages/dashboards/dashboard1.min.js"></script>
-</body>
-
+        <script src="/admin/src/assets/libs/jquery/dist/jquery.min.js"></script>
+        <script src="/admin/src/assets/libs/popper.js/dist/umd/popper.min.js"></script>
+        <script src="/admin/src/assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
+        <!-- apps -->
+        <!-- apps -->
+        <script src="/admin/src/dist/js/app-style-switcher.js"></script>
+        <script src="/admin/src/dist/js/feather.min.js"></script>
+        <script src="/admin/src/assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js"></script>
+        <script src="/admin/src/dist/js/sidebarmenu.js"></script>
+        <!--Custom JavaScript -->
+        <script src="/admin/src/dist/js/custom.min.js"></script>
+        <!--This page JavaScript -->
+        <script src="/admin/src/assets/extra-libs/c3/d3.min.js"></script>
+        <script src="/admin/src/assets/extra-libs/c3/c3.min.js"></script>
+        <script src="/admin/src/assets/libs/chartist/dist/chartist.min.js"></script>
+        <script src="/admin/src/assets/libs/chartist-plugin-tooltips/dist/chartist-plugin-tooltip.min.js"></script>
+        <script src="/admin/src/assets/extra-libs/jvector/jquery-jvectormap-2.0.2.min.js"></script>
+        <script src="/admin/src/assets/extra-libs/jvector/jquery-jvectormap-world-mill-en.js"></script>
+        <script src="/admin/src/dist/js/pages/dashboards/dashboard1.min.js"></script>
+    </body>
 </html>

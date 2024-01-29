@@ -1,106 +1,71 @@
-<div class="tab-pane fade" id="tab-address" role="tabpanel" aria-labelledby="tab-address-link">
-
-    <h2 class="checkout-title">Saved Address :</h2>
-
-    <div class="d-flex flex-wrap">
-                        
-        <% let selectedAddressIndex = -1; %>
-        <% addresses.forEach(function(address, index) { %>
-            <!-- <P><%=  index%></P> -->
-            <div class="col-sm-6 col-md-4 col-lg-3 mb-3">
-                <div class="p-3 border rounded" style="cursor: pointer; transition: background-color 0.3s ease;" onclick="selectAddress(this, <%= index %>);">
-                    <p class="mb-1"><strong>Name:</strong> <%= address.firstName %> <%= address.lastName %></p>
-                    <p class="mb-1"><strong>Pin Code:</strong> <%= address.postcodeZIP %></p>
-                    <p class="mb-1"><strong>Address Name:</strong> <%= address.streetAddress1 %></p>
-                    <p class="mb-1"><strong>Phone No:</strong> <%= address.phone %></p>
-                    <!-- Add other address fields as needed -->
-    
-                    <!-- Add a hidden input field to store the address ID -->
-                    <input type="hidden" class="address-id" value="<%= address._id %>">
-    
-                    <!-- Checkmark icon for selected address -->
-                    <% if (selectedAddressIndex === index) { %>
-                        <span class="selected-icon">&#10003;</span>
-                    <% } %>
-                </div>
-            </div>
-        <% }); %>
-    </div>
-
-    <button type="button" class="btn btn-outline-primary-2 btn-order btn-block btn-auto" onclick="toggleAddAddressForm()">
-        <span class="btn-text">Add Address</span>
-        <span class="btn-hover-text">Proceed to Add Address</span>
-    </button>
-
-    <!-- Add Address Form -->
-    <div id="addAddressForm" style="display: none;">
-        <form action="/addAddress/" method="post">
-            <!-- Add Address Form fields here... -->
-            <div class="col-lg-12">
-                <h2 class="checkout-title">Shipping Details</h2><!-- End .checkout-title -->
-                <div class="row">
-                    <div class="col-sm-6">
-                        <label>First Name *</label>
-                        <input type="text" class="form-control" name="firstName" required>
-                    </div><!-- End .col-sm-6 -->
-        
-                    <div class="col-sm-6">
-                        <label>Last Name *</label>
-                        <input type="text" class="form-control" name="lastName" required>
-                    </div><!-- End .col-sm-6 -->
-                </div><!-- End .row -->
-        
-                <label>Company Name (Optional)</label>
-                <input type="text" class="form-control" name="companyName">
-        
-                <label>Country *</label>
-                <input type="text" class="form-control" name="country" required>
-        
-                <label>Street address *</label>
-                <input type="text" class="form-control" name="streetAddress1" placeholder="House number and Street name" required>
-                <input type="text" class="form-control" name="streetAddress2" placeholder="Appartments, suite, unit etc ..." required>
-        
-                <div class="row">
-                    <div class="col-sm-6">
-                        <label>Town / City *</label>
-                        <input type="text" class="form-control" name="townCity" required>
-                    </div><!-- End .col-sm-6 -->
-        
-                    <div class="col-sm-6">
-                        <label>State / County *</label>
-                        <input type="text" class="form-control" name="stateCounty" required>
-                    </div><!-- End .col-sm-6 -->
-                </div><!-- End .row -->
-        
-                <div class="row">
-                    <div class="col-sm-6">
-                        <label>Postcode / ZIP *</label>
-                        <input type="text" class="form-control" name="postcodeZIP" required>
-                    </div><!-- End .col-sm-6 -->
-        
-                    <div class="col-sm-6">
-                        <label>Phone *</label>
-                        <input type="tel" class="form-control" name="phone" required>
-                    </div><!-- End .col-sm-6 -->
-                </div><!-- End .row -->
-        
-            </div><!-- End .col-lg-9 -->
-
-            <button type="submit" class="btn btn-outline-primary-2 btn-order btn-block" >
-                <span class="btn-text">Add Address</span>
-                <span class="btn-hover-text">Proceed to Add Address</span>
-            </button>
-        </form>
-    </div>
-</div>
-
-<script>
-    function toggleAddAddressForm() {
-        const addAddressForm = document.getElementById('addAddressForm');
-        if (addAddressForm.style.display === 'none') {
-            addAddressForm.style.display = 'block';
-        } else {
-            addAddressForm.style.display = 'none';
-        }
+var formData = {
+    key: response.key_id,
+    amount: response.amount,
+    currency: 'INR',
+    name: response.product_name,
+    description: response.description,
+    image: '',
+    order_id: response.orderId,
+    handler: function (paymentResponse) {
+        // Handle the successful payment response
+        Swal.fire({
+            icon: 'success',
+            title: 'Payment Succeeded',
+            text: 'Your payment was successful!',
+        }).then(() => {
+            // Make the AJAX request to '/success'
+            $.ajax({
+                url: '/success',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    razorpayOrderId: response.orderId,
+                    paymentResponse: paymentResponse,
+                    mongodbOrderIds: response.mongodbOrderId,
+                }),
+                success: function (serverResponse) {
+                    console.log('Server Response:', serverResponse);
+                },
+                error: function (xhr, status, error) {
+                    console.error('Ajax error:', status, error);
+                }
+            });
+        });
+    },
+    prefill: {
+        contact: response.contact,
+        name: response.name,
+        email: response.email
     }
-</script>
+};
+
+// Call the Razorpay payment handler with the options
+var rzp = new Razorpay(formData);
+
+// Handle payment failure with SweetAlert
+rzp.on('payment.failed', function (response) {
+    Swal.fire({
+        icon: 'error',
+        title: 'Payment failed',
+        text: 'Oops! Something went wrong with your payment.',
+    }).then(() => {
+        // Make the AJAX request to '/failure'
+        $.ajax({
+            url: '/failure',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                razorpayOrderId: response.razorpay_order_id,
+                error: response.error,
+                paymentResponse: response,
+                mongodbOrderIds: response.notes.mongodbOrderId
+            }),
+            success: function (serverResponse) {
+                console.log('Server Response:', serverResponse);
+            },
+            error: function (xhr, status, error) {
+                console.error('Ajax error:', status, error);
+            }
+        });
+    });
+});

@@ -318,6 +318,11 @@
 
                                         <table>
                                             <tbody>
+                                                <% if (orders.length === 0) { %>
+                                                    <tr>
+                                                        <td colspan="10" class="text-center">No orders yet</td>
+                                                    </tr>
+                                                <% } else { %>
                                                 <% orders.reverse().forEach(order => { %>
                                                     <% order.Products.reverse().forEach(product => { %>
                                                         <tr>
@@ -326,7 +331,7 @@
                                                                     <a href="/orderDetails/<%=order._id%>">
                                                                     <img src="/uploads/<%= product.image %>" alt="Product Image" class="img-fluid rounded mr-3" style="max-width: 120px; max-height: 120px;" >
                                                                    </a> <div>
-                                                                        <div><strong><%= product.products.name %> &nbsp;&nbsp;</strong></div>
+
                                                                
                                                                     </div>
                                                                 </div>
@@ -352,6 +357,7 @@
                                                         </tr>
                                                     <% }); %>
                                                 <% }); %>
+                                                <% } %>
                                             </tbody>
                                                                                                                                                                           
                                     </table>
@@ -566,12 +572,15 @@ window.location.href = urlWithTabParam;
                                                     <div class="row">
                                                         <div class="col-sm-6">
                                                             <label>First Name *</label>
-                                                            <input type="text" class="form-control" name="firstName" value="<%=locals.firstName ? locals.firstName : '' %>" required>
+                                                            <input type="text" class="form-control" name="firstName" value="<%=locals.firstName ? locals.firstName : '' %>" required pattern="^\S+$">
+                                                            <div class="invalid-feedback">Please provide a First name.</div>
+
                                                         </div><!-- End .col-sm-6 -->
                                             
                                                         <div class="col-sm-6">
                                                             <label>Last Name *</label>
-                                                            <input type="text" class="form-control" name="lastName" value="<%= locals.lastName ? locals.lastName : '' %>" required>
+                                                            <input type="text" class="form-control" name="lastName" value="<%= locals.lastName ? locals.lastName : '' %>" required pattern="^\S.*\S$">
+                                                            <div class="invalid-feedback">Please provide a Last name.</div>
                                                         </div><!-- End .col-sm-6 -->
                                                     </div><!-- End .row -->
                                             
@@ -579,33 +588,42 @@ window.location.href = urlWithTabParam;
                                                     <input type="text" class="form-control" name="companyName" value="<%=locals.companyName ? locals.companyName : '' %>">
                                             
                                                     <label>Country *</label>
-                                                    <input type="text" class="form-control" name="country" value="<%=locals.country ? locals.country : '' %>" required>
+                                                    <input type="text" class="form-control" name="country" value="<%=locals.country ? locals.country : '' %>" required pattern="^\S.*\S$">
+                                                    <div class="invalid-feedback">Please provide a Country.</div>
                                             
                                                     <label>Street address *</label>
-                                                    <input type="text" class="form-control" name="streetAddress1" placeholder="House number and Street name" value="<%= locals.streetAddress1 ? locals.streetAddress1 : '' %>" required>
-                                                    <input type="text" class="form-control" name="streetAddress2" placeholder="Appartments, suite, unit etc ..."  value="<%= locals.streetAddress2 ? locals.streetAddress2 : '' %>" required>
+                                                    <input type="text" class="form-control" name="streetAddress1" placeholder="House number and Street name" value="<%= locals.streetAddress1 ? locals.streetAddress1 : '' %>" required pattern="^\S.*\S$">
+                                                    <div class="invalid-feedback">Please provide a Main Street address.</div>
+
+                                                    <input type="text" class="form-control" name="streetAddress2" placeholder="Appartments, suite, unit etc ..."  value="<%= locals.streetAddress2 ? locals.streetAddress2 : '' %>" required pattern="^\S.*\S$">
+                                                    <div class="invalid-feedback">Please provide a Sub Street.</div>
+
                                             
                                                     <div class="row">
                                                         <div class="col-sm-6">
                                                             <label>Town / City *</label>
-                                                            <input type="text" class="form-control" name="townCity" value="<%= locals.townCity ? locals.townCity : '' %>" required>
+                                                            <input type="text" class="form-control" name="townCity" value="<%= locals.townCity ? locals.townCity : '' %>" required pattern="^\S.*\S$">
+                                                            <div class="invalid-feedback">Please provide a City.</div>
+
                                                         </div><!-- End .col-sm-6 -->
                                             
                                                         <div class="col-sm-6">
                                                             <label>State / County *</label>
-                                                            <input type="text" class="form-control" name="stateCounty" value="<%= locals.stateCounty ? locals.stateCounty : '' %>" required>
+                                                            <input type="text" class="form-control" name="stateCounty" value="<%= locals.stateCounty ? locals.stateCounty : '' %>" required pattern="^\S.*\S$">
+                                                            <div class="invalid-feedback">Please provide a State.</div>
+
                                                         </div><!-- End .col-sm-6 -->
                                                     </div><!-- End .row -->
                                             
                                                     <div class="row">
                                                         <div class="col-sm-6">
                                                             <label>Postcode / ZIP *</label>
-                                                            <input type="text" class="form-control" name="postcodeZIP" value="<%= locals.postcodeZIP ? locals.postcodeZIP : '' %>" required>
+                                                            <input type="text" class="form-control" name="postcodeZIP" value="<%= locals.postcodeZIP ? locals.postcodeZIP : '' %>"  pattern="[0-9]{6}" required>
                                                         </div><!-- End .col-sm-6 -->
                                             
                                                         <div class="col-sm-6">
                                                             <label>Phone *</label>
-                                                            <input type="tel" class="form-control" name="phone" value="<%= locals.phone ? locals.phone : '' %>" required>
+                                                            <input type="tel" class="form-control" name="phone" value="<%= locals.phone ? locals.phone : '' %>" pattern="[789]\d{9}" required>
                                                         </div><!-- End .col-sm-6 -->
                                                     </div><!-- End .row -->
                                             
@@ -666,7 +684,7 @@ function toggleAddAddressFormWithData  (address, index) {
     const submitButton = document.getElementById('submitButton');
 
     // Set the form action based on the provided address data
-    addAddressFormOg.action = address.companyName ? `/updateAddress/${index}` : '/addAddress/1';
+    addAddressFormOg.action = address.firstName ? `/updateAddress/${index}` : '/addAddress/1';
     console.log('Form action set to:', addAddressForm.action);
 
     if (addAddressForm.style.display === 'none') {
@@ -711,18 +729,12 @@ function toggleAddAddressFormWithData  (address, index) {
                 phone: document.querySelector('#addAddressForm [name="phone"]').value,
             }),
         })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Update Address response:', data);
-            console.log(index);
-            console.log(data.message)
-            // Call the buttoneffect function with the appropriate arguments
-         //if(data.message){
-         //     buttoneffect(2, index); 
-         //  }
-            
-
-            // You can handle the update response as needed
+        .then((response)=>{
+            if(response.ok){
+                console.log(response)
+               // reloadAddressTab()
+            }
+           
         })
         .catch(error => {
             console.error('Update Address error:', error);

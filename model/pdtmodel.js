@@ -36,6 +36,9 @@
     size: {
       type: String, // You can change this to an array if a product can have multiple sizes
     },
+    productDeleted: {
+      type: String,
+    },
   }, { versionKey: false });
 
   module.exports = mongoose.model('Product', productSchema);

@@ -50,7 +50,7 @@ const ordersSchema = mongoose.Schema({
         type: String,
 
     },
-    total: {
+    subtotal: {
         type: Number
     },
     date: {
@@ -59,7 +59,12 @@ const ordersSchema = mongoose.Schema({
     address: {
         type: Object
     },
+    onlinePaymentStatus:{
+        type: String,
+    },onlineTransactionId:{
+        type: String,
+    }
 
-});
+}, { versionKey: false });
 
 module.exports = mongoose.model('orders', ordersSchema);

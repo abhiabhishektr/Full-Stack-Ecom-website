@@ -5,16 +5,14 @@ const adminMid=require("../middleware/adminMid")
 router.set("view engine", "ejs");
 router.set("views", "views/admin");
 
-
-
-
-
 const adminController = require("../controller/adminController");
+const userAdsBanner =require('../controller/userAdsBanner')
 
 
-
-
-
+router.get('/adminDash/netIncome', adminController.getNetIncomeData);
+router.get('/adminDash/pie', adminController.getPieDia);
+router.get('/adminDash/earningWave', adminController.earningWave);
+router.get('/adminDash/orderStatus', adminController.orderStatus);
 
 router.get("/admin",adminMid.islogin, adminController.admin);
 router.get('/adminsignout',adminController.adminsignout)
@@ -59,6 +57,34 @@ router.get("/blockproduct/:id",adminController.blockproduct);
 // ==========Orders=========
 router.get("/OrdersAdmin",adminController.OrdersAdmin);
 router.put("/OrdersStatus/:id",adminController.OrdersStatus);
+
+
+
+//========Sales Reports ========
+router.get("/salesReports",userAdsBanner.salesReport);
+
+router.post('/generate_report',userAdsBanner.generateSalesReport);
+
+//========banner and Advertisement ========
+
+
+
+router.get("/bannersAdmin",userAdsBanner.bannersAdmin);
+
+
+
+
+
+router.get('/error', (req, res) => {
+    res.render("404");
+  });
+  router.get('*', (req, res) => {
+    res.redirect('/error');
+  });
+  
+
+
+
 
 module.exports = router;
 

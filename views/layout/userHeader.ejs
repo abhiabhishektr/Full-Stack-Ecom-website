@@ -107,18 +107,63 @@
                 
             <div class="header-middle">
                 <div class="container">
-                    <div class="header-left">
-                        <div class="header-search header-search-extended header-search-visible d-none d-lg-block">
-                            <a href="#" class="search-toggle" role="button"><i class="icon-search"></i></a>
-                            <form action="#" method="get">
-                                <div class="header-search-wrapper search-wrapper-wide">
-                                    <label for="q" class="sr-only">Search</label>
-                                    <button class="btn btn-primary" type="submit"><i class="icon-search"></i></button>
-                                    <input type="search" class="form-control" name="q" id="q" placeholder="Search product ..." required>
-                                </div><!-- End .header-search-wrapper -->
-                            </form>
-                        </div><!-- End .header-search -->
-                    </div>
+
+                    <div class="header-search header-search-extended header-search-visible d-none d-lg-block">
+                        <a href="#" class="search-toggle" role="button"><i class="icon-search"></i></a>
+                        <form action="#" method="get" onsubmit="searchProducts(event)">
+                            <div class="header-search-wrapper search-wrapper-wide">
+                                <label for="q" class="sr-only">Search</label>
+                                <button class="btn btn-primary" type="submit"><i class="icon-search"></i></button>
+                                <input type="search" class="form-control" name="q" id="q" placeholder="Search product ..." required>
+                            </div><!-- End .header-search-wrapper -->
+                        </form>
+                    </div><!-- End .header-search -->
+                    
+                    <script>
+                        // Function to handle form submission
+                        function searchProducts(event) {
+                            event.preventDefault(); // Prevent the form from submitting traditionally
+                            const searchQuery = document.getElementById('q').value;
+                            const form = event.target;
+                    
+                            // Set the action attribute of the form dynamically with the search query
+                            form.action = `/fullpdt/${encodeURIComponent(searchQuery)}`;
+                            
+                            // Now submit the form
+                            form.submit();
+                        }
+                    </script>
+                    
+                    
+                    <!-- <script>
+                        // Function to send search query to the backend
+                        async function sendSearchQuery(searchQuery) {
+                            try {
+                                console.log(searchQuery);
+                                const response = await fetch(`/fullpdt/${searchQuery}`, {
+                                    method: 'GET',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                        // Add any additional headers if needed
+                                    },
+                                });
+                               
+                            } catch (error) {
+                                console.error('Error sending search query:', error);
+                            }
+                        }
+                    
+                        // Function to handle form submission
+                        function searchProducts(event) {
+                            event.preventDefault(); // Prevent the form from submitting traditionally
+                            const searchQuery = document.getElementById('q').value;
+                            sendSearchQuery(searchQuery);
+                        }
+                    </script>
+                    
+                     -->
+
+
                     <div class="header-center">
                         <a href="index.html" class="logo">
                             <img src="/img/logo.png" alt="Molla Logo" width="82" height="20">

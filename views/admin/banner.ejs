@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<!-- molla/index-9.html  22 Nov 2019 09:57:25 GMT -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="apple-touch-icon" sizes="180x180" href="/user/assets/images/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/user/assets/images/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/user/assets/images/icons/favicon-16x16.png">
+    <link rel="manifest" href="/user/assets/images/icons/site.html">
+    <link rel="mask-icon" href="/user/assets/images/icons/safari-pinned-tab.svg" color="#666666">
+    <link rel="shortcut icon" href="/user/assets/images/icons/favicon.ico">
+    <meta name="apple-mobile-web-app-title" content="Molla">
+    <meta name="application-name" content="Molla">
+    <meta name="msapplication-TileColor" content="#cc9966">
+    <meta name="msapplication-config" content="/user/assets/images/icons/browserconfig.xml">
+    <meta name="theme-color" content="#ffffff">
+
+    <!-- Plugins CSS File -->
+    <link rel="stylesheet" href="/user/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/user/assets/vendor/line-awesome/line-awesome/line-awesome/css/line-awesome.min.css">
+    <link rel="stylesheet" href="/user/assets/css/plugins/owl-carousel/owl.carousel.css">
+    <link rel="stylesheet" href="/user/assets/css/plugins/magnific-popup/magnific-popup.css">
+    <link rel="stylesheet" href="/user/assets/css/plugins/jquery.countdown.css">
+    <!-- Main CSS File -->
+    <link rel="stylesheet" href="/user/assets/css/style.css">
+    <link rel="stylesheet" href="/user/assets/css/skins/skin-demo-9.css">
+    <link rel="stylesheet" href="/user/assets/css/demos/demo-9.css">
+    <!-- Include SweetAlert CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10">
+
+    <title>Your Page Title</title>
+
+
+
+    <style>
+   
+        .card {
+          height: 400px; /* Set a fixed height for the card */
+        }
+      
+        .card-img-top {
+          object-fit: cover; /* Ensure the image covers the entire container */
+          height: 200px; /* Set a fixed height for the image */
+          width: 100%; /* Make the image take up the full width of the container */
+        }
+      </style>
+      <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+      
+</head>
+
+<body>
+   
+<!-- ===========================================================intro=================================================================== -->
+        <main class="main">
+            <div class="intro-section">
+                <div class="intro-section-slider">
+                    <div class="container">
+                        <div class="intro-slider-container slider-container-ratio mb-0">
+                            <div class="intro-slider owl-carousel owl-simple owl-light" data-toggle="owl" 
+                                data-owl-options='{
+                                    "nav": false, 
+                                    "dots": true,
+                                    "responsive": {
+                                        "1200": {
+                                            "nav": true,
+                                            "dots": false
+                                        }
+                                    }
+                                }'>
+                                <div class="intro-slide">
+                                    <figure class="slide-image">
+                                        <picture>
+                                            <source media="(max-width: 480px)" srcset="/user/assets/images/demos/demo-9/slider/slide-1-480w.jpg">
+                                            <img src="/img/main.jpg" alt="Image Desc">
+                                        </picture>
+                                    </figure><!-- End .slide-image -->
+
+                                    <div class="intro-content">
+                                        <h3 class="intro-subtitle">New Collection</h3><!-- End .h3 intro-subtitle -->
+                                        <h1 class="intro-title text-white">Best<br> Shoes & Accessories</h1><!-- End .intro-title -->
+
+                                        <div class="intro-text text-white">2024</div><!-- End .intro-text -->
+
+                                        <a href="/fullpdt" class="btn btn-primary">
+                                            <span>DISCOVER NOW</span>
+                                        </a>
+                                    </div><!-- End .intro-content -->
+                                </div><!-- End .intro-slide -->
+
+                                <div class="intro-slide">   
+                                    <figure class="slide-image">
+                                        <picture>
+                                            <source media="(max-width: 480px)" srcset="/user/assets/images/demos/demo-9/slider/slide-2-480w.jpg">
+                                            <img src="/img/women.jpg" alt="Image Desc">
+                                        </picture>
+                                    </figure><!-- End .slide-image -->
+
+                                    <div class="intro-content">
+                                        <h3 class="intro-subtitle">New Collection</h3><!-- End .h3 intro-subtitle -->
+                                        <h1 class="intro-title text-white">Women’s <br>Shoes & Accessories</h1><!-- End .intro-title -->
+
+                                        <a href="category.html" class="btn btn-primary">
+                                            <span>DISCOVER NOW</span>
+                                        </a>
+                                    </div><!-- End .intro-content -->
+                                </div><!-- End .intro-slide -->
+
+                                <div class="intro-slide">
+                                    <figure class="slide-image">
+                                        <picture>
+                                            <source media="(max-width: 480px)" srcset="/user/assets/images/demos/demo-9/slider/slide-3-480w.jpg">
+                                            <img src="/img/men.jpg" alt="Image Desc">
+                                        </picture>
+                                    </figure><!-- End .slide-image -->
+
+                                    <div class="intro-content">
+                                        <h3 class="intro-subtitle text-muted">Deals and Promotions</h3><!-- Use text-muted for grey -->
+                                        <h1 class="intro-title text-muted">Shoes & Accessories</h1><!-- Use text-muted for grey -->
+                                    
+                                        <div class="intro-text text-muted">from $9.99</div><!-- Use text-muted for grey -->
+                                    
+                                        <a href="category.html" class="btn btn-primary">
+                                            <span>SHOP NOW</span>
+                                        </a>
+                                    </div>
+                                  
+                                </div><!-- End .intro-slide -->
+                            </div><!-- End .intro-slider owl-carousel owl-simple -->
+                                    
+                            <span class="slider-loader"></span><!-- End .slider-loader -->
+                        </div><!-- End .intro-slider-container -->
+                    </div><!-- End .container -->
+                </div><!-- End .intro-section-slider -->
+
+                
+            </div><!-- End .intro-section -->
+
+            <div class="pt-3 pb-3">
+                <div class="container">
+                    <div class="banner-group">
+                        <div class="row">
+                            <div class="col-sm-6 col-lg-4">
+                                <div class="banner banner-overlay banner-lg">
+                                    <a href="#">
+                                        <img src="/user/assets/images/demos/demo-9/banners/banner-1.jpg" alt="Banner">
+                                    </a>
+
+                                    <div class="banner-content banner-content-bottom">
+                                        <h4 class="banner-subtitle text-white"><a href="#">Clearance</a></h4><!-- End .banner-subtitle -->
+                                        <h3 class="banner-title text-white"><a href="#">Waterproof</a></h3><!-- End .banner-title -->
+                                        <div class="banner-text text-white"><a href="#">from $19.00</a></div><!-- End .banner-text -->
+                                        <a href="#" class="btn btn-outline-white banner-link">Discover Now</a>
+                                    </div><!-- End .banner-content -->
+                                </div><!-- End .banner -->
+                            </div><!-- End .col-lg-4 -->
+
+                            <div class="col-sm-6 col-lg-4 order-lg-last">
+                                <div class="banner banner-overlay banner-lg">
+                                    <a href="#">
+                                        <img src="/user/assets/images/demos/demo-9/banners/banner-4.jpg" alt="Banner">
+                                    </a>
+
+                                    <div class="banner-content banner-content-top">
+                                        <h4 class="banner-subtitle text-white"><a href="#">On Sale</a></h4><!-- End .banner-subtitle -->
+                                        <h3 class="banner-title text-white"><a href="#">Women's<br>Sportswear</a></h3><!-- End .banner-title -->
+                                        <div class="banner-text text-white"><a href="#">from $39.00</a></div><!-- End .banner-text -->
+                                        <a href="#" class="btn btn-outline-white banner-link">Discover Now</a>
+                                    </div><!-- End .banner-content -->
+                                </div><!-- End .banner -->
+                            </div><!-- End .col-lg-4 -->
+
+                            <div class="col-12 col-lg-4">
+                                <div class="row">
+                                    <div class="col-sm-6 col-lg-12">
+                                        <div class="banner banner-overlay">
+                                            <a href="#">
+                                                <img src="/user/assets/images/demos/demo-9/banners/banner-2.jpg" alt="Banner">
+                                            </a>
+
+                                            <div class="banner-content">
+                                                <h4 class="banner-subtitle text-white"><a href="#">New Arrivals</a></h4><!-- End .banner-subtitle -->
+                                                <h3 class="banner-title text-white"><a href="#">Accessories<br>and Shoes</a></h3><!-- End .banner-title -->
+                                                <a href="#" class="btn btn-outline-white banner-link">Shop Now</a>
+                                            </div><!-- End .banner-content -->
+                                        </div><!-- End .banner -->
+                                    </div><!-- End .col-sm-6 col-lg-12 -->
+
+                                    <div class="col-sm-6 col-lg-12">
+                                        <div class="banner banner-overlay">
+                                            <a href="#">
+                                                <img src="/user/assets/images/demos/demo-9/banners/banner-3.jpg" alt="Banner">
+                                            </a>
+
+                                            <div class="banner-content">
+                                                <h4 class="banner-subtitle text-white"><a href="#">New Arrivals</a></h4><!-- End .banner-subtitle -->
+                                                <h3 class="banner-title text-white"><a href="#">Spring 2019</a></h3><!-- End .banner-title -->
+                                                <a href="#" class="btn btn-outline-white banner-link">Shop Now</a>
+                                            </div><!-- End .banner-content -->
+                                        </div><!-- End .banner -->
+                                    </div><!-- End .col-sm-6 col-lg-12 -->
+                                </div><!-- End .row -->
+                            </div><!-- End .col-lg-4 -->
+                        </div><!-- End .row -->
+                    </div><!-- End .banner-group -->
+<!-- ------------brands---------------- -->
+<!-- ---------------------------- -->
+<!-- ---------------------------- -->
+                    <div class="owl-carousel mt-4 mb-3 owl-simple" data-toggle="owl" 
+                        data-owl-options='{
+                            "nav": false, 
+                            "dots": false,
+                            "margin": 30,
+                            "loop": false,
+                            "responsive": {
+                                "0": {
+                                    "items":2
+                                },
+                                "420": {
+                                    "items":3
+                                },
+                                "600": {
+                                    "items":4
+                                },
+                                "900": {
+                                    "items":5
+                                },
+                                "1024": {
+                                    "items":6
+                                }
+                            }
+                        }'>
+                        <a href="#" class="brand">
+                            <img src="/user/assets/images/brands/1.png" alt="Brand Name">
+                        </a>
+
+                        <a href="#" class="brand">
+                            <img src="/user/assets/images/brands/2.png" alt="Brand Name">
+                        </a>
+
+                        <a href="#" class="brand">
+                            <img src="/user/assets/images/brands/3.png" alt="Brand Name">
+                        </a>
+
+                        <a href="#" class="brand">
+                            <img src="/user/assets/images/brands/4.png" alt="Brand Name">
+                        </a>
+
+                        <a href="#" class="brand">
+                            <img src="/user/assets/images/brands/5.png" alt="Brand Name">
+                        </a>
+
+                        <a href="#" class="brand">
+                            <img src="/user/assets/images/brands/6.png" alt="Brand Name">
+                        </a>
+
+                        <a href="#" class="brand">
+                            <img src="/user/assets/images/brands/7.png" alt="Brand Name">
+                        </a>
+                    </div><!-- End .owl-carousel -->
+
+
+
+                </div><!-- End .container -->
+            </div><!-- End .bg-lighter -->
+
+       
+
+
+
+
+
+
+
+
+
+
+  
+    <!-- Plugins JS File -->
+    <script src="/user/assets/js/jquery.min.js"></script>
+    <script src="/user/assets/js/bootstrap.bundle.min.js"></script>
+    <script src="/user/assets/js/jquery.hoverIntent.min.js"></script>
+    <script src="/user/assets/js/jquery.waypoints.min.js"></script>
+    <script src="/user/assets/js/superfish.min.js"></script>
+    <script src="/user/assets/js/owl.carousel.min.js"></script>
+    <script src="/user/assets/js/bootstrap-input-spinner.js"></script>
+    <script src="/user/assets/js/jquery.plugin.min.js"></script>
+    <script src="/user/assets/js/jquery.magnific-popup.min.js"></script>
+    <script src="/user/assets/js/jquery.countdown.min.js"></script>
+    <!-- Main JS File -->
+    <script src="/user/assets/js/main.js"></script>
+    <script src="/user/assets/js/demos/demo-9.js"></script>
+
+    
+</body>
+
+
+<!-- molla/index-9.html  22 Nov 2019 09:58:03 GMT -->
+</html>

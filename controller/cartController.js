@@ -15,8 +15,9 @@ if (!idd) {
                     path: "products.productId",
                     model: "Product", // Make sure it matches the model name for the Product
 });
+
     // console.log(cartData);
-       res.render("cart",{cartData});
+       res.render("cart",{cartData, cartCount: req.cartCount});
 }
  
  
@@ -133,6 +134,7 @@ const updatecart = async (req, res) => {
                             image: product.imageUrls[0],
                         },
                     ],
+                    subtotal:product.price
                 });
                 await newcart.save();
                 res.json({ status: 'success', message: 'Product added to cart.' });
@@ -150,6 +152,10 @@ const updatecart = async (req, res) => {
                         image: product.imageUrls[0],
                     });
 
+                      // Recalculate the subtotal based on the updated products
+            exist.subtotal = exist.products.reduce((total, product) => {
+                return total + product.totalPrice;
+            }, 0);
                     await exist.save();
                     res.json({ status: 'success', message: 'Product added to cart.' });
                 }
@@ -200,7 +206,16 @@ const updateCartDetails = async (req,res) => {
           const totalPriceTotal = existingCart.products.reduce((total, product) => {
             return total + product.totalPrice;
           }, 0);
-          console.log(totalPriceTotal);
+          existingCart.subtotal = totalPriceTotal;
+
+         await existingCart.save();
+         
+
+
+
+
+
+          
       
           res.json({
             success: true,
@@ -526,6 +541,41 @@ const addAddress = async (req, res) => {
 
 
 
+// const cartItemRemove = async (req, res) => {
+//     const productIdToRemove = req.params.productId;
+//     const userId = req.session.userid;
+
+//     if (!userId) {
+//         return res.status(401).json({ success: false, message: 'User not authenticated.' });
+//     }
+
+//     try {
+//         // Find the user's cart
+//         const userCart = await Cartdb.findOne({ user: userId });
+
+//         if (!userCart) {
+//             return res.status(404).json({ success: false, message: 'User does not have a cart.' });
+//         }
+
+//         // Find the index of the product to remove
+//         const productIndex = userCart.products.findIndex(product => product.productId.toString() === productIdToRemove);
+
+//         if (productIndex === -1) {
+//             return res.status(404).json({ success: false, message: 'Product not found in the cart.' });
+//         }
+
+//         // Remove the product from the cart
+//         userCart.products.splice(productIndex, 1);
+
+//         // Save the updated cart
+//         await userCart.save();
+
+//         return res.json({ success: true, message: 'Product removed from the cart.' });
+//     } catch (error) {
+//         console.error('Error:', error);
+//         return res.status(500).json({ success: false, message: 'Internal server error.' });
+//     }
+// };
 const cartItemRemove = async (req, res) => {
     const productIdToRemove = req.params.productId;
     const userId = req.session.userid;
@@ -549,13 +599,19 @@ const cartItemRemove = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Product not found in the cart.' });
         }
 
+        // Get the removed product's total price
+        const removedProductTotalPrice = userCart.products[productIndex].totalPrice;
+
         // Remove the product from the cart
         userCart.products.splice(productIndex, 1);
+
+        // Recalculate the subtotal
+        userCart.subtotal -= removedProductTotalPrice;
 
         // Save the updated cart
         await userCart.save();
 
-        return res.json({ success: true, message: 'Product removed from the cart.' });
+        return res.json({ success: true, message: 'Product removed from the cart.', subtotal: userCart.subtotal });
     } catch (error) {
         console.error('Error:', error);
         return res.status(500).json({ success: false, message: 'Internal server error.' });

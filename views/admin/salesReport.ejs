@@ -1,0 +1,165 @@
+<%-include('../layout/adminHeader')-%>
+
+<div class="container mt-5">
+    <h2 class="mb-4">Sales Report</h2>
+
+    <form action="/generate_report" method="post" class="row">
+        <div class="form-group col-md-4">
+            <label for="start-date">Start Date:</label>
+            <input type="date" class="form-control" id="start-date" name="start-date" required>
+        </div>
+
+        <div class="form-group col-md-4">
+            <label for="end-date">End Date:</label>
+            <input type="date" class="form-control" id="end-date" name="end-date" required>
+        </div>
+
+        <div class="form-group col-md-4 d-flex flex-column mt-auto">
+            <button type="button" id="generateReportBtn" class="btn btn-primary btn-block">Generate Report</button>
+        </div>
+    </form>
+    <hr>
+    <div id="reportPreview" style="display:none;">
+        <h3>Sales Report Preview</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Date</th>
+                    <th>Quantity</th>
+                    <th>total</th>
+                   
+                    <!-- <th>Address</th> -->
+                    <!-- Add more columns if needed -->
+                </tr>
+            </thead>
+            <tbody id="reportContentTableBody"></tbody>
+        </table>
+        <button type="button" id="downloadReportBtn" class="btn btn-success">Download Report</button>
+    </div>
+</div>
+
+<script>
+    document.getElementById('generateReportBtn').addEventListener('click', async () => {
+        const userStartDate = document.getElementById('start-date').value;
+        const userEndDate = document.getElementById('end-date').value;
+
+        try {
+            const response = await fetch('/generate_report', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 'start-date': userStartDate, 'end-date': userEndDate }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch data');
+            } else {
+                console.log("jjjj");
+            }
+
+            const data = await response.json();
+
+            const { orders, startDate, endDate } = data;
+
+            // Display the report content as a table
+            displayReportTable(orders);
+
+            // Show the report preview
+            document.getElementById('reportPreview').style.display = 'block';
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    });
+
+    document.getElementById('downloadReportBtn').addEventListener('click', async () => {
+        // Download the report as a PDF
+        const content = document.getElementById('reportContentTableBody').innerHTML;
+        downloadPDF(content);
+    });
+
+    function displayReportTable(orders) {
+        const tableBody = document.getElementById('reportContentTableBody');
+        tableBody.innerHTML = ''; // Clear previous content
+    
+        for (const order of orders) {
+            const { address, date, Products } = order;
+            
+            for (const product of Products) {
+                const row = `<tr>
+                                <td>${product._id}</td>
+                                <td>${new Date(date).toLocaleDateString()}</td>
+                               
+                                <td>${product.quantity}</td>
+                                <td>${product.total}</td>
+                                <!-- <td>${address.city}, ${address.state}, ${address.zip}</td> -->
+                                
+                                <!-- Add more columns if needed -->
+                            </tr>`;
+                tableBody.innerHTML += row;
+            }
+        }
+    }
+    
+    
+    function downloadPDF(content) {
+        try {
+            // Create a Blob with PDF content
+            const blob = new Blob([content], { type: 'application/pdf' });
+    
+            // Create a download link
+            const link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = 'sales_report.pdf';
+    
+            // Append the link to the document body
+            document.body.appendChild(link);
+    
+            // Trigger a click on the link to initiate the download
+            link.click();
+    
+            // Remove the link from the document body
+            document.body.removeChild(link);
+        } catch (error) {
+            console.error('Error downloading PDF:', error);
+        }
+    }
+    
+</script>
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+
+<script src="/admin/src/assets/libs/jquery/dist/jquery.min.js"></script>
+<script src="/admin/src/assets/libs/popper.js/dist/umd/popper.min.js"></script>
+<script src="/admin/src/assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
+<!-- apps -->
+<!-- apps -->
+<script src="/admin/src/dist/js/app-style-switcher.js"></script>
+<script src="/admin/src/dist/js/feather.min.js"></script>
+<script src="/admin/src/assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js"></script>
+<script src="/admin/src/dist/js/sidebarmenu.js"></script>
+<!--Custom JavaScript -->
+<script src="/admin/src/dist/js/custom.min.js"></script>
+<!--This page JavaScript -->
+<script src="/admin/src/assets/extra-libs/c3/d3.min.js"></script>
+<script src="/admin/src/assets/extra-libs/c3/c3.min.js"></script>
+<script src="/admin/src/assets/libs/chartist/dist/chartist.min.js"></script>
+<script src="/admin/src/assets/libs/chartist-plugin-tooltips/dist/chartist-plugin-tooltip.min.js"></script>
+<script src="/admin/src/assets/extra-libs/jvector/jquery-jvectormap-2.0.2.min.js"></script>
+<script src="/admin/src/assets/extra-libs/jvector/jquery-jvectormap-world-mill-en.js"></script>
+<script src="/admin/src/dist/js/pages/dashboards/dashboard1.min.js"></script>
+</body>
+
+</html>
