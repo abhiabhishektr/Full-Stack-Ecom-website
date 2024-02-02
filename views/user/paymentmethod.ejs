@@ -69,6 +69,7 @@
 
             		
 		                	<div class="row">
+                                <div class="shipping-form">
                                 <form action="/addAddress/0" method="post">
                                     
                                     <div class="col-lg-12">
@@ -126,6 +127,24 @@
                                         <span class="btn-hover-text">Proceed to Add Address</span>
                                     </button>
                                 </form>
+                            </div>
+                            <script>
+                                $(document).ready(function () {
+                                    // Initially hide the form
+                                    $('.shipping-form').hide();
+                            
+                                    // Add a change event listener to the checkbox
+                                    $('#checkout-diff-address').change(function () {
+                                        // Toggle the visibility of the form based on checkbox state
+                                        if (this.checked) {
+                                            $('.shipping-form').show();
+                                        } else {
+                                            $('.shipping-form').hide();
+                                        }
+                                    });
+                                });
+                            </script>
+                            
 
                                 <aside class="col-lg-3">
                                     <form id="checkoutForm" action="/checkOut?selectedAddressIndex=<%= selectedAddressIndex %>" method="POST" >
@@ -179,8 +198,30 @@
                                                 </label>
                                                 <br>
                                                 <label>
-                                                    <input type="radio" name="billingOption" value="Razor-Online">Pay Online 
+                                                    <input type="radio" name="billingOption" value="Razor-Online"> Pay Online 
                                                 </label>
+                                                <br>
+                                                <% if (locals.walletBalance > (subtotal + 0).toFixed(2)) { %>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" name="billingOption" value="Wallet" id="walletRadio">
+                                                        <label class="form-check-label" for="walletRadio">
+                                                            &nbsp;Wallet &nbsp; &nbsp;
+                                                            <a href="#" id="seeBalanceLink">See Balance</a>
+                                                            <span id="walletBalance" class="badge bg-secondary collapse"><%= locals.walletBalance %></span>
+                                                        </label>
+                                                    </div>
+                                                <% } %>
+                                                
+                                                <!-- Script to toggle visibility -->
+                                                <script>
+                                                    document.getElementById('seeBalanceLink').addEventListener('click', function (event) {
+                                                        event.preventDefault(); // Prevent the default behavior of the anchor tag
+                                                        var walletBalance = document.getElementById('walletBalance');
+                                                        walletBalance.classList.toggle('show'); // Bootstrap 5 class for showing an element
+                                                    });
+                                                </script>
+                                                
+                                             
                                             </div>
                                             
                                 
@@ -640,6 +681,28 @@ function orderConfirmation() {
                 if (result.isConfirmed) {
                     // Handle the "View Orders" action here (e.g., submit form and redirect to orders page)
                     document.getElementById('checkoutForm').action = '/checkOut/cod';
+                    document.getElementById('checkoutForm').submit();
+                } else {
+                    // Handle the "Continue Shopping" action here (e.g., submit form and redirect to shopping page)
+                    document.getElementById('checkoutForm').submit();
+                }
+            });
+           }
+           else if(paymentOption === 'Wallet')
+           {
+            Swal.fire({
+                title: 'Order Placed!',
+                html: 'Hello, [User Name]!<br>Your order has been confirmed.<br><br>',
+                icon: 'success',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'View Orders',
+                cancelButtonText: 'Continue Shopping'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Handle the "View Orders" action here (e.g., submit form and redirect to orders page)
+                    document.getElementById('checkoutForm').action = '/checkOut/Wallet';
                     document.getElementById('checkoutForm').submit();
                 } else {
                     // Handle the "Continue Shopping" action here (e.g., submit form and redirect to shopping page)

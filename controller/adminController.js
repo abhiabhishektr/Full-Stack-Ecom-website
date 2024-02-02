@@ -3,13 +3,10 @@ const newProduct = require("../model/pdtmodel");
 const categorydb = require("../model/category");
 const orderdb = require("../model/order");
 const fs = require("fs");
+const WalletModel = require("../model/wallet");
 
 const multer = require("multer");
 const path = require("path");
-
-
-
-
 
 const getNetIncomeData = async (req, res) => {
     console.log("hai thius ");
@@ -18,26 +15,26 @@ const getNetIncomeData = async (req, res) => {
             {
                 $group: {
                     _id: { $month: "$date" },
-                    totalSales: { $sum: "$subtotal" }
-                }
-            }
+                    totalSales: { $sum: "$subtotal" },
+                },
+            },
         ]);
 
         // Extract sales data for each month
-        const monthlySalesData = monthlySales.map(entry => ({
+        const monthlySalesData = monthlySales.map((entry) => ({
             month: entry._id,
-            totalSales: entry.totalSales
+            totalSales: entry.totalSales,
         }));
 
         res.json({
-            monthlySales: monthlySalesData
+            monthlySales: monthlySalesData,
         });
     } catch (error) {
         console.error("Error fetching data from MongoDB:", error);
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
-const getPieDia= async (req, res) => {
+const getPieDia = async (req, res) => {
     try {
         const onlinePaymentOrders = await orderdb.find({ paymentMode: "online" });
         const cashOnDeliveryOrders = await orderdb.find({ paymentMode: "COD" });
@@ -52,7 +49,7 @@ const getPieDia= async (req, res) => {
             onlinePaymentCount,
             cashOnDeliveryCount,
             onlinePaymentAmount,
-            cashOnDeliveryAmount
+            cashOnDeliveryAmount,
         });
     } catch (error) {
         console.error("Error fetching data from MongoDB:", error);
@@ -60,7 +57,7 @@ const getPieDia= async (req, res) => {
     }
 };
 
-const earningWave= async (req, res) => {
+const earningWave = async (req, res) => {
     try {
         // Fetch orders for the current month
         const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
@@ -69,14 +66,14 @@ const earningWave= async (req, res) => {
         const orders = await orderdb.find({
             date: {
                 $gte: startOfMonth,
-                $lte: endOfMonth
-            }
+                $lte: endOfMonth,
+            },
         });
 
         // Group earnings by day
         const dailyEarnings = [0, 0, 0, 0, 0, 0, 0]; // Initialize array for each day of the week
 
-        orders.forEach(order => {
+        orders.forEach((order) => {
             const dayOfWeek = order.date.getDay(); // 0 (Sun) to 6 (Sat)
             dailyEarnings[dayOfWeek] += order.subtotal;
         });
@@ -87,11 +84,9 @@ const earningWave= async (req, res) => {
         console.error("Error fetching data from MongoDB:", error);
         res.status(500).json({ error: "Internal Server Error" });
     }
-}
+};
 
-
-const orderStatus= async (req, res) => {
-    
+const orderStatus = async (req, res) => {
     try {
         // Fetch orders for the current month
         const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
@@ -100,8 +95,8 @@ const orderStatus= async (req, res) => {
         const orders = await orderdb.find({
             date: {
                 $gte: startOfMonth,
-                $lte: endOfMonth
-            }
+                $lte: endOfMonth,
+            },
         });
 
         // Count the number of orders for each status
@@ -112,10 +107,10 @@ const orderStatus= async (req, res) => {
             requestReturn: 0,
             returned: 0,
             requestedCancellation: 0,
-            cancelled: 0
+            cancelled: 0,
         };
 
-        orders.forEach(order => {
+        orders.forEach((order) => {
             statusCounts[order.orderStatus]++;
         });
 
@@ -125,10 +120,7 @@ const orderStatus= async (req, res) => {
         console.error("Error fetching data from MongoDB:", error);
         res.status(500).json({ error: "Internal Server Error" });
     }
-}
-
-
-
+};
 
 const admin = async (q, r) => {
     try {
@@ -148,11 +140,12 @@ const admin = async (q, r) => {
         const totalearnings = onlinePaymentAmount + cashOnDeliveryAmount;
 
         const TotalOrders = await orderdb.countDocuments();
-        const undelivered = await orderdb.countDocuments({ orderStatus: "placed" });
+        const placedCount = await orderdb.countDocuments({ "Products.orderStatus": "placed" });
+        const shippedCount = await orderdb.countDocuments({ "Products.orderStatus": "shipped" });
 
+        const undelivered = placedCount + shippedCount;
 
         const recentOrders = await orderdb.find().sort({ date: -1 }).limit(3);
-
 
         const totalSalesData = {
             onlinePaymentCount,
@@ -164,7 +157,7 @@ const admin = async (q, r) => {
             totalearnings,
             TotalOrders,
             undelivered,
-            recentOrders
+            recentOrders,
         };
 
         // Render the 'adminDash' view and pass dynamic data
@@ -254,8 +247,7 @@ const userdelete = async (req, res) => {
 const allproducts = async (req, res) => {
     try {
         // Assuming you fetch products with imageUrls from the database
-        let product =await newProduct.find({ productDeleted: { $ne: 'deleted' } });
-
+        let product = await newProduct.find({ productDeleted: { $ne: "deleted" } });
 
         // Render the view with the products
         res.render("allProducts", { product });
@@ -272,16 +264,29 @@ const newproducts = async (req, res) => {
 };
 
 const category = async (req, res) => {
-    const Category = await categorydb.find();
-    res.render("addcategory", { Category });
+    let existingCategory = req.query.existingCategory;
+    if (existingCategory) {
+        const Category = await categorydb.find();
+        res.render("addcategory", { Category, existingCategory });
+    } else {
+        const Category = await categorydb.find();
+        res.render("addcategory", { Category });
+    }
 };
 
 const addcategory = async (req, res) => {
     try {
-        const Category = await categorydb.find({ subName: req.body.subName });
-        console.log(Category);
-        if (Category.length > 0) {
-            res.redirect("/category");
+        // const Category = await categorydb.find({ subName: req.body.subName });
+        const Name = req.body.main;
+        const subName = req.body.subName;
+        // const existingCategory = await categorydb.findOne({ subName: { $regex: new RegExp(`^${subName}$`, 'i') } });
+        const existingCategory = await categorydb.findOne({
+            subName: { $regex: new RegExp(`^${subName}$`, "i") },
+            Name: { $regex: new RegExp(`^${Name}$`, "i") },
+        });
+
+        if (existingCategory) {
+            res.redirect("/category?existingCategory=This category is already existing ");
         } else {
             const Name = req.body.main;
 
@@ -419,10 +424,7 @@ const deleteproduct = async (req, res) => {
     try {
         // Assuming newProduct is your Mongoose model for MongoDB
         // const result = await newProduct.deleteOne({ _id: id });
-        const result = await newProduct.updateOne(
-            { _id: id },
-            { $set: { productDeleted: "deleted" } }
-        );
+        const result = await newProduct.updateOne({ _id: id }, { $set: { productDeleted: "deleted" } });
         console.log(result);
         // Check if the product was deleted successfully
         if (result.matchedCount > 0) {
@@ -727,29 +729,159 @@ const OrdersAdmin = async (req, res) => {
     }
 };
 
+
+
+
+// const OrdersStatus = async (req, res) => {
+//     try {
+//         const orderId = req.params.id; // Extract orderId from the request parameters
+//         const { orderStatus, productId } = req.body; // Extract updated orderStatus and productId from the request body
+
+//         // const updatedOrder = await orderdb.findOneAndUpdate(
+//         //     { _id: orderId, "Products._id": productId },
+//         //     { $set: { "Products.$.orderStatus": orderStatus } },
+//         //     { new: true }
+//         // );
+
+//         // if (!updatedOrder) {
+//         //     return res.status(404).json({ error: "Order not found" });
+//         // }
+
+//         const order = await orderdb.findById(orderId);
+
+//         if (!order) {
+//             return res.status(404).json({ message: "Order not found" });
+//         }
+
+//         const product = order.Products.find((prod) => prod._id.toString() === productId);
+
+//         if (!product) {
+//             return res.status(404).json({ message: "Product not found in the order" });
+//         }
+//         let productAmount
+//         if ((product.orderStatus === "placed" || product.orderStatus === "shipped") && order.paymentMode === "online") {
+//             productAmount = order.subtotal - product.total;
+//         } else if (product.orderStatus === "delivered") {
+//             productAmount = order.subtotal - product.total;
+//         }
+//         let transactionType="credit"
+       
+//         try {
+//             const updatedUsers = await orderdb.updateOne(
+//                 { _id: id, "Products._id": productId },
+//                 {
+//                     $set: {
+//                         "Products.$.orderStatus": orderStatus,
+//                     },
+//                 }
+//             );
+
+//             try {
+//                 if (
+//                     "updatedUsers.Products.$.orderStatus" == "cancelled" ||
+//                     "updatedUsers.Products.$.orderStatus" == "returned"
+//                 ) {
+//                     let userWallet = await WalletModel.findOne({ userId: order.user });
+//                     if (!userWallet) {
+//                         userWallet = new WalletModel({ userId: order.user });
+//                     }
+//                     userWallet.history.push({
+//                         amount: productAmount,
+//                         type: transactionType,
+//                         description: `Order ID: ${id}, Product ID: ${productId} - ${changeStatusforWallet}`,
+//                     });
+//                 }
+//             } catch (error) {
+//                 console.error(error);
+//                 // Handle order status update error
+//             }
+//         } catch (error) {
+//             console.error(error);
+//             // Handle order status update error
+//         }
+
+
+
+//         res.json(updatedUsers); // Return the updated order
+//     } catch (error) {
+//         // Handle any errors
+//         console.error(error);
+//         res.status(500).json({ error: "Internal server error" });
+//     }
+// };
+
+
+
 const OrdersStatus = async (req, res) => {
-    // console.log( req.params.id);
-    // console.log( selectedStatus);
     try {
         const orderId = req.params.id; // Extract orderId from the request parameters
-        const { orderStatus } = req.body; // Extract updated orderStatus from the request body
+        const { orderStatus, productId } = req.body; // Extract updated orderStatus and productId from the request body
 
-        console.log(`Received orderStatus for order ${orderId}: ${orderStatus}`);
+        const order = await orderdb.findById(orderId);
 
-        // Update the order status in the database
-        const updatedOrder = await orderdb.findByIdAndUpdate(orderId, { orderStatus }, { new: true });
-
-        if (!updatedOrder) {
-            return res.status(404).json({ error: "Order not found" });
+        if (!order) {
+            return res.status(404).json({ message: "Order not found" });
         }
 
-        res.json(updatedOrder); // Return the updated order
+        const product = order.Products.find((prod) => prod._id.toString() === productId);
+
+        if (!product) {
+            return res.status(404).json({ message: "Product not found in the order" });
+        }
+
+        let productAmount =product.total ;
+        let transactionType = "credit";
+
+        try {
+            const updatedUsers = await orderdb.updateOne(
+                { _id: orderId, "Products._id": productId },
+                {
+                    $set: {
+                        "Products.$.orderStatus": orderStatus,
+                    },
+                }
+            );
+
+            // Check if order status is "cancelled" or "returned"
+            if ((orderStatus === "cancelled" && order.paymentMode=='online' )|| orderStatus === "returned") {
+                let userWallet = await WalletModel.findOne({ userId: order.user });
+
+                if (!userWallet) {
+                    userWallet = new WalletModel({ userId: order.user });
+                }
+
+                // Update wallet history
+                userWallet.balance += productAmount;
+                userWallet.history.push({
+                    amount: productAmount,
+                    type: transactionType,
+                    description: `Order ID: ${orderId}, Product Name: ${product.name} - ${orderStatus}`,
+                });
+
+                // Save the updated wallet
+                await userWallet.save();
+            }
+
+            res.json(updatedUsers); // Return the updated order
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: "Internal server error" });
+        }
     } catch (error) {
         // Handle any errors
         console.error(error);
         res.status(500).json({ error: "Internal server error" });
     }
 };
+
+
+
+
+
+
+
+
+
 const deleteimage = async (req, res) => {
     try {
         const index = req.query.index;

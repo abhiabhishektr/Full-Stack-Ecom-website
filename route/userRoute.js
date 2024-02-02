@@ -53,20 +53,18 @@ router.get('/product/:id', cartCountMiddleware,userController.product)
 //=====================================================
 // ======================  CART   ==================
 //===================================================
-router.get('/cart',userMid.islogin, cartCountMiddleware,cartController.cart)
-router.put('/updatecart/:id',cartController.updatecart)
-router.post('/updatequantity',cartController.updateCartDetails)
-router.get('/paymentmethod',cartController.paymentmethod)
-router.post('/addAddress/:id',cartController.addAddress)
-// router.post('/checkOut',cartController.checkOut)
-router.put('/cart/:productId',cartController.cartItemRemove)
+router.get('/cart',userMid.islogin, cartCountMiddleware,cartController.cart) // cart page showing 
+router.put('/updatecart/:id',cartController.updatecart)  // add to cart
+router.post('/updatequantity',cartController.updateCartDetails) //quantity management in the cart page
+router.get('/paymentmethod',cartController.paymentmethod) //payment method and address selecting page 
+router.post('/addAddress/:id',cartController.addAddress) //adding address in the paymet page
+router.put('/cart/:productId',cartController.cartItemRemove) //product cancelling fron the cart
 //=====================================================
 // ======================  CHECK OUT  ==================
 //===================================================
-router.post('/checkOut/:paymentOption',checkOutPage.checkOut)
+router.post('/checkOut/:paymentOption',checkOutPage.checkOut) 
 router.post('/success',checkOutPage.success)
 router.post('/failure',checkOutPage.failure)
-
 //=====================================================
 // ======================  PROFILE   ==================
 //===================================================
@@ -81,7 +79,25 @@ router.put('/orderStatusUpdation/:id',userController.orderStatusUpdation)
 router.patch('/updateMobile',userController.updateMobile)
 router.patch('/passwordChange',userController.passwordChange)
 router.post('/updateAddress/:id',userController.updateAddress)
+
 router.get('/orderDetails/:orderId',userController.orderDetails)
+
+
+
+
+
+router.post('/cateFilter',userController.cateFilter)
+
+
+
+
+
+
+
+
+
+
+
 
 router.get('/trial', (req, res) => {
   res.render("trial");

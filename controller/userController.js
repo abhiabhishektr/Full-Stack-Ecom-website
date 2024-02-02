@@ -5,6 +5,7 @@ const orderdb = require("../model/order");
 const cartdb = require("../model/cartmodel");
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
+const WalletModel = require("../model/wallet");
 
 const home = async (req, res) => {
     try {
@@ -233,31 +234,31 @@ const otp = async (req, res) => {
 };
 
 const otpvalidation = async (req, res) => {
-    const mailid = req.body.email;
-    console.log("here the mail " + mailid);
-    const otpValue1 = req.body.otpInput1;
-    const otpValue2 = req.body.otpInput2;
-    const otpValue3 = req.body.otpInput3;
-    const otpValue4 = req.body.otpInput4;
+    try {
+        const mailid = req.body.email;
+        // console.log("Here's the email: " + mailid);
 
-    const fullotp = otpValue1 + otpValue2 + otpValue3 + otpValue4;
-    // console.log(fullotp);
-    // console.log(typeof(fullotp));
-    if (fullotp == generettedOtp) {
-        res.render("login", { existerorr: "Registration succesful login now" });
-        // res.redirect('/')
+        const fullotp = req.body.otp;
 
-        await user.updateOne({ email: mailid }, { $set: { otp: true } });
+        // Assuming `generettedOtp` is defined somewhere in your code
+        if (fullotp === generettedOtp) {
+            res.status(200).json({ message: "Registration successful, login now" });
 
-        const result = await user.deleteMany({ otp: false });
-        console.log(`${result.deletedCount} documents deleted`);
+            // Update user document to set OTP to true
+            await user.updateOne({ email: mailid }, { $set: { otp: true } });
 
-        // console.log(mailid);
-    } else {
-        res.render("otp1", { existerorr: "Failed" });
+            // Delete documents where otp is false
+            const result = await user.deleteMany({ otp: false });
+            console.log(`${result.deletedCount} documents deleted`);
+        } else {
+            res.status(400).json({ message: "Failed" });
+        }
+
+        // Use the values as needed
+    } catch (error) {
+        console.error("Error in otpvalidation:", error);
+        res.status(500).json({ message: "Internal Server Error" });
     }
-    // Use the values as needed
-    console.log("OTP Values:", otpValue1, otpValue2, otpValue3, otpValue4);
 };
 
 let generettedOtp;
@@ -265,6 +266,7 @@ let generettedOtp;
 // Handle the POST request to /sendotp
 const sendotp = async (req, res) => {
     const { email } = await req.body;
+    console.log(email);
     const nodemailer = require("nodemailer");
 
     // Function to generate a random 4-digit OTP
@@ -361,11 +363,18 @@ const logincheck = async (req, res) => {
 const fullpdt = async (req, res) => {
     try {
         const MainCat = req.params.MainCat;
+        const page = parseInt(req.query.page) || 1; // Get the requested page from the query parameters
+        const itemsPerPage = 10; // Adjust the number of items per page as needed
+
+        let query = {
+            status: "Active",
+            productDeleted: { $ne: "deleted" },
+        };
 
         if (MainCat === "Men" || MainCat === "Women" || MainCat === "Kids") {
             // Fetch products based on the specified gender category
             const products = await ptd.find({
-                gender: MainCat.toLowerCase(),
+                gender: MainCat,
                 status: "Active",
                 productDeleted: { $ne: "deleted" },
             });
@@ -375,15 +384,15 @@ const fullpdt = async (req, res) => {
             // Extract unique subName values from the categories array
             const uniqueSubNames = [...new Set(categories.map((category) => category.subName))];
 
+            const brands = await ptd
+                .find({
+                    status: "Active",
+                    productDeleted: { $ne: "deleted" },
+                })
+                .distinct("manufacturer");
 
-            const brands = await ptd.find({
-                status: 'Active',
-                productDeleted: { $ne: 'deleted' },
-            }).distinct('manufacturer');
-    
-            
             // Render the 'fullpdt' template and pass the filtered products as a variable
-            res.render("fullpdt", { products, uniqueSubNames,brands, cartCount: req.cartCount });
+            res.render("fullpdt", { products, uniqueSubNames, brands, cartCount: req.cartCount });
         } else if (MainCat == 0) {
             // Fetch categories with Status set to true
             const activeCategories = await catdb.find({ Status: true });
@@ -402,29 +411,27 @@ const fullpdt = async (req, res) => {
             // Extract unique subName values from the categories array
             const uniqueSubNames = [...new Set(categories.map((category) => category.subName))];
 
-
-            const brands = await ptd.find({
-                status: 'Active',
-                productDeleted: { $ne: 'deleted' },
-            }).distinct('manufacturer');
-    
-            
+            const brands = await ptd
+                .find({
+                    status: "Active",
+                    productDeleted: { $ne: "deleted" },
+                })
+                .distinct("manufacturer");
 
             // Render the 'fullpdt' template and pass the filtered products as a variable
-            res.render("fullpdt", { products, uniqueSubNames,brands, cartCount: req.cartCount });
-
-        } else //for sraching 
-        {
-            console.log(MainCat); // this is the search text 
-            const regex = new RegExp(MainCat, 'i');
+            res.render("fullpdt", { products, uniqueSubNames, brands, cartCount: req.cartCount });
+        } //for sraching
+        else {
+            console.log(MainCat); // this is the search text
+            const regex = new RegExp(MainCat, "i");
             const products = await ptd.find({
                 $or: [
                     { name: regex },
-                    { manufacturer: regex }
+                    { manufacturer: regex },
                     // Add more fields if needed
-                ]
+                ],
             });
-            
+
             // res.json(products);
             console.log(products);
 
@@ -432,23 +439,25 @@ const fullpdt = async (req, res) => {
 
             // Extract unique subName values from the categories array
             const uniqueSubNames = [...new Set(categories.map((category) => category.subName))];
-            console.log('Rendering fullpdt page');
+            console.log("Rendering fullpdt page");
             // Render the 'fullpdt' template and pass the filtered products as a variable
-            
-            const brands = await ptd.find({
-                status: 'Active',
-                productDeleted: { $ne: 'deleted' },
-            }).distinct('manufacturer');
-    
-            
-         
 
+            const brands = await ptd
+                .find({
+                    status: "Active",
+                    productDeleted: { $ne: "deleted" },
+                })
+                .distinct("manufacturer");
 
-
-            res.render("fullpdt", { products, uniqueSubNames,brands, cartCount: req.cartCount });
-           
+            res.render("fullpdt", {
+                products,
+                uniqueSubNames,
+                brands,
+                cartCount: req.cartCount,
+                totalPages,
+                currentPage: page,
+            });
         }
-
     } catch (error) {
         console.error("Error fetching products:", error);
         res.status(500).send("Internal Server Error");
@@ -486,10 +495,19 @@ const profile = async (req, res) => {
                 path: "Products.products", // the products in the order
                 model: "Product", // from the Product model
             })) || 0; // If the query doesn't return a result, return 0
-
+    const walletData = await WalletModel.findOne({ userId }).limit(15);
+    // console.log(walletData);
     const selectedTab = (await req.query.tab) || "defaultTab";
 
-    res.render("profile", { addresses, orders, selectedTab, userId, userdata, cartCount: req.cartCount });
+    res.render("profile", {
+        addresses,
+        orders,
+        selectedTab,
+        userId,
+        userdata,
+        walletData,
+        cartCount: req.cartCount,
+    });
 };
 
 // =====================delete Address ====================
@@ -546,29 +564,46 @@ const editAddress = async (req, res) => {
 
 const orderStatusUpdation = async (req, res) => {
     const { id } = req.params;
-    const { reason } = req.body; // Accessing the reason here
-    console.log(reason, id);
+    const { reason, productId } = req.body;
+
     try {
         const order = await orderdb.findById(id);
-        console.log(order.reason);
+
         if (!order) {
             return res.status(404).json({ message: "Order not found" });
         }
 
         let changeStatus;
-        if (order.orderStatus == "placed") {
-            changeStatus = "requested cancellation";
-        } else if (order.orderStatus == "delivered") {
-            changeStatus = "request return";
-        }
-        const orderafter = await orderdb.findOneAndUpdate(
-            { _id: id, "Products.reason": { $exists: true } },
-            { $set: { "Products.$.reason": reason, orderStatus: changeStatus } },
-            { new: true, useFindAndModify: false }
-        );
+        // let  changeStatusforWallet, productAmount;
 
-        console.log(orderafter);
-        await orderafter.save();
+        const product = order.Products.find((prod) => prod._id.toString() === productId);
+
+        if (!product) {
+            return res.status(404).json({ message: "Product not found in the order" });
+        }
+
+        if (product.orderStatus === "placed" || product.orderStatus === "shipped") {
+            changeStatus = "Cancellation requested";
+            changeStatusforWallet = "Cancellation requested";
+        } else if (product.orderStatus === "delivered") {
+            changeStatus = "Return requested";
+            changeStatusforWallet = "Return requested";
+        }
+
+        try {
+            const updatedUsers = await orderdb.updateOne(
+                { _id: id, "Products._id": productId },
+                {
+                    $set: {
+                        "Products.$.orderStatus": changeStatus,
+                        "Products.$.reason": reason,
+                    },
+                }
+            );
+        } catch (error) {
+            console.error(error);
+            // Handle order status update error
+        }
 
         res.json({ message: "Order status updated successfully" });
     } catch (err) {
@@ -627,9 +662,6 @@ const updateAddress = async (req, res) => {
     try {
         const userId = req.session.userid; // Assuming you're using sessions
         const addressId = req.params.id;
-        console.log("thids", addressId);
-        console.log("uuuu", userId);
-        // 65b15f700fc2c9c55e5bb4db
         const addressData = {
             firstName: req.body.firstName,
             lastName: req.body.lastName,
@@ -678,14 +710,29 @@ const orderDetails = async (req, res) => {
     try {
         // Assuming you want to find orders based on the orderId
         const orderId = req.params.orderId;
-        console.log(orderId);
         // Find orders from the database using the orderId
-        const orders = await orderdb.find({ _id: orderId }).populate("user Products.products");
+        const orders = await orderdb.find({ _id: orderId });
 
         res.render("orderDetails", { orders });
     } catch (error) {
         console.error("Error fetching orders:", error);
         res.status(500).send("Internal Server Error");
+    }
+};
+
+const cateFilter = async (req, res) => {
+    try {
+        // Assuming the request body contains selected categories
+        const selectedCategories = req.body.selectedCategories || [];
+
+        // Filter products based on selected categories
+        const filteredProducts = await ptd.find({ category: { $in: selectedCategories }, status: "Active" });
+        // console.log(filteredProducts);
+        // Send the filtered products as JSON response
+        res.json({ products: filteredProducts });
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({ error: "Internal Server Error" });
     }
 };
 
@@ -712,6 +759,7 @@ module.exports = {
     resetPassword,
     resetPasswordPost,
     orderDetails,
+    cateFilter,
 };
 
 //<!-- <div><strong><%= product.products.name %> &nbsp;&nbsp;</strong></div> -->

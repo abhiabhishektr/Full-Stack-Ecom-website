@@ -43,10 +43,10 @@
 								        <a class="nav-link" id="tab-address-link" data-toggle="tab" href="#tab-address" role="tab" aria-controls="tab-address" aria-selected="false">Adresses</a>
 								    </li>
 								    <li class="nav-item">
-								        <a class="nav-link" id="tab-account-link" data-toggle="tab" href="#tab-account" role="tab" aria-controls="tab-account" aria-selected="false">Account Details</a>
+								        <a class="nav-link" id="tab-wallet-link" data-toggle="tab" href="#tab-wallet" role="tab" aria-controls="tab-wallet" aria-selected="false">Wallet Details</a>
 								    </li>
 								    <li class="nav-item">
-								        <a class="nav-link" href="#">Sign Out</a>
+								        <a style="color: rgb(23, 108, 253);" class="nav-link" href="#">Sign Out</a>
 								    </li>
 								</ul>
 	                		</aside><!-- End .col-lg-3 -->
@@ -330,21 +330,27 @@
                                                                 <div class="d-flex align-items-center">
                                                                     <a href="/orderDetails/<%=order._id%>">
                                                                     <img src="/uploads/<%= product.image %>" alt="Product Image" class="img-fluid rounded mr-3" style="max-width: 120px; max-height: 120px;" >
-                                                                   </a> <div>
-
-                                                               
-                                                                    </div>
+                                                                   </a> 
+                                                                   <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
                                                                 </div>
                                                             </td>
+                                                            <td style="font-size: 1.1em; font-weight: bold; color: #474747ba;"><%= product.name %>&nbsp;&nbsp;</td>
+
                                                             <td>$<%= product.price.toFixed(2) %> &nbsp;&nbsp;</td>
-                                                         
+                                                          
                                                             <td> qty:<%= product.quantity %> &nbsp;&nbsp; </td>
 
                                                             <td>total <%= product.total.toFixed(2) %> &nbsp;&nbsp;&nbsp;</td>
-                                                            <td> <%= order.orderStatus %> &nbsp;&nbsp;</td>
+                                                            <%if( product.orderStatus=="Cancellation requested" || product.orderStatus=="Return requested"  ){%>
+                                                            <td style="font-size: 1.1em; color: #c99a00;"> <%= product.orderStatus %> &nbsp;&nbsp;</td>
+                                                            <%}else if(product.orderStatus=="delivered"){%>
+                                                                <td style="font-size: 1.1em; color: #03b03d;"> <%= product.orderStatus %> &nbsp;&nbsp;</td>
+                                                                <%}else{%>
+                                                                    <td style="font-size: 1.1em; color: #0059ffd4;"> <%= product.orderStatus %> &nbsp;&nbsp;</td>
+                                                                    <%}%>
                                                             <td> <%= order.paymentMode %> &nbsp;&nbsp;</td>
                                                             <td> <%= order.date.toLocaleDateString() %> &nbsp;&nbsp;</td>
-                                                            <td>
+                                                            <!-- <td>
                                                                 <% if (order.orderStatus === 'delivered') { %>
                                                                     &nbsp;&nbsp;
                                                                     <button class="btn btn-warning return-button" data-order-id="<%= order._id %>">Return</button>
@@ -352,66 +358,20 @@
                                                                     &nbsp;&nbsp;
                                                                     <button class="btn btn-danger cancel-button" data-order-id="<%= order._id %>">Cancel</button>
                                                                 <% } %>
-                                                            </td>
+                                                            </td> -->
                                                             
                                                         </tr>
                                                     <% }); %>
+                                                    
                                                 <% }); %>
+                                                
                                                 <% } %>
+                                                
                                             </tbody>
                                                                                                                                                                           
                                     </table>
 
-<script>
 
-    document.querySelectorAll('.cancel-button, .return-button').forEach(button => {
-        button.addEventListener('click', function() {
-            const orderId = this.dataset.orderId;
-            let action;
-    
-            if (this.classList.contains('cancel-button')) {
-                action = 'cancel';
-            } else if (this.classList.contains('return-button')) {
-                action = 'return';
-            }
-    
-            Swal.fire({
-                title: 'Are you sure?',
-                text: `You are about to ${action} your order. We're sad to see you go.`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Yes, proceed',
-                cancelButtonText: 'No, keep my order',
-                input: 'text',
-                inputPlaceholder: 'Enter your reason here',
-                preConfirm: async (reason) => {
-                    if (!reason) {
-                        Swal.showValidationMessage('Please enter a reason for the cancellation');
-                    } else {
-                        const response = await fetch(`/orderStatusUpdation/${orderId}`, {
-                            method: 'PUT',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({ reason: reason }),
-                        });
-    
-                        if (response.ok) {
-                            Swal.fire('Updated!', `Your ${action} request has been submitted`, 'success');
-                           // window.location.reload()
-                           const urlWithTabParam = window.location.href.split('?')[0] + '?tab=orders';
-window.location.href = urlWithTabParam;
-                        } else {
-                            Swal.showValidationMessage('Failed to submit your request');
-                        }
-                    }
-                }
-            });
-        });
-    });
-    
-
-</script>
 <br><br>
 								    	<a href="/" class="btn btn-outline-primary-2"><span>Continue Shopping</span><i class="icon-long-arrow-right"></i></a>
 								    </div><!-- .End .tab-pane -->
@@ -768,43 +728,37 @@ function toggleAddAddressFormWithData  (address, index) {
                                     </script>
                                     
 
-								    <div class="tab-pane fade" id="tab-account" role="tabpanel" aria-labelledby="tab-account-link">
-								    	<form action="#">
-			                				<div class="row">
-			                					<div class="col-sm-6">
-			                						<label>First Name *</label>
-			                						<input type="text" class="form-control" required>
-			                					</div><!-- End .col-sm-6 -->
+                                    <div class="tab-pane fade" id="tab-wallet" role="tabpanel" aria-labelledby="tab-wallet-link">
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <label>Balance</label>
+                                                <input type="text" class="form-control" value="<%= walletData ? walletData.balance : 'N/A' %>" readonly>
+                                            </div><!-- End .col-sm-6 -->
+                                    
+                                            <div class="col-sm-6">
+                                                <label>Last Transaction</label>
+                                                <input type="text" class="form-control" value="<%= walletData && walletData.history.length > 0 ? walletData.history[walletData.history.length-1].description : 'No transactions' %>" readonly>
+                                            </div><!-- End .col-sm-6 -->
+                                        </div><!-- End .row -->
+                                    
+                                        <label>Transaction History</label>
+                                    
+                                        <% if (walletData && walletData.history.length > 0) { %>
+                                            <!-- Display transaction history -->
+                                            <ul>
+                                                <% walletData.history.reverse().forEach(transaction => { %>
+                                                    <li><%= transaction.description %> - <%= transaction.amount %></li>
+                                                <% }) %>
+                                            </ul>
+                                        <% } else if (walletData) { %>
+                                            <p>No transactions in the history yet.</p>
+                                        <% } else { %>
+                                            <p style="color: rgba(255, 89, 0, 0.88);">Wallet not initialized.</p>       <% } %>
+                                    </div><!-- .End .tab-pane -->
+                                    
+                                        
 
-			                					<div class="col-sm-6">
-			                						<label>Last Name *</label>
-			                						<input type="text" class="form-control" required>
-			                					</div><!-- End .col-sm-6 -->
-			                				</div><!-- End .row -->
-
-		            						<label>Display Name *</label>
-		            						<input type="text" class="form-control" required>
-		            						<small class="form-text">This will be how your name will be displayed in the account section and in reviews</small>
-
-		                					<label>Email address *</label>
-		        							<input type="email" class="form-control" required>
-
-		            						<label>Current password (leave blank to leave unchanged)</label>
-		            						<input type="password" class="form-control">
-
-		            						<label>New password (leave blank to leave unchanged)</label>
-		            						<input type="password" class="form-control">
-
-		            						<label>Confirm new password</label>
-		            						<input type="password" class="form-control mb-2">
-
-		                					<button type="submit" class="btn btn-outline-primary-2">
-			                					<span>SAVE CHANGES</span>
-			            						<i class="icon-long-arrow-right"></i>
-			                				</button>
-			                			</form>
-								    </div><!-- .End .tab-pane -->
-								</div>
+							       	</div>
 	                		</div><!-- End .col-lg-9 -->
 	                	</div><!-- End .row -->
 	                </div><!-- End .container -->

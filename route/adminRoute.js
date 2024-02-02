@@ -75,12 +75,12 @@ router.get("/bannersAdmin",userAdsBanner.bannersAdmin);
 
 
 
-router.get('/error', (req, res) => {
-    res.render("404");
-  });
-  router.get('*', (req, res) => {
-    res.redirect('/error');
-  });
+// router.get('/error', (req, res) => {
+//     res.render("404");
+//   });
+//   router.get('*', (req, res) => {
+//     res.redirect('/error');
+//   });
   
 
 

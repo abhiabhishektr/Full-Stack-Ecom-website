@@ -25,6 +25,7 @@
             <thead>
                 <tr>
                     <th>Order ID</th>
+                    <th>Name</th>
                     <th>Date</th>
                     <th>Quantity</th>
                     <th>total</th>
@@ -35,10 +36,13 @@
             </thead>
             <tbody id="reportContentTableBody"></tbody>
         </table>
+        <p>Total Orders: <span id="totalOrders"></span></p>
+        <p>Total Amount: INR : <span id="totalAmount"></span></p>
         <button type="button" id="downloadReportBtn" class="btn btn-success">Download Report</button>
     </div>
 </div>
-
+<br>
+<br><br><br>
 <script>
     document.getElementById('generateReportBtn').addEventListener('click', async () => {
         const userStartDate = document.getElementById('start-date').value;
@@ -81,14 +85,20 @@
 
     function displayReportTable(orders) {
         const tableBody = document.getElementById('reportContentTableBody');
+        const totalOrdersElement = document.getElementById('totalOrders');
+        const totalAmountElement = document.getElementById('totalAmount');
+
         tableBody.innerHTML = ''; // Clear previous content
-    
+        let totalOrders = 0;
+        let totalAmount = 0;
+
         for (const order of orders) {
             const { address, date, Products } = order;
             
             for (const product of Products) {
                 const row = `<tr>
                                 <td>${product._id}</td>
+                                <td>${product.name}</td>
                                 <td>${new Date(date).toLocaleDateString()}</td>
                                
                                 <td>${product.quantity}</td>
@@ -98,8 +108,12 @@
                                 <!-- Add more columns if needed -->
                             </tr>`;
                 tableBody.innerHTML += row;
+                totalOrders++;
+                totalAmount += product.total;
             }
         }
+        totalOrdersElement.textContent = totalOrders;
+        totalAmountElement.textContent = totalAmount.toFixed(2); // Assuming total is a decimal value
     }
     
     

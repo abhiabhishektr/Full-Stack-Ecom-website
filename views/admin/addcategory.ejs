@@ -6,51 +6,20 @@
 
             <div class="container mt-5">
                 <h2 class="mb-4">Add Category</h2>
+                <% if (locals.existingCategory) { %>
+                    <p><%= locals.existingCategory %></p>
+                <% } %>
 
 
 
-<!-- Rest of your HTML form and content -->
-
-<!-- <div class="container mt-5">
-  <h2 class="mb-4"><% if (locals.updateMode) { %>Update<% } else { %>Add<% } %> Category</h2>
-
-  <form action="<% if (locals.updateMode) { %>/Cupdate/<%= categoryId %><% } else { %>/category<% } %>" method="POST" class="needs-validation" novalidate>
-      <div class="form-group">
-          <label for="mainCategory">Main Category:</label>
-          <select class="form-control" id="mainCategory" name="main" required>
-              <option value="men" <% if (locals.updateMode && categoryData.Name === 'men') { %>selected<% } %>>Men</option>
-              <option value="women" <% if (locals.updateMode && categoryData.Name === 'women') { %>selected<% } %>>Women</option>
-              <option value="kids" <% if (locals.updateMode && categoryData.Name === 'kids') { %>selected<% } %>>Kids</option>
-          </select>
-      </div>
-
-      <div class="form-group">
-          <label for="subcategoryName">Subcategory:</label>
-          <input type="text" class="form-control" id="subcategoryName" name="subName" required value="<%= locals.updateMode ? categoryData.subName : '' %>">
-          <div class="invalid-feedback">Please provide a subcategory name.</div>
-      </div>
-
-      <div class="form-group">
-          <label for="categoryDescription">Category Description:</label>
-          <textarea class="form-control" id="categoryDescription" name="Description" required><%= locals.updateMode ? categoryData.Description : '' %></textarea>
-          <div class="invalid-feedback">Please provide a category description.</div>
-      </div>
-
-      <button type="submit" class="btn btn-<%= locals.updateMode ? 'info' : 'primary' %>">
-          <% if (locals.updateMode) { %>Update<% } else { %>Add<% } %> Category
-      </button>
-  </form>
-</div> -->
-
-        
                 <form action="/category" method="POST" class="needs-validation" novalidate>
 
                   <div class="form-group">
                     <label for="mainCategory">Main Category:</label>
                     <select class="form-control" id="mainCategory" name="main" required>
-                        <option value="men">Men</option>
-                        <option value="women">Women</option>
-                        <option value="kids">Kids</option>
+                        <option value="Men">Men</option>
+                        <option value="Women">Women</option>
+                        <option value="Kids">Kids</option>
                     </select>
                 </div>
                 
@@ -95,7 +64,7 @@
                     <% if(Category){ %>
                     <% let serialNumber=1; %>
                    
-                    <% Category.forEach(Category => { %>
+                    <% Category.reverse().forEach(Category => { %>
                       
 
     
@@ -135,11 +104,10 @@
                       </td>
 
                       <td>
-                    <form action="Cupdate/<%= Category._id %>"  method="post">
-                        <button type="submit" class="btn btn-primary">Update</button>
-                        
-                    </form>
-                      </td>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#updateModal">
+                            Update
+                        </button>
+                    </td>
                       
                       <td>
                         <form action="/Cdelete/<%= Category._id %>" method="post">
@@ -154,11 +122,51 @@
                   <% }); %>
                   <% } %>
 
-                  
+                   
                 </tbody>
               </table>  
-             
 
+
+              <div class="modal fade" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="updateModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="updateModalLabel">Update Category</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <!-- Your form with the three fields -->
+                            <form action="Cupdate/<%= Category._id %>" method="post">
+                                <div class="form-group">
+                                    <label for="mainCategory">Main Category:</label>
+                                    <select class="form-control" id="mainCategory" name="main" required>
+                                        <option value="men" <%= Category.main === 'men' ? 'selected' : '' %>>Men</option>
+                                        <option value="women" <%= Category.main === 'women' ? 'selected' : '' %>>Women</option>
+                                        <option value="kids" <%= Category.main === 'kids' ? 'selected' : '' %>>Kids</option>
+                                    </select>
+                                </div>
+            
+                                <div class="form-group">
+                                    <label for="subcategoryName">Subcategory:</label>
+                                    <input type="text" class="form-control" id="subcategoryName" name="subName" required pattern="^\S+$" value="<%= Category.subName %>">
+                                    <div class="invalid-feedback">Please provide a subcategory name.</div>
+                                </div>
+            
+                                <div class="form-group">
+                                    <label for="categoryDescription">Category Description:</label>
+                                    <textarea class="form-control" id="categoryDescription" name="Description" required pattern="^\S+$"><%= Category.Description %></textarea>
+                                    <div class="invalid-feedback">Please provide a category description.</div>
+                                </div>
+            
+                                <!-- Update button -->
+                                <button type="submit" class="btn btn-primary">Update Category</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
 
 
@@ -201,8 +209,8 @@
 
 
 
- <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
- <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
         <script src="/admin/src/assets/libs/jquery/dist/jquery.min.js"></script>

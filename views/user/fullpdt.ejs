@@ -224,7 +224,7 @@
                 		<aside class="col-lg-3 order-lg-first">
                 			<div class="sidebar sidebar-shop">
                 				<div class="widget widget-clean">
-                					<label>Filters:</label>
+                					<label>Filters: </label> <button id="applyFiltersBtn">Apply Filters</button>
                 					<a href="#" class="sidebar-filter-clear">Clean All</a>
                 				</div><!-- End .widget widget-clean -->
 
@@ -246,6 +246,8 @@
                                                         </div><!-- End .custom-checkbox -->
                                                     </div><!-- End .filter-item -->
                                                 <% }) %>
+                                                
+
                                             </div><!-- End .filter-items -->
                                         </div><!-- End .widget-body -->
                                     </div><!-- End .collapse -->
@@ -254,7 +256,109 @@
                                     
         						</div><!-- End .widget -->
 
-                                
+                                <script>
+                                    // Add an event listener to the button
+document.getElementById('applyFiltersBtn').addEventListener('click', function () {
+    // Get all the checked checkboxes
+    const checkedCheckboxes = document.querySelectorAll('.custom-control-input:checked');
+
+    // Extract the values of checked checkboxes
+    const selectedCategories = Array.from(checkedCheckboxes).map(checkbox => checkbox.nextElementSibling.textContent);
+
+    // Prepare data to send to the backend
+    const data = {
+        selectedCategories: selectedCategories
+    };
+
+    // Make a fetch request to send the data to the backend
+    fetch('/cateFilter', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+            // Add any additional headers if needed
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        // Assuming 'result' is the JSON response from the backend
+        const products = result.products;
+    
+        // Select the productListing div
+        const productListingDiv = document.getElementById('productListing');
+    
+        // Clear the current content inside the div
+        productListingDiv.innerHTML = '';
+    
+        // Check if there are products to display
+        if (products.length > 0) {
+            // Loop through the products and append them to the div
+            products.forEach(product => {
+                const productHTML = `
+                <div class="col-6 col-md-4 col-lg-4">
+                    <div class="product product-${product._id} text-center">
+                        <figure class="product-media">
+                            <span class="product-label label-new">New</span>
+                            <a href="/product/${product.id}">
+                                <img src="/uploads/${product.imageUrls[0]}" alt="Product image" class="product-image">
+                            </a>
+
+                            <div class="product-action-vertical">
+                                <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>Add to Wishlist</span></a>
+                                <a href="${product.quickViewUrl}" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick View</span></a>
+                                <a href="#" class="btn-product-icon btn-compare" title="Compare"><span>Compare</span></a>
+                            </div><!-- End .product-action-vertical -->
+
+                            <div class="product-action">
+                                <a href="#" class="btn-product btn-cart"><span>Add to Cart</span></a>
+                            </div><!-- End .product-action -->
+                        </figure><!-- End .product-media -->
+
+                        <div class="product-body">
+                            <div class="product-cat">
+                                <a href="${product.categoryUrl}">${product.category}</a>
+                            </div><!-- End .product-cat -->
+                            <h3 class="product-title"><a href="${product.productUrl}">${product.name}</a></h3><!-- End .product-title -->
+                            <div class="product-price">
+                                ${product.price}
+                            </div><!-- End .product-price -->
+                            <div class="ratings-container">
+                                <div class="ratings">
+                                    <div class="ratings-val" style="width: ${product.rating}%;"></div><!-- End .ratings-val -->
+                                </div><!-- End .ratings -->
+                                <span class="ratings-text">( ${product.reviews} Reviews )</span>
+                            </div><!-- End .rating-container -->
+
+                            <div class="product-nav product-nav-thumbs">
+                                ${product.imageUrls.map((imageUrl, index) => `
+                                    <a href="#" class="${index === 0 ? 'active' : ''}">
+                                        <img src="/uploads/${imageUrl}" alt="product desc">
+                                    </a>
+                                `).join('')}
+                            </div><!-- End .product-nav -->
+                        </div><!-- End .product-body -->
+                    </div><!-- End .product -->
+                </div><!-- End .col-6 col-md-4 col-lg-4 -->
+            `;
+                productListingDiv.insertAdjacentHTML('beforeend', productHTML);
+            });
+        } else {
+            // If no products found, display a message
+            const noProductsHTML = `
+                <div class="col-12">
+                    <p>No products found.</p>
+                </div>
+            `;
+            productListingDiv.insertAdjacentHTML('beforeend', noProductsHTML);
+        }
+    })
+    
+    .catch(error => {
+        console.error('Error:', error);
+    });
+});
+
+                                </script>
 
         						<!-- <div class="widget widget-collapsible">
     								<h3 class="widget-title">

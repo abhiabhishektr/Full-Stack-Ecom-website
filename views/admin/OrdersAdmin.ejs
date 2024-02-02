@@ -25,32 +25,37 @@
                     <% order.Products.reverse().forEach(product => { %>
                         <tr>
                             <td class="w-5" style="font-size: 12px; line-height: 1; padding: 6px; height: 20px;"><%= order._id %></td>
-                            <td><%= product.products.name %></td>
+                            <td><%= product.name %></td>
                             <td>$<%= product.price.toFixed(2) %></td>
                             <td><%= product.quantity %></td>
                             <td>$<%= product.total.toFixed(2) %></td>
                             <!-- <%= product.orderStatus %> -->
                             <td class="d-none d-md-table-cell">
-                                <select class="form-select" name="orderStatus"  id="<%= order._id %>">
-                                    <option disabled selected style="color: gray;" value=""><%= order.orderStatus %></option>
-                                    <option <%= order.orderStatus === 'placed' ? 'selected' : '' %> value="placed">Placed</option>
-                                    <option <%= order.orderStatus === 'shipped' ? 'selected' : '' %> value="shipped">Shipped</option>
-                                    <option <%= order.orderStatus === 'delivered' ? 'selected' : '' %> value="delivered">Delivered</option>
-                                    <option <%= order.orderStatus === 'request return' ? 'selected' : '' %> value="request return">Request Return</option>
-                                    <option <%= order.orderStatus === 'returned' ? 'selected' : '' %> value="returned">Returned</option>
-                                    <option <%= order.orderStatus === 'request cancellation' ? 'selected' : '' %> value="request cancellation">Request Cancellation</option>
-                                    <option <%= order.orderStatus === 'cancelled' ? 'selected' : '' %> value="cancelled">Cancelled</option>
-                                </select>
-                                <div id="updateMessage_<%= order._id %>"></div>
-
+                                <% if (product.orderStatus === 'cancelled' || product.orderStatus === 'returned') { %>
+                                    <%= product.orderStatus %>
+                                <% } else { %>
+                                    <select class="form-select" name="orderStatus" id="<%= product._id %>">
+                                        <option disabled selected style="color: gray;" value=""><%= product.orderStatus %></option>
+                                        <option <%= order.orderStatus === 'placed' ? 'selected' : '' %> value="placed">Placed</option>
+                                        <option <%= order.orderStatus === 'shipped' ? 'selected' : '' %> value="shipped">Shipped</option>
+                                        <option <%= order.orderStatus === 'delivered' ? 'selected' : '' %> value="delivered">Delivered</option>
+                                        <option <%= order.orderStatus === 'returned' ? 'selected' : '' %> value="returned">Returned</option>
+                                        <option <%= order.orderStatus === 'cancelled' ? 'selected' : '' %> value="cancelled">Cancelled</option>
+                                        <option <%= order.orderStatus === 'return Rejected' ? 'selected' : '' %> value="return Rejected">Return Rejected</option>
+                                    </select>
+                                    <div id="updateMessage_<%= order._id %>"></div>
+                                <% } %>
                             </td>
+                            
                           
                             <td><%= order.paymentMode %></td>
                             <td class="d-none d-md-table-cell"><%= order.date.toLocaleDateString() %></td>
+                            
+
                             <td>
-                                <button class="btn btn-primary" onclick="updateOrderStatus('<%= order._id %>')">Update</button>
-                                
+                                <button id="updateButton_<%= order._id %>" class="btn btn-primary" onclick="updateOrderStatus('<%= order._id %>', '<%= product._id %>')">Update</button>
                             </td>
+                            
                             
                             <!-- Add additional cells based on your model structure -->
                         </tr>
@@ -62,11 +67,11 @@
 </div>
 
 <script>
-    async function updateOrderStatus(orderId) {
+    async function updateOrderStatus(orderId,productId) {
+
         try {
             // Get the selected value from the dropdown
-            const selectedStatus = document.getElementById(orderId).value;
-
+            const selectedStatus = document.getElementById(productId).value;
             // Get the message element
             const messageElement = document.getElementById(`updateMessage_${orderId}`);
 
@@ -76,17 +81,23 @@
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ orderStatus: selectedStatus }),
+                body: JSON.stringify({ orderStatus: selectedStatus ,productId :productId }),
             });
-
             if (response.ok) {
                 const updatedOrder = await response.json();
                 // Update successful, you can perform additional actions if needed
-                console.log(`Order ${orderId} status updated to: ${selectedStatus}`);
+            
                 // Display a success message
-                messageElement.textContent = `Updated : ${selectedStatus}`;
+                messageElement.textContent = `Updated: ${selectedStatus}`;
                 messageElement.style.color = 'green'; // Set color to green for success
-            } else {
+            
+                const updateButton = document.getElementById(`updateButton_${orderId}`);
+                if (selectedStatus === 'cancelled' || selectedStatus === 'returned') {
+                    updateButton.disabled = true;
+                    console.log(`Button disabled for order ID: ${orderId}`);
+                }
+            }
+             else {
                 // Handle errors or provide user feedback
                 console.error(`Error updating order status: ${response.statusText}`);
                 // Display an error message

@@ -3,6 +3,7 @@ const userdb = require("../model/usermodel");
 const productdb = require("../model/pdtmodel");
 const orderdb = require("../model/order");
 require("dotenv").config();
+const WalletModel=require('../model/wallet')
 
 const Razorpay = require("razorpay");
 const { RAZORPAY_ID_KEY, RAZORPAY_SECRET_KEY } = process.env;
@@ -144,10 +145,11 @@ const checkOut = async (req, res) => {
                     price: product.productPrice,
                     quantity: product.quantity,
                     total: product.totalPrice,
+                    orderStatus: "placed",
                     reason: "none",
                     image: product.image,
                 })),
-                orderStatus: "placed",
+            
                 paymentMode: paymentOption,
                 subtotal: subtotal,
                 date: new Date(),
@@ -203,7 +205,102 @@ const checkOut = async (req, res) => {
 
                 });
             });
-        } else {
+        }else if(paymentOption === "Wallet")
+        {
+
+            try {
+                const addressIndex = req.body.addressIndex;
+                const selectedBillingOption = req.body.billingOption;
+                const userId = req.session.userid;
+                const userAddr = await userdb.findById(userId);
+                const addresses = userAddr.addresses[addressIndex];
+            
+                // Find the user's cart items
+                const cart = await Cartdb.findOne({ user: userId }).populate({
+                    path: "products.productId",
+                    model: "Product",
+                });
+            
+                if (!cart) {
+                    return res.status(404).json({ error: "Cart not found" });
+                }
+            
+                // Extract relevant information from the cart
+                const { user, userEmail, products, subtotal } = cart;
+            
+                // Check if there's enough balance in the user's wallet
+                const userWallet = await WalletModel.findOne({ userId });
+                if (!userWallet || userWallet.balance < subtotal) {
+                    return res.status(400).json({ error: "Insufficient wallet balance" });
+                }
+            
+                // Create an order document based on the cart data
+                const order = new orderdb({
+                    user,
+                    userEmail,
+                    Products: products.map((product) => ({
+                        products: product.productId,
+                        name: product.name,
+                        price: product.productPrice,
+                        quantity: product.quantity,
+                        total: product.totalPrice,
+                        reason: "none",
+                        image: product.image,
+                    })),
+                    orderStatus: "placed",
+                    paymentMode: selectedBillingOption,
+                    subtotal: subtotal,
+                    date: new Date(),
+                    address: addresses,
+                });
+            
+                // Save the order document
+                const savedOrder = await order.save();
+            
+                // Update the user's wallet balance and add transaction history
+                const transactionAmount = -subtotal; // Negative for debit
+                userWallet.balance += transactionAmount;
+                userWallet.history.push({
+                    amount: transactionAmount,
+                    type: 'debit',
+                    description: `Order ID: ${savedOrder._id} - Payment debited`,
+                });
+                await userWallet.save();
+            
+                // Clear the user's cart after successful checkout
+                await Cartdb.findOneAndDelete({ user: savedOrder.user });
+            
+                for (let i = 0; i < cart.products.length; i++) {
+                    const productId = cart.products[i].productId;
+                    const count = cart.products[i].quantity;
+            
+                    // Update product stock quantity
+                    let att = await productdb.updateOne(
+                        {
+                            _id: productId,
+                        },
+                        {
+                            $inc: {
+                                stockQuantity: -count,
+                            },
+                        }
+                    );
+                    console.log("a", att);
+
+
+                    
+                }
+            
+                res.redirect("/profile?tab=orders");
+            } catch (error) {
+                // Handle any errors
+                console.error(error);
+                res.status(500).json({ error: "Internal server error" });
+            }
+            
+            
+        }
+         else {
             try {
                 const addressIndex = req.body.addressIndex;
                 const selectedBillingOption = req.body.billingOption;

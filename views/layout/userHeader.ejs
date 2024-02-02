@@ -199,46 +199,10 @@
 
                             <div class="dropdown-menu dropdown-menu-right">
                                 <div class="dropdown-cart-products">
-                                    <div class="product">
-                                        <div class="product-cart-details">
-                                            <h4 class="product-title">
-                                                <a href="product.html">Beige knitted elastic runner shoes</a>
-                                            </h4>
+                               
 
-                                            <span class="cart-product-info">
-                                                <span class="cart-product-qty">1</span>
-                                                x $84.00
-                                            </span>
-                                        </div><!-- End .product-cart-details -->
-
-                                        <figure class="product-image-container">
-                                            <a href="product.html" class="product-image">
-                                                <img src="/user/assets/images/products/cart/product-1.jpg" alt="product">
-                                            </a>
-                                        </figure>
-                                        <a href="#" class="btn-remove" title="Remove Product"><i class="icon-close"></i></a>
-                                    </div><!-- End .product -->
-
-                                    <div class="product">
-                                        <div class="product-cart-details">
-                                            <h4 class="product-title">
-                                                <a href="product.html">Blue utility pinafore denim dress</a>
-                                            </h4>
-
-                                            <span class="cart-product-info">
-                                                <span class="cart-product-qty">1</span>
-                                                x $76.00
-                                            </span>
-                                        </div><!-- End .product-cart-details -->
-
-                                        <figure class="product-image-container">
-                                            <a href="product.html" class="product-image">
-                                                <img src="/user/assets/images/products/cart/product-2.jpg" alt="product">
-                                            </a>
-                                        </figure>
-                                        <a href="#" class="btn-remove" title="Remove Product"><i class="icon-close"></i></a>
-                                    </div><!-- End .product -->
-                                </div><!-- End .cart-product -->
+                
+                                </div>
 
                                 <div class="dropdown-cart-total">
                                     <span>Total</span>
@@ -261,20 +225,30 @@
                     <div class="header-left">
                         <nav class="main-nav">
                             <ul class="menu sf-arrows">
-                                <li class="megamenu-container active">
+                                <li class="megamenu-container ">
                                     <a href="/" >Home</a>
 
                                 
                                 </li>
-                                <li>
-                                    <!-- <a href="#" class="sf-with-ul">Shop</a> -->
-                                    <li><a href="/fullpdt/Men">Shop For Men</a></li>
-                                    <li><a href="/fullpdt/Women">Shop For Women</a></li>
-                                    <li><a href="/fullpdt/Kids">Shop For Kids</a></li>
-                                    <li><a href="/fullpdt/0">See all Product</a></li>
-                                    
-                                </li>
+                              
+                                <li class="megamenu-container ">
+                                    <a href="/fullpdt/Men" >Shop For Men</a>
+
                                 
+                                </li><li class="megamenu-container ">
+                                    <a href="/fullpdt/Women" >Shop For Women</a>
+
+                                
+                                </li><li class="megamenu-container ">
+                                    <a href="/fullpdt/Kids" >Shop For Kids</a>
+
+                                
+                                </li>
+                                <li class="megamenu-container ">
+                                    <a href="/fullpdt/0" >See all Product</a>
+
+                                
+                                </li>
                                     <!-- <a href="#" class="sf-with-ul"></a> for the down arraow -->
 
                                     <!-- End .megamenu megamenu-sm -->
@@ -283,6 +257,24 @@
                                 
                                 
                             </ul><!-- End .menu -->
+                            
+                            <script>
+                                // Get the current URL
+                                var currentUrl = window.location.href;
+                            
+                                // Select all menu items
+                                var menuItems = document.querySelectorAll('.megamenu-container a');
+                            
+                                // Loop through each menu item
+                                menuItems.forEach(function(item) {
+                                    // Check if the item's href matches the current URL
+                                    if (item.href === currentUrl) {
+                                        // Add the 'active' class to the parent li element
+                                        item.parentElement.classList.add('active');
+                                    }
+                                });
+                            </script>
+                            
                         </nav><!-- End .main-nav -->
 
                         <button class="mobile-menu-toggler">

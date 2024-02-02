@@ -24,7 +24,7 @@
                                 <% product.forEach((product) => { %>
                                     <tr>
                                         <th scope="row"><%=serialNumber %></th>
-                                        <td><%= product.name %></td>
+                                        <td><%= product?.name %></td>
                                         <td><%= product.category ? product.category : 'N/A' %></td>
                                         <td><%= product.price  %></td>
                                         <td><%= product.gender %></td>
@@ -70,9 +70,10 @@
                                             <% } %>
                                         </td>
                                     </tr>
+                                    <% serialNumber++; %>
                                 <% }) %>
                             <% } %>
-                            <% serialNumber++; %>
+                         
                         </tbody> 
                     </table>
                 </div>

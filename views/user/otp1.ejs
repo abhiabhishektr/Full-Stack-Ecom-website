@@ -77,7 +77,7 @@
             
         </header><!-- End .header -->
 
-        <malocalin class="main">
+        <main class="main">
             <nav aria-label="breadcrumb" class="breadcrumb-nav border-0 mb-0">
                 <div class="container">
                     <ol class="breadcrumb">
@@ -104,7 +104,7 @@
 
                                 <div class="tab-pane fade show active" id="register-2" role="tabpanel" aria-labelledby="register-tab-2">
 
-                                    <form action="/otpvalidation" method="post">
+                                    <form id="otpForm" action="/otpvalidation" method="post">
                                         <!-- Existing form fields -->
                                 
                                         <!-- New section for OTP input -->
@@ -116,7 +116,7 @@
                                                 <input type="text" name="otpInput3" maxlength="1" pattern="\d" inputmode="numeric" required style="padding: 10px; font-size: 16px; text-align: center; width: 50px; margin: 10px;" oninput="moveToNextInput(this, 'otpInput4')">
                                                 <input type="text" name="otpInput4" maxlength="1" pattern="\d" inputmode="numeric" required style="padding: 10px; font-size: 16px; text-align: center; width: 50px; margin: 10px;">
                                             </div>
-                                            <input type="hidden" name="email" value="<%= email %>">
+                                            <input type="hidden" name="email" value="<%= locals.email %>" id="emailInput">
                                         </div>
                                         
                                         <script>
@@ -129,7 +129,7 @@
                                         
                                 
                                         <!-- "Send OTP" button -->
-                                        <button type="button" id="sendOtpButton" class="btn btn-outline-primary-2" onclick="sendOtp('<%= email %>')" style="margin-top: 10px;">
+                                        <button type="button" id="sendOtpButton" class="btn btn-outline-primary-2" onclick="sendOtp('<%=locals.email %>')" style="margin-top: 10px;">
                                             <span>Send OTP</span>
                                             <i class="icon-send"></i>
                                         </button>
@@ -140,11 +140,12 @@
                                 
                                         <div class="form-footer">
                                             <!-- Existing submit button -->
-                                            <button type="submit" class="btn btn-outline-primary-2">
-                                                <span>SIGN UP</span>
-                                                <i class="icon-long-arrow-right"></i>
-                                            </button>
-                                
+                                          <!-- "Submit" button -->
+              <button type="button" id="submitButton" class="btn btn-outline-primary-2" onclick="submitForm()" style="margin-top: 10px;">
+                  <span>SIGN UP</span>
+                  <i class="icon-long-arrow-right"></i>
+              </button>
+      
                                             <!-- Existing error messages -->
                                             <div>
                                                 <p id="otpSentMessage" style="color: green;"></p>
@@ -154,11 +155,11 @@
                                                         <%= message %>
                                                     <% } %>
                                                 </p>
+                                                
                                                 <% if(locals.existerorr) { %>
                                                     <p class="text-danger mb-3"><%= existerorr %></p>
                                                 <% } %>
                                             </div>
-                                            <!-- <input type="hidden" name="email" value="<%= email %>"> -->
                                 
                                             <!-- Existing privacy policy checkbox -->
                                 
@@ -178,8 +179,50 @@
             		</div><!-- End .form-box -->
             	</div><!-- End .container -->
             </div><!-- End .login-page section-bg -->
-        </main>End .main
+        </main>
 
+
+        <script>
+            function submitForm() {
+                const otpInput1 = document.getElementsByName("otpInput1")[0].value;
+                const otpInput2 = document.getElementsByName("otpInput2")[0].value;
+                const otpInput3 = document.getElementsByName("otpInput3")[0].value;
+                const otpInput4 = document.getElementsByName("otpInput4")[0].value;
+        
+                // Gather email value
+                const email = document.getElementById("emailInput").value;
+        
+                // Create data object
+                const data = {
+                    otp: `${otpInput1}${otpInput2}${otpInput3}${otpInput4}`,
+                    email: email
+                };
+
+                fetch('/otpvalidation', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const errorMessageElement = document.getElementById("error-message");
+                    if (data.message === "Failed") {
+             // Display a message to the user indicating failure
+             errorMessageElement.textContent = data.errorMessage || "OTP validation failed. Please try again.";                    } else {
+                        // If successful, you might want to redirect or perform other actions
+                        window.location.href = "/login?loginMessage=login now";
+                    }
+                })
+                .catch(error => {
+                    // Handle errors
+                    console.error('Error:', error);
+                });
+            }
+        </script>
+
+        
         <footer class="footer">
         	<div class="footer-middle">
 	            <div class="container">
