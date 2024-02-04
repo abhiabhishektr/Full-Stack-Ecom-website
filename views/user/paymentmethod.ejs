@@ -78,56 +78,64 @@
                                             <div class="col-sm-6">
                                                 <label>First Name *</label>
                                                 <input type="text" class="form-control" name="firstName" required pattern="^\S.*\S$">
+                                                <div class="invalid-feedback">Please provide your first name.</div>
                                             </div><!-- End .col-sm-6 -->
-                                
+                                    
                                             <div class="col-sm-6">
                                                 <label>Last Name *</label>
                                                 <input type="text" class="form-control" name="lastName" required pattern="^\S.*\S$">
+                                                <div class="invalid-feedback">Please provide your last name.</div>
                                             </div><!-- End .col-sm-6 -->
                                         </div><!-- End .row -->
-                                
+                                    
                                         <label>Company Name (Optional)</label>
                                         <input type="text" class="form-control" name="companyName">
-                                
+                                    
                                         <label>Country *</label>
                                         <input type="text" class="form-control" name="country" required pattern="^\S.*\S$">
-                                
+                                        <div class="invalid-feedback">Please provide your country.</div>
+                                    
                                         <label>Street address *</label>
                                         <input type="text" class="form-control" name="streetAddress1" placeholder="House number and Street name" required pattern="^\S.*\S$">
-                                        <input type="text" class="form-control" name="streetAddress2" placeholder="Appartments, suite, unit etc ..." required pattern="^\S.*\S$">
-                                
+                                        <input type="text" class="form-control" name="streetAddress2" placeholder="Apartments, suite, unit, etc..." required pattern="^\S.*\S$">
+                                        <div class="invalid-feedback">Please provide your street address.</div>
+                                    
                                         <div class="row">
                                             <div class="col-sm-6">
                                                 <label>Town / City *</label>
                                                 <input type="text" class="form-control" name="townCity" required pattern="^\S.*\S$">
+                                                <div class="invalid-feedback">Please provide your town or city.</div>
                                             </div><!-- End .col-sm-6 -->
-                                
+                                    
                                             <div class="col-sm-6">
                                                 <label>State / County *</label>
                                                 <input type="text" class="form-control" name="stateCounty" required pattern="^\S.*\S$">
+                                                <div class="invalid-feedback">Please provide your state or county.</div>
                                             </div><!-- End .col-sm-6 -->
                                         </div><!-- End .row -->
-                                
+                                    
                                         <div class="row">
                                             <div class="col-sm-6">
                                                 <label>Postcode / ZIP *</label>
-                                                <input type="text" class="form-control" name="postcodeZIP"  pattern="[0-9]{6}" required>
+                                                <input type="text" class="form-control" name="postcodeZIP" pattern="[0-9]{6}" required>
+                                                <div class="invalid-feedback">Please provide a valid postcode/ZIP code (6 digits).</div>
                                             </div><!-- End .col-sm-6 -->
-                                
+                                    
                                             <div class="col-sm-6">
                                                 <label>Phone *</label>
                                                 <input type="tel" class="form-control" name="phone" pattern="[789]\d{9}" required>
+                                                <div class="invalid-feedback">Please provide a valid phone number.</div>
                                             </div><!-- End .col-sm-6 -->
                                         </div><!-- End .row -->
-                                
                                     </div><!-- End .col-lg-9 -->
-                                
+                                    
                                     <button type="submit" class="btn btn-outline-primary-2 btn-order btn-block" >
                                         <span class="btn-text">Add Address</span>
                                         <span class="btn-hover-text">Proceed to Add Address</span>
                                     </button>
                                 </form>
                             </div>
+                            
                             <script>
                                 $(document).ready(function () {
                                     // Initially hide the form

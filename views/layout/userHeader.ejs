@@ -51,6 +51,7 @@
       
 </head>
 
+
 <body>
     <div class="page-wrapper">
          <header class="header header-6">
@@ -114,7 +115,14 @@
                             <div class="header-search-wrapper search-wrapper-wide">
                                 <label for="q" class="sr-only">Search</label>
                                 <button class="btn btn-primary" type="submit"><i class="icon-search"></i></button>
-                                <input type="search" class="form-control" name="q" id="q" placeholder="Search product ..." required>
+                                
+                                <% if (locals.MainCat && locals.MainCat !== 'Men' && locals.MainCat !== 'Women' && locals.MainCat !== 'Kids' && locals.MainCat !== '0') { %>
+                                    <input type="search" class="form-control" name="q" id="q" placeholder="<%= locals.MainCat %>" required>
+                                <% } else { %>
+                                    <input type="search" class="form-control" name="q" id="q" placeholder="Search product ..." required>
+                                <% } %>
+                                
+                                
                             </div><!-- End .header-search-wrapper -->
                         </form>
                     </div><!-- End .header-search -->
@@ -165,7 +173,7 @@
 
 
                     <div class="header-center">
-                        <a href="index.html" class="logo">
+                        <a href="/" class="logo">
                             <img src="/img/logo.png" alt="Molla Logo" width="82" height="20">
                         </a>
                     </div><!-- End .header-left -->

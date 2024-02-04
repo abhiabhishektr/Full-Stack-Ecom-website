@@ -1,6 +1,8 @@
 const fs = require("fs");
 const pdf = require("html-pdf"); // You may need to install this package
 const Order = require("../model/order");
+const Coupon = require('../model/couponModel');
+
 
 const generateSalesReport = async (req, res) => {
     console.log("Start Date from Request:", req.body["start-date"]);
@@ -71,10 +73,48 @@ const bannersAdmin = async (req, res) => {
     res.render("banner");
 };
 
+const CouponsAdmin = async (req, res) => {
+    res.render("Coupon");
+};
+
+
+
+
+// POST endpoint to add a new coupon
+const CouponsAdminPost = async (req, res) => {
+  try {
+    const { code, discountType, discountAmount, expirationDate, minOrderAmount } = req.body;
+
+    // Check if the coupon code already exists
+    const existingCoupon = await Coupon.findOne({ code });
+    if (existingCoupon) {
+      return res.status(400).json({ error: 'Coupon code already exists' });
+    }
+
+    const newCoupon = new Coupon({
+      code,
+      discountType,
+      discountAmount,
+      expirationDate: new Date(expirationDate), // Assuming expirationDate is a string in 'yyyy-mm-dd' format
+      minOrderAmount,
+    });
+
+    await newCoupon.save();
+    res.status(201).json(newCoupon);
+  } catch (error) {
+    console.error('Error adding coupon:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
+
+
+
 module.exports = {
     bannersAdmin,
     salesReport,
     generateSalesReport,
+    CouponsAdmin,
+    CouponsAdminPost
 };
 
 

@@ -3,6 +3,7 @@ const userdb = require("../model/usermodel");
 const productdb = require("../model/pdtmodel");
 const orderdb = require("../model/order");
 const WalletModel = require("../model/wallet");
+
 const cart = async (req, res) => {
     let idd = req.session.userid;
 
@@ -14,94 +15,15 @@ const cart = async (req, res) => {
             model: "Product", // Make sure it matches the model name for the Product
         });
 
-        // console.log(cartData);
+    const qty=cartData.products[1].productId.stockQuantity
+    console.log(qty)
+
+        
+        console.log(cartData);
         res.render("cart", { cartData, cartCount: req.cartCount });
     }
 };
 
-// const cart = async (req, res) => {
-//     try {
-//         let idd = req.session.userid;
-
-//         if (!idd) {
-//             return res.redirect('/login?loginMessage=Please Sign In first.');
-//         }
-
-//         let cart = await Cartdb.findOne({ user: idd });
-
-//         if (!cart) {
-//             // Handle the case where the user has an empty cart
-//             return res.render("cart", { products: [] });
-//         }
-//         const cartData = await Cartdb.findOne({ userid: user }).populate({
-//             path: "products.productId",
-//             model: "Product", // Make sure it matches the model name for the Product
-//           });
-
-//         res.render("cart", {cartData });
-//     } catch (error) {
-//         console.error(error);
-//         // Handle errors appropriately, e.g., render an error page
-//         res.status(500).render('error', { error: 'Internal Server Error' });
-//     }
-// };
-
-// const updatecart = async (req, res) => {
-//     if (!req.session.userid) {
-//         // If the user is not logged in, show an alert box
-//         res.send('<script>alert("Please log in first."); window.location="/login?loginMessage=Please Sign In first.";</script>');
-//     } else {
-//         let idd = req.session.userid;
-//         let mailid = req.session.user;
-//         let productid = req.params.id;
-//         let exist = await Cartdb.findOne({ user: idd });
-//         let product = await productdb.findById(productid);
-
-//         try {
-//             if (!exist) {
-//                 const newcart = new Cartdb({
-//                     user: idd,
-//                     userEmail: mailid,
-//                     products: [
-//                         {
-//                             productId: product._id,
-//                             quantity: 1,
-//                             productPrice: product.price,
-//                             totalPrice: product.price * 1,
-//                             image: product.imageUrls[0], // Assuming you want to use the first image URL
-//                         },
-//                     ],
-//                 });
-//                 await newcart.save();
-//                 res.send('<script>alert("Product added to cart."); window.location="/";</script>');
-//             } else {
-//                 // Check if the product is already in the cart
-//                 const existingProduct = exist.products.find(item => item.productId.equals(product._id));
-
-//                 if (existingProduct) {
-//                     res.send('<script>alert("Product already in the cart.");</script>');
-//                     // res.redirect('/cart')
-
-//                 } else {
-//                     exist.products.push({
-//                         productId: product._id,
-//                         quantity: 1,
-//                         productPrice: product.price,
-//                         totalPrice: product.price * 1,
-//                         image: product.imageUrls[0], // Assuming you want to use the first image URL
-//                     });
-
-//                     await exist.save();
-//                     res.send('<script>alert("Product added to cart."); window.location.reload();</script>');
-//                 }
-//             }
-//         } catch (error) {
-//             console.log(error);
-//             // Handle the error appropriately, e.g., send an error message to the client
-//             res.status(500).send('Internal Server Error');
-//         }
-//     }
-// };
 
 const updatecart = async (req, res) => {
     if (!req.session.userid) {

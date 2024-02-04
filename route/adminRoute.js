@@ -71,6 +71,9 @@ router.post('/generate_report',userAdsBanner.generateSalesReport);
 
 router.get("/bannersAdmin",userAdsBanner.bannersAdmin);
 
+router.get("/CouponsAdmin",userAdsBanner.CouponsAdmin);
+
+router.get("/CouponsAdmin",userAdsBanner.CouponsAdminPost);
 
 
 
@@ -90,3 +93,10 @@ module.exports = router;
 
 
 
+{/* <script>
+    window.onbeforeunload = function() {
+        // Redirect to another page
+        window.location.href = '';
+        return false; // This is needed for some older browsers
+    };
+</script> */}

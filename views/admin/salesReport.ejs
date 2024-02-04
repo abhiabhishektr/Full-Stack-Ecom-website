@@ -3,21 +3,51 @@
 <div class="container mt-5">
     <h2 class="mb-4">Sales Report</h2>
 
-    <form action="/generate_report" method="post" class="row">
-        <div class="form-group col-md-4">
-            <label for="start-date">Start Date:</label>
-            <input type="date" class="form-control" id="start-date" name="start-date" required>
-        </div>
+    <form action="/generate_report" method="post" class="row" onsubmit="return validateDates()">
+    <div class="form-group col-md-4">
+        <label for="start-date">Start Date:</label>
+        <input type="date" class="form-control" id="start-date" name="start-date" required>
+    </div>
 
-        <div class="form-group col-md-4">
-            <label for="end-date">End Date:</label>
-            <input type="date" class="form-control" id="end-date" name="end-date" required>
-        </div>
+    <div class="form-group col-md-4">
+        <label for="end-date">End Date:</label>
+        <input type="date" class="form-control" id="end-date" name="end-date" required>
+    </div>
 
-        <div class="form-group col-md-4 d-flex flex-column mt-auto">
-            <button type="button" id="generateReportBtn" class="btn btn-primary btn-block">Generate Report</button>
-        </div>
-    </form>
+    <div class="form-group col-md-4 d-flex flex-column mt-auto">
+        <button type="submit" id="generateReportBtn" class="btn btn-primary btn-block">Generate Report</button>
+    </div>
+    <br>
+    <div id="flash-message" style="width: 70%;" class="col-md-12 mt-3"></div>
+</form>
+
+<script>
+    function validateDates() {
+        var startDate = document.getElementById('start-date').value;
+        var endDate = document.getElementById('end-date').value;
+        var flashMessageContainer = document.getElementById('flash-message');
+
+        // Clear previous flash messages
+        flashMessageContainer.innerHTML = '';
+
+        if (startDate && endDate) {
+            if (startDate > endDate) {
+                // Create a div element for the flash message
+                var flashMessage = document.createElement('div');
+                flashMessage.className = 'alert alert-danger';
+                flashMessage.textContent = 'Invalid date input: Start Date should not be after End Date';
+
+                // Append the flash message to the container
+                flashMessageContainer.appendChild(flashMessage);
+
+                return false; // Prevent form submission
+            }
+        }
+
+        return true; // Allow form submission
+    }
+</script>
+
     <hr>
     <div id="reportPreview" style="display:none;">
         <h3>Sales Report Preview</h3>
@@ -44,6 +74,7 @@
 <br>
 <br><br><br>
 <script>
+    let ordersDataDownload=
     document.getElementById('generateReportBtn').addEventListener('click', async () => {
         const userStartDate = document.getElementById('start-date').value;
         const userEndDate = document.getElementById('end-date').value;
@@ -66,6 +97,7 @@
             const data = await response.json();
 
             const { orders, startDate, endDate } = data;
+            ordersDataDownload=data
 
             // Display the report content as a table
             displayReportTable(orders);
@@ -78,9 +110,9 @@
     });
 
     document.getElementById('downloadReportBtn').addEventListener('click', async () => {
-        // Download the report as a PDF
+        // Download the report as an Excel file
         const content = document.getElementById('reportContentTableBody').innerHTML;
-        downloadPDF(content);
+        downloadExcel(ordersDataDownload);
     });
 
     function displayReportTable(orders) {
@@ -116,29 +148,62 @@
         totalAmountElement.textContent = totalAmount.toFixed(2); // Assuming total is a decimal value
     }
     
-    
-    function downloadPDF(content) {
+
+
+    function downloadExcel(data) {
         try {
-            // Create a Blob with PDF content
-            const blob = new Blob([content], { type: 'application/pdf' });
+            const { orders, startDate, endDate } = data;
+           
+
     
-            // Create a download link
+            const ws = XLSX.utils.json_to_sheet(orders);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'SalesReport');
+    
+            const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+            const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    
             const link = document.createElement('a');
             link.href = window.URL.createObjectURL(blob);
-            link.download = 'sales_report.pdf';
+            link.download = `sales_report_${startDate}_to_${endDate}.xlsx`;
     
-            // Append the link to the document body
             document.body.appendChild(link);
-    
-            // Trigger a click on the link to initiate the download
             link.click();
-    
-            // Remove the link from the document body
             document.body.removeChild(link);
         } catch (error) {
-            console.error('Error downloading PDF:', error);
+            console.error('Error downloading Excel:', error);
         }
     }
+
+    // to download the displaying contents only 
+
+   // function downloadExcel(content) {
+   //     try {
+   //         const table = document.createElement('table');
+   //         table.innerHTML = content;
+   // 
+   //         const ws = XLSX.utils.table_to_sheet(table);
+   //         const wb = XLSX.utils.book_new();
+   //         XLSX.utils.book_append_sheet(wb, ws, 'SalesReport');
+   // 
+   //         const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+   //         const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+   // 
+   //         const link = document.createElement('a');
+   //         link.href = window.URL.createObjectURL(blob);
+   //         link.download = 'sales_report.xlsx';
+   // 
+   //         document.body.appendChild(link);
+   //         link.click();
+   //         document.body.removeChild(link);
+   //     } catch (error) {
+   //         console.error('Error downloading Excel:', error);
+   //     }
+   // }
+    
+
+
+    
     
 </script>
 
@@ -154,7 +219,8 @@
 
 </div>
 
-
+<script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    
 <script src="/admin/src/assets/libs/jquery/dist/jquery.min.js"></script>
 <script src="/admin/src/assets/libs/popper.js/dist/umd/popper.min.js"></script>
 <script src="/admin/src/assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>

@@ -88,20 +88,24 @@
                     
                       
                       
-                      
-                      <!-- For Blocking -->
-                      <td>
-                        <form action="/Cblock/<%= Category._id %>" method="post">
-                          <button type="submit" class="btn btn-warning">Block</button>
-                        </form>
-                      </td>
-                      
-                      <!-- For Unblocking -->
-                      <td>
+                      <% if (Category.Status) { %>
+                        <td>
+                            <form action="/Cblock/<%= Category._id %>" method="post">
+                              <button type="submit" class="btn btn-warning">Block</button>
+                            </form>
+                          </td>
+                          
+                     <% } else { %>
+ <td>
                         <form action="/Cunblock/<%= Category._id %>" method="post">
                           <button type="submit" class="btn btn-success">Unblock</button>
                         </form>
                       </td>
+                     <% } %>
+                      <!-- For Blocking -->
+                     
+                      <!-- For Unblocking -->
+                     
 
                       <td>
                         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#updateModal">

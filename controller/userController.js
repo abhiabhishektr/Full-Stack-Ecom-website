@@ -360,104 +360,158 @@ const logincheck = async (req, res) => {
 
 // userController
 
+// const fullpdt = async (req, res) => {
+//     try {
+//         const MainCat = req.params.MainCat;
+
+//         if (MainCat === "Men" || MainCat === "Women" || MainCat === "Kids") {
+//             // Fetch products based on the specified gender category
+//             const products = await ptd.find({
+//                 gender: MainCat,
+//                 status: "Active",
+//                 productDeleted: { $ne: "deleted" },
+//             });
+//             let mainCatLower = MainCat.toLowerCase();
+//             const categories = await catdb.find({ Name: mainCatLower });
+
+//             // Extract unique subName values from the categories array
+//             const uniqueSubNames = [...new Set(categories.map((category) => category.subName))];
+
+//             const brands = await ptd
+//                 .find({
+//                     status: "Active",
+//                     productDeleted: { $ne: "deleted" },
+//                 })
+//                 .distinct("manufacturer");
+
+//             // Render the 'fullpdt' template and pass the filtered products as a variable
+//             res.render("fullpdt", { products, uniqueSubNames, brands, cartCount: req.cartCount });
+//         } else if (MainCat == 0) {
+//             // Fetch categories with Status set to true
+//             const activeCategories = await catdb.find({ Status: true });
+
+//             // Extract category names from the active categories
+//             const activeCategoryNames = activeCategories.map((category) => category.subName);
+
+//             // Fetch all products that belong to the active categories
+//             const products = await ptd.find({
+//                 category: { $in: activeCategoryNames },
+//                 status: "Active",
+//                 productDeleted: { $ne: "deleted" },
+//             });
+//             const categories = await catdb.find();
+
+//             // Extract unique subName values from the categories array
+//             const uniqueSubNames = [...new Set(categories.map((category) => category.subName))];
+
+//             const brands = await ptd
+//                 .find({
+//                     status: "Active",
+//                     productDeleted: { $ne: "deleted" },
+//                 })
+//                 .distinct("manufacturer");
+
+//             // Render the 'fullpdt' template and pass the filtered products as a variable
+//             res.render("fullpdt", { products, uniqueSubNames, brands, cartCount: req.cartCount });
+//         } //for sraching
+//         else {
+//             console.log(MainCat); // this is the search text
+//             const regex = new RegExp(MainCat, "i");
+//             const products = await ptd.find({
+//                 $or: [
+//                     { name: regex },
+//                     { manufacturer: regex },
+//                     // Add more fields if needed
+//                 ],
+//             });
+
+//             // res.json(products);
+//             console.log(products);
+
+//             const categories = await catdb.find();
+
+//             // Extract unique subName values from the categories array
+//             const uniqueSubNames = [...new Set(categories.map((category) => category.subName))];
+//             console.log("Rendering fullpdt page");
+//             // Render the 'fullpdt' template and pass the filtered products as a variable
+
+//             const brands = await ptd
+//                 .find({
+//                     status: "Active",
+//                     productDeleted: { $ne: "deleted" },
+//                 })
+//                 .distinct("manufacturer");
+
+//             res.render("fullpdt", { products, uniqueSubNames, brands, cartCount: req.cartCount });
+//         }
+//     } catch (error) {
+//         console.error("Error fetching products:", error);
+//         res.status(500).send("Internal Server Error");
+//     }
+// };
+
 const fullpdt = async (req, res) => {
     try {
         const MainCat = req.params.MainCat;
         const page = parseInt(req.query.page) || 1; // Get the requested page from the query parameters
-        const itemsPerPage = 10; // Adjust the number of items per page as needed
+        const itemsPerPage = 12; // Adjust the number of items per page as needed
 
         let query = {
             status: "Active",
             productDeleted: { $ne: "deleted" },
         };
 
+        const activeCategories = await catdb.find({ Status: true });
+        const activeCategoryNames = activeCategories.map((category) => category.subName);
+        query.category = { $in: activeCategoryNames };
+
         if (MainCat === "Men" || MainCat === "Women" || MainCat === "Kids") {
             // Fetch products based on the specified gender category
-            const products = await ptd.find({
-                gender: MainCat,
-                status: "Active",
-                productDeleted: { $ne: "deleted" },
-            });
-            let mainCatLower = MainCat.toLowerCase();
-            const categories = await catdb.find({ Name: mainCatLower });
-
-            // Extract unique subName values from the categories array
-            const uniqueSubNames = [...new Set(categories.map((category) => category.subName))];
-
-            const brands = await ptd
-                .find({
-                    status: "Active",
-                    productDeleted: { $ne: "deleted" },
-                })
-                .distinct("manufacturer");
-
-            // Render the 'fullpdt' template and pass the filtered products as a variable
-            res.render("fullpdt", { products, uniqueSubNames, brands, cartCount: req.cartCount });
+            query.gender = MainCat;
         } else if (MainCat == 0) {
-            // Fetch categories with Status set to true
-            const activeCategories = await catdb.find({ Status: true });
+            // Fetch products based on all active categories
+        } else {
+            console.log(MainCat);
+            // Fetch products based on search text
+            const regex = new RegExp(MainCat, "i");
+            query.$or = [
+                { name: regex },
+                { manufacturer: regex },
+                { category: regex },
+                // Add more fields if needed
+            ];
+        }
 
-            // Extract category names from the active categories
-            const activeCategoryNames = activeCategories.map((category) => category.subName);
+        const totalProducts = await ptd.countDocuments(query);
+        let totalProductsCount = totalProducts;
 
-            // Fetch all products that belong to the active categories
-            const products = await ptd.find({
-                category: { $in: activeCategoryNames },
+        const totalPages = Math.ceil(totalProducts / itemsPerPage);
+        const skip = (page - 1) * itemsPerPage;
+
+        const products = await ptd.find(query).skip(skip).limit(itemsPerPage);
+        const sizes = await ptd.distinct("size", query);
+
+        const categories = await catdb.find();
+        const uniqueSubNames = [...new Set(categories.map((category) => category.subName))];
+
+        const brands = await ptd
+            .find({
                 status: "Active",
                 productDeleted: { $ne: "deleted" },
-            });
-            const categories = await catdb.find();
+            })
+            .distinct("manufacturer");
 
-            // Extract unique subName values from the categories array
-            const uniqueSubNames = [...new Set(categories.map((category) => category.subName))];
-
-            const brands = await ptd
-                .find({
-                    status: "Active",
-                    productDeleted: { $ne: "deleted" },
-                })
-                .distinct("manufacturer");
-
-            // Render the 'fullpdt' template and pass the filtered products as a variable
-            res.render("fullpdt", { products, uniqueSubNames, brands, cartCount: req.cartCount });
-        } //for sraching
-        else {
-            console.log(MainCat); // this is the search text
-            const regex = new RegExp(MainCat, "i");
-            const products = await ptd.find({
-                $or: [
-                    { name: regex },
-                    { manufacturer: regex },
-                    // Add more fields if needed
-                ],
-            });
-
-            // res.json(products);
-            console.log(products);
-
-            const categories = await catdb.find();
-
-            // Extract unique subName values from the categories array
-            const uniqueSubNames = [...new Set(categories.map((category) => category.subName))];
-            console.log("Rendering fullpdt page");
-            // Render the 'fullpdt' template and pass the filtered products as a variable
-
-            const brands = await ptd
-                .find({
-                    status: "Active",
-                    productDeleted: { $ne: "deleted" },
-                })
-                .distinct("manufacturer");
-
-            res.render("fullpdt", {
-                products,
-                uniqueSubNames,
-                brands,
-                cartCount: req.cartCount,
-                totalPages,
-                currentPage: page,
-            });
-        }
+        res.render("fullpdt", {
+            products,
+            uniqueSubNames,
+            brands,
+            cartCount: req.cartCount,
+            totalPages,
+            currentPage: page,
+            MainCat,
+            totalProductsCount,
+            sizes,
+        });
     } catch (error) {
         console.error("Error fetching products:", error);
         res.status(500).send("Internal Server Error");
@@ -722,12 +776,38 @@ const orderDetails = async (req, res) => {
 
 const cateFilter = async (req, res) => {
     try {
-        // Assuming the request body contains selected categories
+        // console.log("ii");
+        // Assuming the request body contains selected categories, sizes, and brands
         const selectedCategories = req.body.selectedCategories || [];
+        const selectedSizes = req.body.selectedSizes || [];
+        const selectedBrands = req.body.selectedBrands || [];
 
-        // Filter products based on selected categories
-        const filteredProducts = await ptd.find({ category: { $in: selectedCategories }, status: "Active" });
-        // console.log(filteredProducts);
+        // Define the base query
+        let query = {
+            status: "Active",
+            productDeleted: { $ne: "deleted" },
+        };
+
+        const activeCategories = await catdb.find({ Status: true });
+        const activeCategoryNames = activeCategories.map((category) => category.subName);
+        query.category = { $in: activeCategoryNames };
+
+        // Add conditions for selected categories, sizes, and brands
+        if (selectedCategories.length > 0) {
+            query.category = { $in: selectedCategories };
+        }
+
+        if (selectedSizes.length > 0) {
+            query.size = { $in: selectedSizes };
+        }
+
+        if (selectedBrands.length > 0) {
+            query.manufacturer = { $in: selectedBrands };
+        }
+
+        // Filter products based on the constructed query
+        const filteredProducts = await ptd.find(query);
+console.log(filteredProducts)
         // Send the filtered products as JSON response
         res.json({ products: filteredProducts });
     } catch (error) {
@@ -735,6 +815,7 @@ const cateFilter = async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
+
 
 module.exports = {
     home,

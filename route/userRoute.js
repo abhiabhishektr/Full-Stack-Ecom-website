@@ -38,12 +38,13 @@ router.post('/otpvalidation',userController.otpvalidation)
 router.post('/sendotp',userController.sendotp)
 
 // router.get('/trial', (req, res) => {
-//   res.render("banner");
+//   res.render("d-dash");
 // });
 
 
 // ===============================product=====================
 router.get('/fullpdt/:MainCat', cartCountMiddleware,userController.fullpdt)
+router.post('/cateFilter',userController.cateFilter)
 
 router.post('/loginSubmit',userController.logincheck)
 
@@ -86,7 +87,6 @@ router.get('/orderDetails/:orderId',userController.orderDetails)
 
 
 
-router.post('/cateFilter',userController.cateFilter)
 
 
 
@@ -99,9 +99,10 @@ router.post('/cateFilter',userController.cateFilter)
 
 
 
-router.get('/trial', (req, res) => {
-  res.render("trial");
-});
+
+// router.get('/trial', (req, res) => {
+//   res.render("trial");
+// });
 
 // router.get('/error', (req, res) => {
 //   res.render("404");

@@ -191,7 +191,24 @@
         type: 'PUT',
         success: function(response) {
             if (response.status === 'success') {
+
                 Swal.fire('Success!', response.message, 'success');
+                var currentCount = $('.cart-count').text();
+                var newCount = parseInt(currentCount) + 1;
+    
+                // Add inline styles for transition effect
+                $('.cart-count').text(newCount).css({
+                    'transition': 'all 0.5s ease',
+                    'transform': 'scale(1.2)', // You can adjust the scale as needed
+                });
+    
+                // Reset the transition and scale after a delay (adjust duration as needed)
+                setTimeout(function() {
+                    $('.cart-count').css({
+                        'transition': 'none',
+                        'transform': 'scale(1)',
+                    });
+                }, 500);
             } else if (response.status === 'error') {
                 Swal.fire('Error!', response.message, 'error');
             }
