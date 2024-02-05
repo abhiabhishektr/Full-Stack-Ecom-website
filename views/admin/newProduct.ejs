@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #galleryImages, #cropper{
+            width: 100%;
+            float: left;
+          }
+          canvas{
+            max-width: 100%;
+            display: inline-block;
+          }
+          #cropperImg{
+            /*max-width: 0;
+            max-height: 0;*/
+          }
+          #cropImageBtn{
+            display: none;
+          }
+          img{
+            width: 100%;
+          }
+          .img-preview{
+            float: left;
+          }
+          .singleImageCanvasContainer{
+            max-width: 300px;
+            display: inline-block;
+            position: relative;
+            margin: 2px;
+          }
+          .singleImageCanvasCloseBtn{
+            position: absolute;
+            top: 5px;
+            right: 5px;
+          }
+          
+    </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.19.0/font/bootstrap-icons.css" rel="stylesheet">
+
+
+</head>
+<body>
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+            <h1>Add Product</h1>
+      
+            
+        </div>
+ 
+    <% if (locals.msg) { %>
+        <%= msg %>
+            <% } %>
+
+
+
+                <form action="/newproducts" method="POST" enctype="multipart/form-data"
+                    onsubmit="return validateForm()">
+                    <div>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="name">Product Name:</label>
+                                <input type="text" class="form-control" id="name" name="name" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="manufacturer">Product Manufacturer:</label>
+                                <input type="text" class="form-control" id="manufacturer" name="manufacturer">
+                            </div>
+                            <div class="col-md-2">
+                                <label for="price">Product Price:</label>
+                                <input type="number" class="form-control" id="price" name="price" value="0" min="0"
+                                    required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Product Description:</label>
+                        <textarea class="form-control" id="description" name="description" rows="4"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label for="size">Product Size:</label>
+                                <br>
+                                <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                    <label class="btn btn-outline-secondary btn-sm">
+                                        <input type="radio" name="size" id="size3" value="3" autocomplete="off"> 3
+                                    </label>
+                                    <label class="btn btn-outline-secondary btn-sm">
+                                        <input type="radio" name="size" id="size4" value="4" autocomplete="off"> 4
+                                    </label>
+                                    <label class="btn btn-outline-secondary btn-sm">
+                                        <input type="radio" name="size" id="size5" value="5" autocomplete="off"> 5
+                                    </label>
+                                    <label class="btn btn-outline-secondary btn-sm">
+                                        <input type="radio" name="size" id="size6" value="6" autocomplete="off"> 6
+                                    </label>
+                                    <label class="btn btn-outline-secondary btn-sm">
+                                        <input type="radio" name="size" id="size7" value="7" autocomplete="off"> 7
+                                    </label>
+                                    <label class="btn btn-outline-secondary btn-sm">
+                                        <input type="radio" name="size" id="size8" value="8" autocomplete="off"> 8
+                                    </label>
+                                    <label class="btn btn-outline-secondary btn-sm">
+                                        <input type="radio" name="size" id="size9" value="9" autocomplete="off"> 9
+                                    </label>
+                                    <label class="btn btn-outline-secondary btn-sm">
+                                        <input type="radio" name="size" id="size10" value="10" autocomplete="off">
+                                        10
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label for="category">Gender:</label>
+                                <select class="form-control" id="gender" name="gender">
+                                    <option value="Men">Men</option>
+                                    <option value="Women">Women</option>
+                                    <option value="Kids">Kids</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label for="category">Product Category:</label>
+                                <select class="form-control" id="category" name="category" required>
+                                    <% Category.forEach((cate)=> { %>
+                                        <option value="<%= cate.subName %>" data-main="<%= cate.Name %>">
+                                            <%= cate.subName %>
+                                        </option>
+                                        <% }) %>
+                                </select>
+                            </div>
+
+                            <script>
+                                // Get references to the select elements
+                                const genderSelect = document.getElementById('gender');
+                                const categorySelect = document.getElementById('category');
+
+                                // Add an event listener to the gender select
+                                genderSelect.addEventListener('change', updateSubcategories);
+
+                                // Function to update subcategories based on the selected main category
+                                function updateSubcategories() {
+                                    // Get the selected main category
+                                    const selectedMainCategory = genderSelect.value;
+
+                                    // Remove existing options from the subcategory select
+                                    while (categorySelect.firstChild) {
+                                        categorySelect.removeChild(categorySelect.firstChild);
+                                    }
+
+                            // Add subcategory options based on the selected main category
+                            <% Category.forEach((cate) => { %>
+                                if ("<%= cate.Name %>" === selectedMainCategory) {
+                                            const option = document.createElement('option');
+                                            option.value = "<%= cate.subName %>";
+                                            option.textContent = "<%= cate.subName %>";
+                                            categorySelect.appendChild(option);
+                                        }
+                            <% }) %>
+                        }
+
+                                // Trigger the initial update
+                                updateSubcategories();
+                            </script>
+
+
+
+
+                            <div class="col-md-2">
+                                <label for="stockQuantity">Stock Quantity:</label>
+                                <input type="number" class="form-control" id="stockQuantity" name="stockQuantity"
+                                    value="0" min="0">
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <div class="row">
+
+
+                        </div>
+                    </div>
+
+
+                
+
+
+
+<button type="button" class="btn btn-primary" onclick="submitForm()">Add Product</button>
+
+
+<br>
+<br>
+</div>
+</form>
+</div>
+
+
+
+
+
+<script>
+    
+var c;
+var galleryImagesContainer = document.getElementById('galleryImages');
+var imageCropFileInput = document.getElementById('imageCropFileInput');
+var cropperImageInitCanvas = document.getElementById('cropperImg');
+var cropImageButton = document.getElementById('cropImageBtn');
+// Crop Function On change
+  function imagesPreview(input) {
+    var cropper;
+    galleryImagesContainer.innerHTML = '';
+    var img = [];
+    if(cropperImageInitCanvas.cropper){
+      cropperImageInitCanvas.cropper.destroy();
+      cropImageButton.style.display = 'none';
+      cropperImageInitCanvas.width = 0;
+      cropperImageInitCanvas.height = 0;
+    }
+    if (input.files.length) {
+      var i = 0;
+      var index = 0;
+      for (let singleFile of input.files) {
+        var reader = new FileReader();
+        reader.onload = function(event) {
+          var blobUrl = event.target.result;
+          img.push(new Image());
+          img[i].onload = function(e) {
+            // Canvas Container
+            var singleCanvasImageContainer = document.createElement('div');
+            singleCanvasImageContainer.id = 'singleImageCanvasContainer'+index;
+            singleCanvasImageContainer.className = 'singleImageCanvasContainer';
+            // Canvas Close Btn
+            var singleCanvasImageCloseBtn = document.createElement('button');
+            var singleCanvasImageCloseBtnText = document.createTextNode('Close');
+            // var singleCanvasImageCloseBtnText = document.createElement('i');
+            // singleCanvasImageCloseBtnText.className = 'fa fa-times';
+            singleCanvasImageCloseBtn.id = 'singleImageCanvasCloseBtn'+index;
+            singleCanvasImageCloseBtn.className = 'singleImageCanvasCloseBtn';
+            singleCanvasImageCloseBtn.onclick = function() { removeSingleCanvas(this) };
+            singleCanvasImageCloseBtn.appendChild(singleCanvasImageCloseBtnText);
+            singleCanvasImageContainer.appendChild(singleCanvasImageCloseBtn);
+            // Image Canvas
+            var canvas = document.createElement('canvas');
+            canvas.id = 'imageCanvas'+index;
+            canvas.className = 'imageCanvas singleImageCanvas';
+            canvas.width = e.currentTarget.width;
+            canvas.height = e.currentTarget.height;
+            canvas.onclick = function() { cropInit(canvas.id); };
+            singleCanvasImageContainer.appendChild(canvas)
+            // Canvas Context
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(e.currentTarget,0,0);
+            // galleryImagesContainer.append(canvas);
+            galleryImagesContainer.appendChild(singleCanvasImageContainer);
+            while (document.querySelectorAll('.singleImageCanvas').length == input.files.length) {
+              var allCanvasImages = document.querySelectorAll('.singleImageCanvas')[0].getAttribute('id');
+              cropInit(allCanvasImages);
+              break;
+            };
+            urlConversion();
+            index++;
+          };
+          img[i].src = blobUrl;
+          i++;
+        }
+        reader.readAsDataURL(singleFile);
+      }
+      // addCropButton();
+      // cropImageButton.style.display = 'block';
+    }
+  }
+  imageCropFileInput.addEventListener("change", function(event){
+    imagesPreview(event.target);
+  });
+// Initialize Cropper
+  function cropInit(selector) {
+    c = document.getElementById(selector);
+    console.log(document.getElementById(selector));
+    if(cropperImageInitCanvas.cropper){
+        cropperImageInitCanvas.cropper.destroy();
+    }
+    var allCloseButtons = document.querySelectorAll('.singleImageCanvasCloseBtn');
+    for (let element of allCloseButtons) {
+      element.style.display = 'block';
+    }
+    c.previousSibling.style.display = 'none';
+    // c.id = croppedImg;
+    var ctx=c.getContext('2d');
+    var imgData=ctx.getImageData(0, 0, c.width, c.height);
+    var image = cropperImageInitCanvas;
+    image.width = c.width;
+    image.height = c.height;
+    var ctx = image.getContext('2d');
+    ctx.putImageData(imgData,0,0);
+    cropper = new Cropper(image, {
+      aspectRatio: 1 / 1,
+      preview: '.img-preview',
+      crop: function(event) {
+        // console.log(event.detail.x);
+        // console.log(event.detail.y);
+        // console.log(event.detail.width);
+        // console.log(event.detail.height);
+        // console.log(event.detail.rotate);
+        // console.log(event.detail.scaleX);
+        // console.log(event.detail.scaleY);
+        cropImageButton.style.display = 'block';
+      }
+    });
+
+  }
+// Initialize Cropper on CLick On Image
+  // function cropInitOnClick(selector) {
+  //   if(cropperImageInitCanvas.cropper){
+  //       cropperImageInitCanvas.cropper.destroy();
+  //       // cropImageButton.style.display = 'none';
+  //       cropInit(selector);
+  //       // addCropButton();
+  //       // cropImageButton.style.display = 'block';
+  //   } else {
+  //       cropInit(selector);
+  //       // addCropButton();
+  //       // cropImageButton.style.display = 'block';
+  //   }
+  // }
+// Crop Image
+  function image_crop() {
+    if(cropperImageInitCanvas.cropper){
+      var cropcanvas = cropperImageInitCanvas.cropper.getCroppedCanvas({width: 250, height: 250});
+      // document.getElementById('cropImages').appendChild(cropcanvas);
+      var ctx=cropcanvas.getContext('2d');
+        var imgData=ctx.getImageData(0, 0, cropcanvas.width, cropcanvas.height);
+        // var image = document.getElementById(c);
+        c.width = cropcanvas.width;
+        c.height = cropcanvas.height;
+        var ctx = c.getContext('2d');
+        ctx.putImageData(imgData,0,0);
+        cropperImageInitCanvas.cropper.destroy();
+        cropperImageInitCanvas.width = 0;
+        cropperImageInitCanvas.height = 0;
+        cropImageButton.style.display = 'none';
+        var allCloseButtons = document.querySelectorAll('.singleImageCanvasCloseBtn');
+        for (let element of allCloseButtons) {
+          element.style.display = 'block';
+        }
+        urlConversion();
+        // cropperImageInitCanvas.style.display = 'none';
+    } else {
+      alert('Please select any Image you want to crop');
+    }
+  }
+  cropImageButton.addEventListener("click", function(){
+    image_crop();
+  });
+// Image Close/Remove
+  function removeSingleCanvas(selector) {
+    selector.parentNode.remove();
+    urlConversion();
+  }
+// Dynamically Add Crop Btn
+  // function addCropButton() {
+  //   // add crop button
+  //     var cropBtn = document.createElement('button');
+  //     cropBtn.setAttribute('type', 'button');
+  //     cropBtn.id = 'cropImageBtn';
+  //     cropBtn.className = 'btn btn-block crop-button';
+  //     var cropBtntext = document.createTextNode('crop');
+  //     cropBtn.appendChild(cropBtntext);
+  //     document.getElementById('cropper').appendChild(cropBtn);
+  //     cropBtn.onclick = function() { image_crop(cropBtn.id); };
+  // }
+// Get Converted Url
+  function urlConversion() {
+    var allImageCanvas = document.querySelectorAll('.singleImageCanvas');
+    var convertedUrl = '';
+    for (let element of allImageCanvas) {
+      convertedUrl += element.toDataURL('image/jpeg');
+      convertedUrl += 'img_url';
+    }
+    document.getElementById('profile_img_data').value = convertedUrl;
+  }
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+</body>
+</html>
