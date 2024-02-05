@@ -4,8 +4,6 @@ const categorydb = require("../model/category");
 const orderdb = require("../model/order");
 const fs = require("fs");
 const WalletModel = require("../model/wallet");
-const sharp = require('sharp');
-const fsp = require('fs/promises'); // Use promises version of fs
 
 const multer = require("multer");
 const path = require("path");
@@ -688,9 +686,6 @@ const addproduct = (req, res) => {
     const { name, description, price, size, category, gender, manufacturer, stockQuantity } = req.body;
 
     const imageUrls = req.files.map((file) => file.filename);
-
-
-
 
     const newProducts = new newProduct({
         name,

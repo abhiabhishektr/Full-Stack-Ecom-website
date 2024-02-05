@@ -210,38 +210,86 @@
                                     };
 
                                     // Make a fetch request to send the data to the backend
-                                    fetch('/cateFilter', {
-                                        method: 'POST',
-                                        headers: {
-                                            'Content-Type': 'application/json'
-                                            // Add any additional headers if needed
-                                        },
-                                        body: JSON.stringify(data)
-                                    })
-                                        .then(response => response.json())
-                                        .then(result => {
-                                            // Assuming 'result' contains the updated products array
-                                            const productsContainer = document.getElementById('productListing');
-                                    
-                                            if (result.products && result.products.length > 0) {
-                                                // Generate the updated HTML content based on the returned data
-                                                const updatedHTML = result.products.map(product => {
-                                                    return `
-                                                        <div class="col-6 col-md-4 col-lg-4">
-                                                            <!-- Your existing product HTML here with updated data -->
-                                                        </div>`;
-                                                }).join('');
-                                    
-                                                // Replace the content of the products container with the updated HTML
-                                                productsContainer.innerHTML = updatedHTML;
-                                            } else {
-                                                // If no products found, display a message
-                                                productsContainer.innerHTML = '<div class="col-12"><p>No products found.</p></div>';
-                                            }
-                                        })
-                                        .catch(error => {
-                                            console.error('Error:', error);
-                                        });
+                                   // Make a fetch request to send the data to the backend
+fetch('/cateFilter', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+        // Add any additional headers if needed
+    },
+    body: JSON.stringify(data)
+})
+    .then(response => response.json())
+    .then(result => {
+        // Assuming 'result' contains the updated products array
+        const productsContainer = document.getElementById('productListing');
+
+        if (result.products && result.products.length > 0) {
+            // Generate the updated HTML content based on the returned data
+            const updatedHTML = result.products.map(product => {
+                return `
+                    <div class="col-6 col-md-4 col-lg-4">
+                        <div class="product product-${product._id} text-center">
+                            <figure class="product-media">
+                                <span class="product-label label-new">New</span>
+                                <a href="/product/${product._id}">
+                                    <img src="/uploads/${product.imageUrls[0]}" alt="Product image" class="product-image">
+                                </a>
+
+                                <div class="product-action-vertical">
+                                    <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>Add to Wishlist</span></a>
+                                    <a href="${product.quickViewUrl}" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick View</span></a>
+                                    <a href="#" class="btn-product-icon btn-compare" title="Compare"><span>Compare</span></a>
+                                </div><!-- End .product-action-vertical -->
+
+                                <div class="product-action">
+                                    <a href="#" class="btn-product btn-cart"><span>Add to Cart</span></a>
+                                </div><!-- End .product-action -->
+                            </figure><!-- End .product-media -->
+
+                            <div class="product-body">
+                                <div class="product-cat">
+                                    <a href="${product.categoryUrl}">
+                                        ${product.manufacturer}
+                                    </a>
+                                </div><!-- End .product-cat -->
+                                <h3 class="product-title"><a href="${product.productUrl}">
+                                        ${product.name}
+                                    </a></h3><!-- End .product-title -->
+                                <div class="product-price">
+                                    ${product.price}
+                                </div><!-- End .product-price -->
+                                <div class="ratings-container">
+                                    <div class="ratings">
+                                        <div class="ratings-val" style="width: ${product.rating}%;">
+                                        </div><!-- End .ratings-val -->
+                                    </div><!-- End .ratings -->
+                                    <span class="ratings-text">( ${product.reviews} Reviews )</span>
+                                </div><!-- End .rating-container -->
+
+                                <div class="product-nav product-nav-thumbs">
+                                    ${product.imageUrls.map((imageUrl, index) => `
+                                        <a href="#" class="${index === 0 ? 'active' : ''}">
+                                            <img src="/uploads/${imageUrl}" alt="product desc">
+                                        </a>
+                                    `).join('')}
+                                </div><!-- End .product-nav -->
+                            </div><!-- End .product-body -->
+                        </div><!-- End .product -->
+                    </div><!-- End .col-6 col-md-4 col-lg-4 -->`;
+            }).join('');
+
+            // Replace the content of the products container with the updated HTML
+            productsContainer.innerHTML = updatedHTML;
+        } else {
+            // If no products found, display a message
+            productsContainer.innerHTML = '<div class="col-12"><p>No products found.</p></div>';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+
                                     
                                 });
 

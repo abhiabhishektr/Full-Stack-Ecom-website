@@ -7,10 +7,16 @@
             <div class="d-flex justify-content-between align-items-center">
                 <h1>Add Product</h1>
                 <div class="d-inline-block">
-                    <button type="button" class="btn btn-info btn-pill" data-toggle="tooltip" data-html="true"
-                        data-placement="left"
-                        title="How to handle sizes?<br>Only the same manufacturer and same product name will be shown in the size management.">i</button>
+                    <button type="button" 
+                            class="btn btn-info btn-pill" 
+                            data-toggle="tooltip" 
+                            data-html="true"
+                            data-placement="left"
+                            title="How to handle sizes?<br>Only the same manufacturer and same product name will be shown in the size management.">
+                        i
+                    </button>
                 </div>
+                
             </div>
         </div>
         <% if (locals.msg) { %>
@@ -21,6 +27,7 @@
 
                     <form action="/newproducts" method="POST" enctype="multipart/form-data"
                         onsubmit="return validateForm()">
+                        <div>
                         <div class="form-group">
                             <div class="row">
                                 <div class="col-md-6">
@@ -154,7 +161,7 @@
 
 
 
-                        <div class="row">
+                        <!-- <div class="row">
                             <div class="col-md-3">
                                 <div class="form-group">
                                     <label for="images">Product Image 1:</label>
@@ -198,9 +205,17 @@
                                         onclick="deleteImage('image4', 'preview4')">Delete</button>
                                 </div>
                             </div>
+                        </div> -->
+
+                        <div class="col-md-3">
+                            <label id="selectedFilesLabel">Selected Files: 0</label>
+                            <input type="file" class="form-control" id="addAllImages" name="images" accept="image/*" style="display: none;" multiple onchange="previewAllImages(this)">
+                            <button type="button" class="btn btn-primary" onclick="document.getElementById('addAllImages').click()">Add All Images</button>
                         </div>
-
-
+                        
+                        
+<br>
+</div>
 
                         <button type="submit" class="btn btn-primary">Add Product</button>
                     </form>
@@ -209,33 +224,73 @@
 
 
     <script>
-        function deleteImage(inputId, previewId) {
-            // Clear the file input
-            document.getElementById(inputId).value = '';
+ //       function deleteImage(inputId, previewId) {
+ //           // Clear the file input
+ //           document.getElementById(inputId).value = '';
+//
+ //           // Hide the preview image
+ //           var preview = document.getElementById(previewId);
+ //           preview.src = '#';
+ //           preview.style.display = 'none';
+ //       }
+//
+ //       function previewImage(input, previewId) {
+ //           var preview = document.getElementById(previewId);
+ //           var file = input.files[0];
+ //           var reader = new FileReader();
+//
+ //           reader.onload = function (e) {
+ //               preview.src = e.target.result;
+ //               preview.style.display = 'block';
+ //           };
+//
+ //           if (file) {
+ //               reader.readAsDataURL(file);
+ //           } else {
+ //               preview.src = '#';
+ //               preview.style.display = 'none';
+ //           }
+ //       }
 
-            // Hide the preview image
-            var preview = document.getElementById(previewId);
-            preview.src = '#';
-            preview.style.display = 'none';
-        }
+ function previewAllImages(input) {
+    const maxAllowedImages = 4;
+    const selectedFilesCount = input.files.length;
 
-        function previewImage(input, previewId) {
-            var preview = document.getElementById(previewId);
-            var file = input.files[0];
-            var reader = new FileReader();
+    console.log('Selected Files Count:', selectedFilesCount);
 
+    const selectedFilesLabel = document.getElementById('selectedFilesLabel');
+    selectedFilesLabel.textContent = `Selected Files: ${selectedFilesCount}`;
+
+    if (selectedFilesCount > maxAllowedImages) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Oops...',
+            text: `You can only select up to ${maxAllowedImages} images.`,
+        });
+        const selectedFilesLabel = document.getElementById('selectedFilesLabel');
+        selectedFilesLabel.textContent = `Selected Files: 0`;
+        input.value = '';
+    } else {
+        const imageContainerIds = ['preview1', 'preview2', 'preview3', 'preview4'];
+
+        for (let i = 0; i < selectedFilesCount; i++) {
+            const file = input.files[i];
+            const imageContainerId = imageContainerIds[i];
+
+            const reader = new FileReader();
             reader.onload = function (e) {
-                preview.src = e.target.result;
-                preview.style.display = 'block';
+                const previewImage = document.getElementById(imageContainerId);
+                console.log('Preview Image Element:', previewImage);
+                previewImage.src = e.target.result;
+                previewImage.style.display = 'block';
             };
 
-            if (file) {
-                reader.readAsDataURL(file);
-            } else {
-                preview.src = '#';
-                preview.style.display = 'none';
-            }
+            reader.readAsDataURL(file);
         }
+    }
+}
+
+
 
     </script>
 
@@ -275,8 +330,12 @@
 
             // Check if any field is empty
             if (!name || !description || !price || !size || !gender || !category || !manufacturer || !stockQuantity) {
-                alert('All fields except images must be filled!');
-                return false;
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Oops...',
+                    text: `Some Fields are empty.`,
+                });
+                                return false;
             }
 
             // You can add more specific validation rules if needed
@@ -287,6 +346,8 @@
 
 
 
+<!-- Add this in the <head> section -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 
     <script src="/admin/src/assets/libs/jquery/dist/jquery.min.js"></script>
     <script src="/admin/src/assets/libs/popper.js/dist/umd/popper.min.js"></script>

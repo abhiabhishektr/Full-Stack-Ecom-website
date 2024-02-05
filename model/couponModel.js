@@ -15,15 +15,25 @@ const couponSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
+    startDate: {
+        type: Date,
+        required: true,
+    },
     expirationDate: {
         type: Date,
         required: true,
     },
-    minOrderAmount: { type: Number },
+    minOrderAmount: {
+        type: Number,
+    },
     usedBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
     },
+    couponActive:{
+        type: String,
+        default:"Active"
+    }
 });
 
 const Coupon = mongoose.model("Coupon", couponSchema);

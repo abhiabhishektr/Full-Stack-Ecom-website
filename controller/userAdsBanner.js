@@ -1,8 +1,7 @@
 const fs = require("fs");
 const pdf = require("html-pdf"); // You may need to install this package
 const Order = require("../model/order");
-const Coupon = require('../model/couponModel');
-
+const Coupon = require("../model/couponModel");
 
 const generateSalesReport = async (req, res) => {
     console.log("Start Date from Request:", req.body["start-date"]);
@@ -31,7 +30,7 @@ const generateSalesReport = async (req, res) => {
         ]);
 
         console.log("Orders Count:", orders.length);
-// console.log(orders,startDate,endDate);
+        // console.log(orders,startDate,endDate);
         // Send the response with the orders, start date, and end date
         return res.status(200).json({
             orders: orders,
@@ -44,7 +43,6 @@ const generateSalesReport = async (req, res) => {
     }
 };
 
-
 // Helper function to check if a date is valid
 const isValidDate = (dateString) => {
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
@@ -56,17 +54,8 @@ const isValidDate = (dateString) => {
     return isDate;
 };
 
-
-
-
-
-
-
-
-
-
 const salesReport = async (req, res) => {
-    res.render("salesReport");
+    res.render("salesReports");
 };
 
 const bannersAdmin = async (req, res) => {
@@ -74,57 +63,60 @@ const bannersAdmin = async (req, res) => {
 };
 
 const CouponsAdmin = async (req, res) => {
-    res.render("Coupon");
+    const existingCoupons = await Coupon.find();
+    res.render("Coupon",{existingCoupons});
 };
 
-
-
-
-// POST endpoint to add a new coupon
 const CouponsAdminPost = async (req, res) => {
-  try {
-    const { code, discountType, discountAmount, expirationDate, minOrderAmount } = req.body;
+    try {
+        const { code, discountType, discountAmount, startDate, expirationDate, minOrderAmount } = req.body;
 
-    // Check if the coupon code already exists
-    const existingCoupon = await Coupon.findOne({ code });
-    if (existingCoupon) {
-      return res.status(400).json({ error: 'Coupon code already exists' });
+        // Check if the coupon code already exists
+        const existingCoupon = await Coupon.findOne({ code });
+        if (existingCoupon) {
+            return res.status(400).json({ error: "Coupon code already exists" });
+        }
+
+        // Validate discountType
+        if (!["percentage", "fixed"].includes(discountType)) {
+            return res.status(400).json({ error: "Invalid discount type" });
+        }
+
+        // Validate discountAmount and minOrderAmount
+        if (discountAmount < 0 || minOrderAmount < 0) {
+            return res.status(400).json({ error: "Discount amount and minimum order amount must not be negative" });
+        }
+
+        const newCoupon = new Coupon({
+            code,
+            discountType,
+            discountAmount,
+            startDate: new Date(startDate),
+            expirationDate: new Date(expirationDate), // Assuming expirationDate is a string in 'yyyy-mm-dd' format
+            minOrderAmount,
+        });
+
+        await newCoupon.save();
+        // Fetch the updated list of coupons
+        const allCoupons = await Coupon.find();
+
+        res.status(201).json({ message: "Coupon added successfully!", newCoupon, allCoupons });
+    } catch (error) {
+        console.error("Error adding coupon:", error);
+        res.status(500).json({ error: "Internal Server Error" });
     }
-
-    const newCoupon = new Coupon({
-      code,
-      discountType,
-      discountAmount,
-      expirationDate: new Date(expirationDate), // Assuming expirationDate is a string in 'yyyy-mm-dd' format
-      minOrderAmount,
-    });
-
-    await newCoupon.save();
-    res.status(201).json(newCoupon);
-  } catch (error) {
-    console.error('Error adding coupon:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-}
-
-
+};
 
 module.exports = {
     bannersAdmin,
     salesReport,
     generateSalesReport,
     CouponsAdmin,
-    CouponsAdminPost
+    CouponsAdminPost,
 };
 
-
-
-
-
-
-
-
-{/* <script>
+{
+    /* <script>
     document.getElementById('generateReportBtn').addEventListener('click', async () => {
         const startDate = document.getElementById('start-date').value;
         const endDate = document.getElementById('end-date').value;
@@ -162,4 +154,5 @@ module.exports = {
         link.download = 'sales_report.pdf';
         link.click();
     });
-</script> */}
+</script> */
+}

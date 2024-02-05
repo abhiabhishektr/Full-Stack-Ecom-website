@@ -10,19 +10,26 @@ const cart = async (req, res) => {
     if (!idd) {
         res.redirect("/login?loginMessage=Please Sign In first.");
     } else {
-        const cartData = await Cartdb.findOne({ user: idd }).populate({
-            path: "products.productId",
-            model: "Product", // Make sure it matches the model name for the Product
-        });
+        try {
+            const cartData = await Cartdb.findOne({ user: idd }).populate({
+                path: "products.productId",
+                model: "Product", // Make sure it matches the model name for the Product
+            });
+            const productQuantities = [];
+            // Assuming there is a specific product index (e.g., index 1) you want to get the quantity from
+            cartData.products.forEach((product, index) => {
+                const qty = product.productId.stockQuantity;
+                productQuantities.push(qty);
+            });
 
-    const qty=cartData.products[1].productId.stockQuantity
-    console.log(qty)
-
-        
-        console.log(cartData);
-        res.render("cart", { cartData, cartCount: req.cartCount });
+            res.render("cart", { cartData,productQuantities, cartCount: req.cartCount});
+        } catch (error) {
+            console.error("Error fetching cart data:", error);
+            res.status(500).send("Internal Server Error");
+        }
     }
 };
+
 
 
 const updatecart = async (req, res) => {

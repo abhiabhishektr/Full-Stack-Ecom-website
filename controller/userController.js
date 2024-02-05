@@ -469,6 +469,7 @@ const fullpdt = async (req, res) => {
             // Fetch products based on the specified gender category
             query.gender = MainCat;
         } else if (MainCat == 0) {
+            
             // Fetch products based on all active categories
         } else {
             console.log(MainCat);
@@ -490,16 +491,18 @@ const fullpdt = async (req, res) => {
 
         const products = await ptd.find(query).skip(skip).limit(itemsPerPage);
         const sizes = await ptd.distinct("size", query);
+        const uniqueSubNames =await ptd.distinct("category", query);
+        const brands =await ptd.distinct("manufacturer", query);
+        
+        // const categories = await catdb.find();
+        // const uniqueSubNames = [...new Set(categories.map((category) => category.subName))];
 
-        const categories = await catdb.find();
-        const uniqueSubNames = [...new Set(categories.map((category) => category.subName))];
-
-        const brands = await ptd
-            .find({
-                status: "Active",
-                productDeleted: { $ne: "deleted" },
-            })
-            .distinct("manufacturer");
+        // const brands = await ptd
+        //     .find({
+        //         status: "Active",
+        //         productDeleted: { $ne: "deleted" },
+        //     })
+        //     .distinct("manufacturer");
 
         res.render("fullpdt", {
             products,
@@ -527,7 +530,16 @@ const product = async (req, res) => {
         const product = await ptd.findOne({ _id: productId });
         const products = await ptd.find().limit(4); // Use find() instead of findOne()
 
-        res.render("product", { product, products, cartCount: req.cartCount });
+        const userId = req.session.userid;
+        const cart = await cartdb.findOne({ user: userId });
+
+        let isInCart = false;
+        if (cart) {
+            const cartProductIds = cart.products.map(product => product.productId.toString());
+            isInCart = cartProductIds.includes(productId);
+        }
+console.log(isInCart);
+        res.render("product", { product, products,isInCart, cartCount: req.cartCount });
     } catch (error) {
         console.error("Error finding product:", error);
     }
@@ -774,13 +786,66 @@ const orderDetails = async (req, res) => {
     }
 };
 
+// const cateFilter = async (req, res) => {
+//     try {
+//         // console.log("ii");
+//         // Assuming the request body contains selected categories, sizes, and brands
+//         const selectedCategories = req.body.selectedCategories || [];
+//         const selectedSizes = req.body.selectedSizes || [];
+//         const selectedBrands = req.body.selectedBrands || [];
+
+//         const trimmedCategories = selectedCategories.map((category) => category.trim());
+//         const trimmedSizes = selectedSizes.map((size) => size.trim());
+//         const trimmedBrands = selectedBrands.map((brand) => brand.trim());
+//         console.log(trimmedCategories);
+//         console.log(trimmedSizes);
+//         console.log(trimmedBrands);
+//         // Define the base query
+//         let query = {
+//             status: "Active",
+//             productDeleted: { $ne: "deleted" },
+//         };
+
+
+//         const activeCategories = await catdb.find({ Status: true });
+//         const activeCategoryNames = activeCategories.map((category) => category.subName);
+//         query.category = { $in: activeCategoryNames };
+
+
+
+//         if (trimmedCategories.length > 0) {
+//             query.category = { $in: trimmedCategories };
+//         }
+
+//         if (trimmedSizes.length > 0) {
+//             query.size = { $in: trimmedSizes };
+//         }
+
+//         if (trimmedBrands.length > 0) {
+//             query.manufacturer = { $in: trimmedBrands };
+//         }
+
+//         // Filter products based on the constructed query
+//         const filteredProducts = await ptd.find(query);
+//         console.log(filteredProducts);
+//         // Send the filtered products as JSON response
+//         res.json({ products: filteredProducts });
+//     } catch (error) {
+//         console.error("Error:", error);
+//         res.status(500).json({ error: "Internal Server Error" });
+//     }
+// };
 const cateFilter = async (req, res) => {
     try {
-        // console.log("ii");
         // Assuming the request body contains selected categories, sizes, and brands
         const selectedCategories = req.body.selectedCategories || [];
         const selectedSizes = req.body.selectedSizes || [];
         const selectedBrands = req.body.selectedBrands || [];
+
+        // Trim the selected filters
+        const trimmedCategories = selectedCategories.map((category) => category.trim());
+        const trimmedSizes = selectedSizes.map((size) => size.trim());
+        const trimmedBrands = selectedBrands.map((brand) => brand.trim());
 
         // Define the base query
         let query = {
@@ -788,33 +853,61 @@ const cateFilter = async (req, res) => {
             productDeleted: { $ne: "deleted" },
         };
 
-        const activeCategories = await catdb.find({ Status: true });
-        const activeCategoryNames = activeCategories.map((category) => category.subName);
-        query.category = { $in: activeCategoryNames };
+        // Get the updated list of active categories
+        const updatedCategories = await catdb.find({ Status: true });
+        const updatedCategoryNames = updatedCategories.map((category) => category.subName);
 
-        // Add conditions for selected categories, sizes, and brands
-        if (selectedCategories.length > 0) {
-            query.category = { $in: selectedCategories };
+        // Set the base query for category
+        query.category = { $in: updatedCategoryNames };
+
+        // Update the query dynamically based on selected filters
+        if (trimmedCategories.length > 0) {
+            query.category = { $in: trimmedCategories };
+        } else {
+            delete query.category;
         }
 
-        if (selectedSizes.length > 0) {
-            query.size = { $in: selectedSizes };
+        if (trimmedSizes.length > 0) {
+            query.size = { $in: trimmedSizes };
+        } else {
+            delete query.size;
         }
 
-        if (selectedBrands.length > 0) {
-            query.manufacturer = { $in: selectedBrands };
+        if (trimmedBrands.length > 0) {
+            query.manufacturer = { $in: trimmedBrands };
+        } else {
+            delete query.manufacturer;
         }
+
+        // Fetch the updated list of available sizes and brands
+        const updatedSizes = await ptd.distinct("size", query);
+
+        const updatedBrands = await ptd
+            .find({
+                status: "Active",
+                productDeleted: { $ne: "deleted" },
+            })
+            .distinct("manufacturer");
 
         // Filter products based on the constructed query
         const filteredProducts = await ptd.find(query);
-console.log(filteredProducts)
-        // Send the filtered products as JSON response
-        res.json({ products: filteredProducts });
+
+        // Send the filtered products and updated filter options as JSON response
+        res.json({
+            products: filteredProducts,
+            updatedCategories: updatedCategoryNames,
+            updatedSizes,
+            updatedBrands,
+        });
     } catch (error) {
         console.error("Error:", error);
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
+
+
+
+
 
 
 module.exports = {

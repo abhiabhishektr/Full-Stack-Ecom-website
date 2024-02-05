@@ -63,7 +63,7 @@ router.put("/OrdersStatus/:id",adminController.OrdersStatus);
 //========Sales Reports ========
 router.get("/salesReports",userAdsBanner.salesReport);
 
-router.post('/generate_report',userAdsBanner.generateSalesReport);
+router.put('/generate_report',userAdsBanner.generateSalesReport);
 
 //========banner and Advertisement ========
 
@@ -73,7 +73,7 @@ router.get("/bannersAdmin",userAdsBanner.bannersAdmin);
 
 router.get("/CouponsAdmin",userAdsBanner.CouponsAdmin);
 
-router.get("/CouponsAdmin",userAdsBanner.CouponsAdminPost);
+router.post("/CouponsAdmin",userAdsBanner.CouponsAdminPost);
 
 
 

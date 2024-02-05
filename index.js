@@ -5,6 +5,7 @@ const admin=require('./route/adminRoute')
 const user=require('./route/userRoute')
 const path=require('path')
 const nocache = require("nocache");
+const cors = require("cors");
 // const cartCountMiddleware = require('./middleware/cartCountMiddleware');
 
 require('dotenv').config()
@@ -12,6 +13,7 @@ const PORT=process.env.PORT||3000
 app.use(nocache());
 app.use(express.json())
 app.use(express.urlencoded({extended : true}))
+app.use(cors())
 
 
 

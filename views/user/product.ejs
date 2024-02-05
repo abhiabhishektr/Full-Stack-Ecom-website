@@ -32,27 +32,7 @@
                                 <div class="product-gallery product-gallery-vertical">
                                     <div class="row">
                                         <figure class="product-main-image">
-                                            <img id="product-zoom" src="<%= product.imageUrls && product.imageUrls.length > 0 ? '/uploads/' + product.imageUrls[0] : '/user/assets/images/products/sticky/product-1.jpg' %>" alt="Product image">
-                                            <!-- <% if (product.imageUrls && product.imageUrls.length > 0) { %>
-                                                <img id="product-zoom" src="<%= '/uploads/' + product.imageUrls[0] %>" alt="Product image">
-                                            <% } else { %>
-                                                <p>No image available</p>
-                                            <% } %> -->
-                                            <!-- <% if (product.imageUrls && product.imageUrls.length > 0) { %>
-                                                <img id="product-zoom" src="<%= '/uploads/' + product.imageUrls[0] %>" alt="Product image">
-                                            <% } else { %>
-                                                <div id="product-zoom" class="no-image"></div>
-                                                <p>No image available</p>
-                                            <% } %> -->
-                                            <!-- <% if (product.imageUrls && product.imageUrls.length > 0) { %>
-                                                <div class="zoom-container">
-                                                    <img id="product-zoom" src="<%= '/uploads/' + product.imageUrls[0] %>" alt="Product image">
-                                                </div>
-                                            <% } else { %>
-                                                <div class="zoom-container no-image"></div>
-                                                <p>No image available</p>
-                                            <% } %>
-                                             -->
+                                            <img id="product-zoom" src="/uploads/<%=product.imageUrls[0] %>" alt="Product image">
                                             
                                             <a href="#" id="btn-product-gallery" class="btn-product-gallery">
 
@@ -63,7 +43,7 @@
                                         <!-- ======================================= -->
                                         <div id="product-zoom-gallery" class="product-image-gallery">
                                             <% product.imageUrls.forEach((imageUrl, index) => { %>
-                                                <a class="product-gallery-item <%= index === 0 ? 'active' : '' %>" href="#" data-index="<%= index %>" data-image="<%= imageUrl %>" data-zoom-image="<%= imageUrl.replace('-small', '-big') %>">
+                                                <a class="product-gallery-item " href="#" data-index="<%= index %>" data-image="<%= imageUrl %>" data-zoom-image="/uploads/<%= imageUrl %>">
                                                     <img src="/uploads/<%= imageUrl %>" alt="product image <%= index + 1 %>">
                                                 </a>
                                             <% }); %>
@@ -160,7 +140,11 @@
                                     </div> -->
 
                                     <div class="product-details-action">
-                                        <button id="add-to-cart" class="btn-product btn-cart" <% if (product.stockQuantity === 0) { %>disabled style="opacity: 0.5; cursor: not-allowed;" <% } %>>add to cart</button>
+                                        <% if (isInCart) { %>
+                                            <button class="btn-product btn-cart go-to-cart-btn">Go to Cart</button>
+                                        <% } else { %>
+                                            <button id="add-to-cart" class="btn-product btn-cart" <% if (product.stockQuantity === 0) { %>disabled style="opacity: 0.5; cursor: not-allowed;" <% } %>>add to cart</button>
+                                        <% } %>
 
                                         <p>
                                             <% if (product.stockQuantity === 0) { %>
@@ -181,7 +165,12 @@
 
 
 <script>
-    $(".btn-product.btn-cart").click(function(event) {
+    $(document).on("click", ".btn-cart.go-to-cart-btn", function(event) {
+        event.preventDefault();
+        window.location.href = '/cart'; // Redirect to the cart page
+    });
+
+    $(document).on("click", "#add-to-cart", function(event) {
         event.preventDefault();
     
         let productId = '<%= product._id %>';
@@ -208,6 +197,7 @@
                         'transition': 'none',
                         'transform': 'scale(1)',
                     });
+                    $('#add-to-cart').replaceWith('<a href="/cart" class="btn-product btn-cart">Go to Cart</a>');
                 }, 500);
             } else if (response.status === 'error') {
                 Swal.fire('Error!', response.message, 'error');
@@ -530,9 +520,14 @@
                     </div><!-- End .product-price -->
                     
                     <div class="product-details-action">
-                        <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
+                        <% if (isInCart) { %>
+                            <a href="/cart" class="btn-product btn-cart"><span>Go to Cart</span></a>
+                        <% } else { %>
+                            <a href=""  id="add-to-cart" class="btn-product btn-cart"><span>Add to Cart</span></a>
+                        <% } %>
                         <a href="#" class="btn-product btn-wishlist" title="Wishlist"><span>Add to Wishlist</span></a>
                     </div><!-- End .product-details-action -->
+                    
                 </div><!-- End .col-6 -->
             </div><!-- End .row -->
         </div><!-- End .container -->
