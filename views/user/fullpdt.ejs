@@ -37,8 +37,8 @@
                                     <div class="select-custom">
                                         <select name="sortby" id="sortby" class="form-control">
                                             <option value="popularity" selected="selected">Most Popular</option>
-                                            <option value="rating">Most Rated</option>
-                                            <option value="date">Date</option>
+                                            <option value="price-high">Price High to Low</option>
+                                            <option value="price-low">Price Low to High</option>
                                         </select>
                                     </div>
                                 </div><!-- End .toolbox-sort -->
@@ -156,7 +156,31 @@
                         <div class="sidebar sidebar-shop">
                             <div class="widget widget-clean">
                                 <label>Filters: </label> <button id="applyFiltersBtn">Apply Filters</button>
-                                <a href="#" class="sidebar-filter-clear">Clean All</a>
+                                <a href="#" class="sidebar-filter-clear" onclick="cleanAll()">Clean All</a>
+
+                                <script>
+                                    function cleanAll() {
+                                        // Get the current URL
+                                        const currentUrl = window.location.href;
+                                
+                                        // Check if the current URL contains "/fullpdt/Men"
+                                        if (currentUrl.includes('/fullpdt/Men')) {
+                                            // Redirect to "/fullpdt/Men"
+                                            window.location.href = '/fullpdt/Men';
+                                        } else if (currentUrl.includes('/fullpdt/Women')) {
+                                            // Redirect to "/fullpdt/Women"
+                                            window.location.href = '/fullpdt/Women';
+                                        } else if (currentUrl.includes('/fullpdt/Kids')) {
+                                            // Redirect to "/fullpdt/Kids"
+                                            window.location.href = '/fullpdt/Kids';
+                                        } else {
+                                            // Redirect to "/fullpdt/0" for other cases
+                                            window.location.href = '/fullpdt/0';
+                                        }
+                                    }
+                                </script>
+                                
+                                
                             </div><!-- End .widget widget-clean -->
 
                             <div class="widget widget-collapsible">
@@ -203,10 +227,14 @@
                                     const checkedBrandCheckboxes = document.querySelectorAll('.brand-checkbox:checked');
                                     const selectedBrands = Array.from(checkedBrandCheckboxes).map(checkbox => checkbox.nextElementSibling.textContent);
                                 
+                                    const sortingOption = document.getElementById('sortby').value;
+                                    const currentUrl = window.location.href;
                                     const data = {
                                         selectedCategories: selectedCategories,
                                         selectedSizes: selectedSizes,
-                                        selectedBrands: selectedBrands
+                                        selectedBrands: selectedBrands,
+                                        sortingOption: sortingOption,
+                                        currentUrl: currentUrl
                                     };
 
                                     // Make a fetch request to send the data to the backend
@@ -264,7 +292,7 @@ fetch('/cateFilter', {
                                         <div class="ratings-val" style="width: ${product.rating}%;">
                                         </div><!-- End .ratings-val -->
                                     </div><!-- End .ratings -->
-                                    <span class="ratings-text">( ${product.reviews} Reviews )</span>
+                                    <span class="ratings-text">(  Reviews )</span>
                                 </div><!-- End .rating-container -->
 
                                 <div class="product-nav product-nav-thumbs">
@@ -295,15 +323,17 @@ fetch('/cateFilter', {
 
                             </script>
 
-                            <!-- ... existing HTML code ... -->
+                            
 
+                            <!-- ... existing HTML code ... -->
+<!-- 
                             <div class="widget widget-collapsible">
                                 <h3 class="widget-title">
                                     <a data-toggle="collapse" href="#widget-2" role="button" aria-expanded="true"
                                         aria-controls="widget-2">
                                         Size
                                     </a>
-                                </h3><!-- End .widget-title -->
+                                </h3>
 
                                 <div class="collapse show" id="widget-2">
                                     <div class="widget-body">
@@ -317,24 +347,24 @@ fetch('/cateFilter', {
                                                         <label class="custom-control-label" for="size-<%= index + 1 %>">
                                                             <%= size %>
                                                         </label>
-                                                    </div><!-- End .custom-checkbox -->
-                                                </div><!-- End .filter-item -->
+                                                    </div>
+                                                </div>
                                                 <% }); %>
-                                        </div><!-- End .filter-items -->
-                                    </div><!-- End .widget-body -->
-                                </div><!-- End .collapse -->
-                            </div><!-- End .widget -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
-                            <!-- ... existing HTML code ... -->
+                        
 
-                            <!-- ---------------------------- -->
+                       
                             <div class="widget widget-collapsible">
                                 <h3 class="widget-title">
                                     <a data-toggle="collapse" href="#widget-4" role="button" aria-expanded="true"
                                         aria-controls="widget-4">
                                         Brand
                                     </a>
-                                </h3><!-- End .widget-title -->
+                                </h3>
 
                                 <div class="collapse show" id="widget-4">
                                     <div class="widget-body">
@@ -349,24 +379,22 @@ fetch('/cateFilter', {
                                                             for="brand-<%= index + 1 %>">
                                                             <%= brand %>
                                                         </label>
-                                                    </div><!-- End .custom-checkbox -->
-                                                </div><!-- End .filter-item -->
+                                                    </div>
+                                                </div>
                                                 <% }); %>
-                                        </div><!-- End .filter-items -->
-                                    </div><!-- End .widget-body -->
-                                </div><!-- End .collapse -->
-                            </div><!-- End .widget -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div> -->
 
-                            <!-- ... existing HTML code ... -->
-
-                            <!-- ---------------------------------------------->
-                            <div class="widget widget-collapsible">
+                    
+                            <!-- <div class="widget widget-collapsible">
                                 <h3 class="widget-title">
                                     <a data-toggle="collapse" href="#widget-5" role="button" aria-expanded="true"
                                         aria-controls="widget-5">
                                         Price
                                     </a>
-                                </h3><!-- End .widget-title -->
+                                </h3>
 
                                 <div class="collapse show" id="widget-5">
                                     <div class="widget-body">
@@ -374,23 +402,23 @@ fetch('/cateFilter', {
                                             <div class="filter-price-text">
                                                 Price Range:
                                                 <span id="filter-price-range"></span>
-                                            </div><!-- End .filter-price-text -->
+                                            </div>
 
-                                            <div id="price-slider"></div><!-- End #price-slider -->
-                                        </div><!-- End .filter-price -->
-                                    </div><!-- End .widget-body -->
-                                </div><!-- End .collapse -->
-                            </div><!-- End .widget -->
+                                            <div id="price-slider"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div> -->
 
-                            <!-- ---------------------------------------------->
+                            
 
 
-                        </div><!-- End .sidebar sidebar-shop -->
-                    </aside><!-- End .col-lg-3 -->
-                </div><!-- End .row -->
-            </div><!-- End .container -->
-        </div><!-- End .page-content -->
-    </main><!-- End .main -->
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </div>
+    </main>
 
     <footer class="footer">
         <div class="footer-middle">

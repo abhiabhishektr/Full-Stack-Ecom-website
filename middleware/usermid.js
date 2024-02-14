@@ -4,8 +4,13 @@ const islogin=async(req,res,next)=>{
         
         if(req.session.user || process.env.NODE_ENV ){
             if (process.env.NODE_ENV === 'test') {
+                            //mock user 1
                 req.session.user = 'abhishekabtr@gmail.com'
-                req.session.userid = '659640d89109598e3af4385d'
+                req.session.userid = '65ca2804662a5c3593c66987'
+                      //mock user 2
+            //    req.session.user ='aaa@gmail.com'
+            //    req.session.userid ='65ca28565a04d5362decbbd5'
+
                 next();
             } else {
                 next();

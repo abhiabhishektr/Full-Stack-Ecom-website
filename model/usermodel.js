@@ -76,6 +76,12 @@ const userSchema = mongoose.Schema({
         default: true
     },
     addresses: [addressSchema], // An array of address objects
+    referalcode:{
+        type: String,
+    },
+    appliedReferal:{
+        type: String,
+    },
     token: {
         type: String,
         required: false,

@@ -3,6 +3,8 @@ const userdb = require("../model/usermodel");
 const productdb = require("../model/pdtmodel");
 const orderdb = require("../model/order");
 const WalletModel = require("../model/wallet");
+const Wishlist = require("../model/wishlistModel");
+const mongoose = require("mongoose");
 
 const cart = async (req, res) => {
     let idd = req.session.userid;
@@ -15,22 +17,27 @@ const cart = async (req, res) => {
                 path: "products.productId",
                 model: "Product", // Make sure it matches the model name for the Product
             });
-            const productQuantities = [];
-            // Assuming there is a specific product index (e.g., index 1) you want to get the quantity from
-            cartData.products.forEach((product, index) => {
-                const qty = product.productId.stockQuantity;
-                productQuantities.push(qty);
-            });
 
-            res.render("cart", { cartData,productQuantities, cartCount: req.cartCount});
+            if (!cartData) {
+                // Handle the case where the user has no items in the cart
+                res.render("cart", { cartData, cartCount: req.cartCount });
+                return;
+            } else {
+                const productQuantities = [];
+                // Assuming there is a specific product index (e.g., index 1) you want to get the quantity from
+                cartData.products.forEach((product, index) => {
+                    const qty = product.productId.stockQuantity;
+                    productQuantities.push(qty);
+                });
+
+                res.render("cart", { cartData, productQuantities, cartCount: req.cartCount });
+            }
         } catch (error) {
             console.error("Error fetching cart data:", error);
             res.status(500).send("Internal Server Error");
         }
     }
 };
-
-
 
 const updatecart = async (req, res) => {
     if (!req.session.userid) {
@@ -136,7 +143,7 @@ const paymentmethod = async (req, res) => {
     try {
         const userId = req.session.userid;
         const user = await userdb.findById(userId);
-        let walletBalance = 0;  // Declare walletBalance here with a default value
+        let walletBalance = 0; // Declare walletBalance here with a default value
 
         if (user) {
             const userWallet = await WalletModel.findOne({ userId: userId });
@@ -153,7 +160,7 @@ const paymentmethod = async (req, res) => {
             });
 
             if (cart) {
-                res.render("paymentmethod", { addresses, cart, walletBalance });
+                res.render("paymentmethod", { addresses, cart, walletBalance, cartCount: req.cartCount });
             } else {
                 res.redirect("/");
             }
@@ -166,53 +173,6 @@ const paymentmethod = async (req, res) => {
     }
 };
 
-// const addAddress = async (req, res) => {
-//     if (!req.session.userid) {
-//         return res.send('<script>alert("Please log in first."); window.location="/login?loginMessage=Please Sign In first.";</script>');
-//     } else {
-//         try {
-//             const fromprofile = req.params.id;
-//             const userId = req.session.userid;
-//             const addressData = {
-//                 firstName: req.body.firstName,
-//                 lastName: req.body.lastName,
-//                 companyName: req.body.companyName,
-//                 country: req.body.country,
-//                 streetAddress1: req.body.streetAddress1,
-//                 streetAddress2: req.body.streetAddress2,
-//                 townCity: req.body.townCity,
-//                 stateCounty: req.body.stateCounty,
-//                 postcodeZIP: req.body.postcodeZIP,
-//                 phone: req.body.phone,
-//             };
-
-//             const user = await userdb.findById(userId);
-
-//             if (!user) {
-//                 return res.status(404).json({ message: 'User not found' });
-//             }
-
-//             console.log("Before pushing new address:", user);
-
-//             console.log("After pushing new address:", user);
-
-//             await user.save(); // Wait for the save operation to complete
-
-//             const selectedTab = 'address';
-
-//             if (fromprofile == 1) {
-//                 res.redirect(`/profile?tab=${selectedTab}`);
-//                 // res.redirect('/profile');
-
-//             } else {
-//                 res.redirect('/paymentmethod');
-//             }
-//         } catch (error) {
-//             console.error('Error adding address:', error);
-//             res.status(500).json({ message: 'Internal server error' });
-//         }
-//     }
-// };
 const addAddress = async (req, res) => {
     if (!req.session.userid) {
         return res.send(
@@ -260,223 +220,6 @@ const addAddress = async (req, res) => {
     }
 };
 
-//     const selectedBillingOption = req.body.billingOption;
-//     console.log(req.body);
-//     console.log('Selected Billing Option:', selectedBillingOption);
-//  const address=req.query.addressIndex
-
-// res.redirect('/cart')
-
-// const checkOut= async (req,res)=>{
-
-//     try {
-
-//         const addressIndex=req.body.addressIndex
-//         const selectedBillingOption = req.body.billingOption;
-//         // console.log(addressIndex);
-//         const userId = req.session.userid;
-//         const userAddr = await userdb.findById(userId);
-//     const addresses=userAddr.addresses[addressIndex]
-
-//         // Find the user's cart items
-//         const cart = await Cartdb.findOne({ user: userId }).populate({
-//             path: 'products.productId',
-//             model: 'Product', // Make sure it matches the model name for the Product
-//         });
-
-//         if (!cart) {
-//             return res.status(404).json({ error: 'Cart not found' });
-//         }
-
-//         // Extract relevant information from the cart
-//         const { user, userEmail, products } = cart;
-
-//         // Create an order document based on the cart data
-//         const order = new orderdb({
-//             user,
-//             userEmail,
-//             Products: products.map(product => ({
-//                 products: product.productId,
-//                 name: product.name,
-//                 price: product.productPrice,
-//                 quantity: product.quantity,
-//                 total: product.totalPrice,
-//                 reason: 'none', // You might need to modify this based on your requirements
-//                 image: product.image,
-//             })),
-//             orderStatus: 'placed', // Assuming the order is initially placed
-//             paymentMode:selectedBillingOption , // Assuming paymentMode is passed in the request body
-//             total: req.body.total, // Assuming total is passed in the request body
-//             date: new Date(),
-//             address: addresses, // Assuming address is passed in the request body
-//         });
-
-//         // Save the order document
-//         const savedOrder = await order.save();
-
-//         // Clear the user's cart after successful checkout
-//         await Cartdb.findOneAndDelete({ user: savedOrder.user });
-
-//         for (let i = 0; i < cart.products.length; i++) {
-//             const productId = cart.products[i].productId;
-//             const count = cart.products[i].quantity;
-
-//            let att = await productdb.updateOne({
-//                 _id: productId
-//             }, {
-//                 $inc: {
-//                     stockQuantity: -count
-//                 }
-//             });
-//             console.log("a",att);
-//         }
-
-//         // Send a response indicating success
-//         res.redirect('/profile?tab=orders')
-
-//         // res.status(200).json({ message: 'Order placed successfully', order: savedOrder });
-
-//     } catch (error) {
-//         // Handle any errors
-//         console.error(error);
-//         res.status(500).json({ error: 'Internal server error' });
-//     }
-
-// }
-
-// const checkOut = async (req, res) => {
-//     try {
-//         const addressIndex = req.body.addressIndex;
-//         const selectedBillingOption = req.body.billingOption;
-//         const userId = req.session.userid;
-//         const userAddr = await userdb.findById(userId);
-//         const addresses = userAddr.addresses[addressIndex];
-
-//         // Find the user's cart items
-//         const cart = await Cartdb.findOne({ user: userId }).populate({
-//             path: 'products.productId',
-//             model: 'Product',
-//         });
-
-//         if (!cart) {
-//             return res.status(404).json({ error: 'Cart not found' });
-//         }
-
-//         // Extract relevant information from the cart
-//         const { user, userEmail, products } = cart;
-
-//         // Create an order document based on the cart data
-//         const order = new orderdb({
-//             user,
-//             userEmail,
-//             Products: products.map(product => ({
-//                 products: product.productId,
-//                 name: product.name,
-//                 price: product.productPrice,
-//                 quantity: product.quantity,
-//                 total: product.totalPrice,
-//                 reason: 'none',
-//                 image: product.image,
-//             })),
-//             orderStatus: 'placed',
-//             paymentMode: selectedBillingOption,
-//             total: req.body.total,
-//             date: new Date(),
-//             address: addresses,
-//         });
-
-//         // Save the order document
-//         const savedOrder = await order.save();
-
-//         // Clear the user's cart after successful checkout
-//         await Cartdb.findOneAndDelete({ user: savedOrder.user });
-
-//         for (let i = 0; i < cart.products.length; i++) {
-//             const productId = cart.products[i].productId;
-//             const count = cart.products[i].quantity;
-
-//             let att = await productdb.updateOne(
-//                 {
-//                     _id: productId,
-//                 },
-//                 {
-//                     $inc: {
-//                         stockQuantity: -count,
-//                     },
-//                 }
-//             );
-//             console.log("a", att);
-//         }
-
-//         if (selectedBillingOption === 'Razor-Online') {
-//             // If the selected payment option is online (Razorpay), initiate Razorpay payment
-//             const orderId = savedOrder._id; // Unique order ID
-
-//             // You need to implement a function to create a Razorpay order on your server
-//             const razorpayOrder = await createRazorpayOrder(orderId, req.body.total);
-
-//             // Send the Razorpay order details to the client
-//             return res.json({
-//                 message: 'Razorpay order initiated successfully',
-//                 orderId,
-//                 razorpayOrder,
-//             });
-//         }
-
-//         // Send a response indicating success for other payment options
-//         res.redirect('/profile?tab=orders');
-//     } catch (error) {
-//         // Handle any errors
-//         console.error(error);
-//         res.status(500).json({ error: 'Internal server error' });
-//     }
-// };
-
-// // Function to create a Razorpay order
-// const createRazorpayOrder = async (orderId, totalAmount) => {
-//     // Implement the logic to create a Razorpay order on your server
-//     // Refer to the Razorpay API documentation for details on creating an order
-//     // Return the necessary details, including order_id, and other relevant information
-//     // Example: const razorpayOrder = await razorpay.orders.create({ amount: totalAmount, currency: 'INR', receipt: orderId });
-//     // Return the necessary details for the client-side integration
-//     // return razorpayOrder;
-// };
-
-// const cartItemRemove = async (req, res) => {
-//     const productIdToRemove = req.params.productId;
-//     const userId = req.session.userid;
-
-//     if (!userId) {
-//         return res.status(401).json({ success: false, message: 'User not authenticated.' });
-//     }
-
-//     try {
-//         // Find the user's cart
-//         const userCart = await Cartdb.findOne({ user: userId });
-
-//         if (!userCart) {
-//             return res.status(404).json({ success: false, message: 'User does not have a cart.' });
-//         }
-
-//         // Find the index of the product to remove
-//         const productIndex = userCart.products.findIndex(product => product.productId.toString() === productIdToRemove);
-
-//         if (productIndex === -1) {
-//             return res.status(404).json({ success: false, message: 'Product not found in the cart.' });
-//         }
-
-//         // Remove the product from the cart
-//         userCart.products.splice(productIndex, 1);
-
-//         // Save the updated cart
-//         await userCart.save();
-
-//         return res.json({ success: true, message: 'Product removed from the cart.' });
-//     } catch (error) {
-//         console.error('Error:', error);
-//         return res.status(500).json({ success: false, message: 'Internal server error.' });
-//     }
-// };
 const cartItemRemove = async (req, res) => {
     const productIdToRemove = req.params.productId;
     const userId = req.session.userid;
@@ -519,6 +262,183 @@ const cartItemRemove = async (req, res) => {
     }
 };
 
+// ============================================================
+// ==========================wishlist==========================
+// ============================================================
+
+const wishlist = async (req, res) => {
+    try {
+        const wishlistData = await Wishlist.findOne({ user: req.session.userid }).populate({
+            path: "products.productId",
+            model: "Product",
+        });
+
+        res.render("wishlist", { cartCount: req.cartCount, wishlistData });
+    } catch (error) {
+        console.error("Error in wishlist route:", error);
+        res.status(500).render("error", { error: "Internal Server Error" });
+    }
+};
+
+const wishlistManagement = async (req, res) => {
+    try {
+        if (!req.session.userid) {
+            res.status(200).json({ message: "No Login" });
+        } else {
+            const { productId } = req.body; // Assuming you send productId in the request body
+
+            const Wishlistcheck = await Wishlist.findOne({ user: req.session.userid });
+
+            if (!Wishlistcheck) {
+                await new Wishlist({ user: req.session.userid });
+                console.log("new wishlist db created for the user");
+            }
+
+            // Check if the product is already in the wishlist
+            const existingWishlistItem = await Wishlist.findOne({
+                user: req.session.userid, // Assuming you have user authentication and session handling
+                products: { $elemMatch: { productId } },
+            });
+
+            if (existingWishlistItem) {
+                // Product is already in the wishlist, remove it
+                await Wishlist.findOneAndUpdate(
+                    { user: req.session.userid },
+                    { $pull: { products: { productId } } },
+                    { new: true }
+                );
+
+                res.status(200).json({ message: "Product removed from wishlist" });
+            } else {
+                // Product is not in the wishlist, add it
+                await Wishlist.findOneAndUpdate(
+                    { user: req.session.userid },
+                    { $push: { products: { productId } } },
+                    { upsert: true, new: true }
+                );
+
+                res.status(200).json({ message: "Product added to wishlist" });
+            }
+        }
+    } catch (error) {
+        console.error("Error in wishlistManagement:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+
+const addReview = async (req, res) => {
+    // Enable MongoDB query debugging
+    // mongoose.set("debug", true);
+    let existingReviewIndex = -1;
+    let preRating;
+    const { orderId, ProductId, rating, review } = req.body;
+
+    try {
+        const order = await orderdb.findById(orderId);
+        if (!order) {
+            return res.status(404).json({ error: "Order not found" });
+        }
+
+        const productIndex = order.Products.findIndex((product) => product.products.toString() === ProductId);
+        if (productIndex === -1 || !order.Products[productIndex]) {
+            return res.status(404).json({ error: "Product not found in the order" });
+        }
+
+        const parsedRating = parseInt(rating);
+
+        if (isNaN(parsedRating) || parsedRating < 0 || parsedRating > 5) {
+            return res.status(400).json({ error: "Invalid rating value" });
+        }
+
+        const newReview = {
+            user: req.session.userid,
+            userName: req.session.user,
+            rating: parsedRating,
+            reviewText: review,
+        };
+
+
+        order.Products[productIndex].rating = rating;
+        order.Products[productIndex].review = review;
+        await order.save();
+        // const updateObject = {
+        //     $set: {
+        //         [`Products.${productIndex}.rating`]: parsedRating,
+        //         [`Products.${productIndex}.review`]: review,
+        //     },
+        // };
+
+        // await orderdb.updateOne({ _id: orderId }, updateObject);
+
+        let itemProduct = await productdb.findById(ProductId);
+
+        if (!itemProduct.reviews || itemProduct.reviews.length === 0) {
+            // If reviews array doesn't exist or is empty, create a new one
+            itemProduct.reviews = [];
+            itemProduct.averageRating = 0;
+            itemProduct.totalRatings = 0;
+        } else {
+            for (let i = 0; i < itemProduct.reviews.length; i++) {
+
+                if (itemProduct.reviews[i].userName === req.session.user) {
+                    existingReviewIndex = i;
+                    console.log(i);
+                    break; // Stop the loop once the matching review is found
+                }
+            }
+
+            if (existingReviewIndex !== -1) {
+                preRating = itemProduct.reviews[existingReviewIndex].rating;
+            }
+            
+        }
+
+        console.log("existingReviewIndex::", existingReviewIndex);
+
+
+        if (existingReviewIndex !== -1) {
+            console.log('iffff::');
+            // Update the existing review
+            itemProduct.reviews[existingReviewIndex] = newReview;
+        } else {
+            console.log('else::');
+            // Push the new review
+            itemProduct.reviews.push(newReview);
+        }
+
+        const totalRatings = itemProduct.totalRatings || 0;
+        const oldAverageRating = itemProduct.averageRating || 0;
+
+        // Update the product document with the modified reviews array and ratings
+
+        // there is a small calulartion mistake
+        if (existingReviewIndex !== -1) {
+            const newAverageRating = (oldAverageRating * totalRatings + parsedRating - preRating) / totalRatings;
+
+            await productdb.findByIdAndUpdate(ProductId, {
+                $set: { reviews: itemProduct.reviews, totalRatings: totalRatings, averageRating: newAverageRating },
+            });
+        } else {
+            const newAverageRating = (oldAverageRating * totalRatings + parsedRating) / (totalRatings + 1);
+
+            await productdb.findByIdAndUpdate(ProductId, {
+                $set: { reviews: itemProduct.reviews, totalRatings: totalRatings + 1, averageRating: newAverageRating },
+            });
+        }
+
+        console.log("Review added successfully");
+        res.status(201).json({ message: "Review added successfully" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+    //  finally {
+    //     // Disable MongoDB query debugging after the request
+    //     mongoose.set("debug", false);
+    // }
+};
+
 module.exports = {
     cart,
     updatecart, // add to cart
@@ -527,4 +447,8 @@ module.exports = {
     addAddress,
     // checkOut,
     cartItemRemove,
+    // ======wishlist======
+    wishlist,
+    wishlistManagement,
+    addReview,
 };

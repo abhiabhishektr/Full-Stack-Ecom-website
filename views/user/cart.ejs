@@ -216,7 +216,7 @@
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                // No need for JSON.stringify if the payload is a simple object
+                body: JSON.stringify({  })   // No need for JSON.stringify if the payload is a simple object
             })
                 .then(response => response.json())
                 .then(data => {

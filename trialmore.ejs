@@ -1,71 +1,28 @@
-var formData = {
-    key: response.key_id,
-    amount: response.amount,
-    currency: 'INR',
-    name: response.product_name,
-    description: response.description,
-    image: '',
-    order_id: response.orderId,
-    handler: function (paymentResponse) {
-        // Handle the successful payment response
-        Swal.fire({
-            icon: 'success',
-            title: 'Payment Succeeded',
-            text: 'Your payment was successful!',
-        }).then(() => {
-            // Make the AJAX request to '/success'
-            $.ajax({
-                url: '/success',
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    razorpayOrderId: response.orderId,
-                    paymentResponse: paymentResponse,
-                    mongodbOrderIds: response.mongodbOrderId,
-                }),
-                success: function (serverResponse) {
-                    console.log('Server Response:', serverResponse);
-                },
-                error: function (xhr, status, error) {
-                    console.error('Ajax error:', status, error);
-                }
-            });
-        });
-    },
-    prefill: {
-        contact: response.contact,
-        name: response.name,
-        email: response.email
-    }
-};
-
-// Call the Razorpay payment handler with the options
-var rzp = new Razorpay(formData);
-
-// Handle payment failure with SweetAlert
-rzp.on('payment.failed', function (response) {
-    Swal.fire({
-        icon: 'error',
-        title: 'Payment failed',
-        text: 'Oops! Something went wrong with your payment.',
-    }).then(() => {
-        // Make the AJAX request to '/failure'
-        $.ajax({
-            url: '/failure',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({
-                razorpayOrderId: response.razorpay_order_id,
-                error: response.error,
-                paymentResponse: response,
-                mongodbOrderIds: response.notes.mongodbOrderId
-            }),
-            success: function (serverResponse) {
-                console.log('Server Response:', serverResponse);
-            },
-            error: function (xhr, status, error) {
-                console.error('Ajax error:', status, error);
-            }
-        });
-    });
-});
+<div class="reviews">
+    <h3>Reviews (<%= product.reviews.length %>)</h3>
+    <% product.reviews.forEach((review) => { %>
+        <div class="review">
+            <div class="row no-gutters">
+                <div class="col-auto">
+                    <h4><a href="#"><%= review.userName %></a></h4> here its comming a gamil so split the gamial and only show the name in that excluding the @ extension
+                    <div class="ratings-container">
+                        <div class="ratings">
+                            <div class="ratings-val" style="width: <%= review.rating *20 %>%;"></div>
+                        </div>
+                    </div>
+                    <span class="review-date"><%= new Date(review.date).toLocaleDateString() %></span>
+                </div>
+                <div class="col">
+                    <h4></h4> here shouw how much days before 
+                    <div class="review-content">
+                        <p><%= review.reviewText %></p>
+                    </div>
+                    <div class="review-action">
+                        <!-- <a href="#"><i class="icon-thumbs-up"></i>Helpful (2)</a>
+                        <a href="#"><i class="icon-thumbs-down"></i>Unhelpful (0)</a> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    <% }) %>
+</div>

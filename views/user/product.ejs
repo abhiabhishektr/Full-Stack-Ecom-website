@@ -79,14 +79,20 @@
 
                                     <div class="ratings-container">
                                         <div class="ratings">
-                                            <div class="ratings-val" style="width: 80%;"></div><!-- End .ratings-val -->
+                                            <div class="ratings-val" style="width: <%= product.averageRating*20 %>%"></div><!-- End .ratings-val -->
                                         </div><!-- End .ratings -->
-                                        <a class="ratings-text" href="#product-review-link" id="review-link">( 2 Reviews )</a>
+                                        <a class="ratings-text" href="#product-review-link" id="review-link">( <%= product.totalRatings %> Reviews )</a>
                                     </div><!-- End .rating-container -->
 
                                     <div class="product-price">
-                                        ₹ <%= product.price %>
-                                    </div><!-- End .product-price -->
+                                        <% if (product.priceoffer && product.priceoffer !== null) { %>
+                                            <span class="new-price"> ₹ <%= product.price %></span>
+                                            <span class="old-price">₹ <%=  product.priceoffer %></span>
+                                        <% } else { %>
+                                            ₹ <%= product.price %>
+                                        <% } %>
+                                    </div>
+                                    
 
                                     <div class="product-content">
                                         <p><%= product.description %></p>
@@ -154,15 +160,82 @@
                                             <% }  %>
                                               
                                           </p>
-                                          
+         <div id="reloadWishlist">                              
+<div class="details-action-wrapper">
+
+       <% if (!isInwish) { %>  
+
+    <a href="#" class="btn-wishlists" title="Wishlist" onclick="addToWishlist(); return false;">
+        <span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-suit-heart" viewBox="0 0 16 16">
+                <path d="m8 6.236-.894-1.789c-.222-.443-.607-1.08-1.152-1.595C5.418 2.345 4.776 2 4 2 2.324 2 1 3.326 1 4.92c0 1.211.554 2.066 1.868 3.37.337.334.721.695 1.146 1.093C5.122 10.423 6.5 11.717 8 13.447c1.5-1.73 2.878-3.024 3.986-4.064.425-.398.81-.76 1.146-1.093C14.446 6.986 15 6.131 15 4.92 15 3.326 13.676 2 12 2c-.777 0-1.418.345-1.954.852-.545.515-.93 1.152-1.152 1.595zm.392 8.292a.513.513 0 0 1-.784 0c-1.601-1.902-3.05-3.262-4.243-4.381C1.3 8.208 0 6.989 0 4.92 0 2.755 1.79 1 4 1c1.6 0 2.719 1.05 3.404 2.008.26.365.458.716.596.992a7.6 7.6 0 0 1 .596-.992C9.281 2.049 10.4 1 12 1c2.21 0 4 1.755 4 3.92 0 2.069-1.3 3.288-3.365 5.227-1.193 1.12-2.642 2.48-4.243 4.38z"/>
+              </svg>
+        </span>&nbsp; Add to Wishlist
+    </a>
+
+<% } else { %>
+
+    <a href="#" class="btn-wishlists" title="Wishlist" onclick="addToWishlist(); return false;">
+        <span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-suit-heart-fill" viewBox="0 0 16 16">
+                <path d="M4 1c2.21 0 4 1.755 4 3.92C8 2.755 9.79 1 12 1s4 1.755 4 3.92c0 3.263-3.234 4.414-7.608 9.608a.513.513 0 0 1-.784 0C3.234 9.334 0 8.183 0 4.92 0 2.755 1.79 1 4 1"/>
+              </svg>
+        </span>&nbsp; Remove from Wishlist
+    </a>
+
+    
+    <% } %>
+                   
+</div>
+</div>   
+
+</div><!-- End .product-details-action -->
+
+<script>
 
 
-                                        <div class="details-action-wrapper">
-                                            <a href="#" class="btn-product btn-wishlist" title="Wishlist"><span>Add to Wishlist</span></a>
-                                           
-                                        </div><!-- End .details-action-wrapper -->
-                                    </div><!-- End .product-details-action -->
+    const productId = '<%= product._id %>';
 
+    const addToWishlist = async () => {
+        try {
+            const response = await fetch('/wishlistManagement', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ productId }),
+            });
+    
+            const data = await response.json(); // Parse the JSON response
+    
+            if (response.ok) {
+                if (data.message === 'No Login') {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Login required',
+                        text: 'Please log in to add products to your wishlist.',
+                        timer: 2000,
+                        showConfirmButton: false,
+                    });
+                } else if (data.message === 'Product added to wishlist') {
+                    
+                    isInWishlist = true;
+                    updateWishlistButtonUI();
+                    reloadDetailsActionWrapper()
+                } else if (data.message === 'Product removed from wishlist') {
+                    isInWishlist = false;
+                    updateWishlistButtonUI();
+                }
+            } else {
+                // Handle error, e.g., show an error message
+                console.error('Failed to add/remove product to/from wishlist');
+            }
+        } catch (error) {
+            console.error('Error during fetch:', error);
+        }
+    };
+    
+</script>
 
 <script>
     $(document).on("click", ".btn-cart.go-to-cart-btn", function(event) {
@@ -290,62 +363,39 @@
                             </div><!-- .End .tab-pane -->
                             <div class="tab-pane fade" id="product-review-tab" role="tabpanel" aria-labelledby="product-review-link">
                                 <div class="reviews">
-                                    <h3>Reviews (2)</h3>
-                                    <div class="review">
-                                        <div class="row no-gutters">
-                                            <div class="col-auto">
-                                                <h4><a href="#">Samanta J.</a></h4>
-                                                <div class="ratings-container">
-                                                    <div class="ratings">
-                                                        <div class="ratings-val" style="width: 80%;"></div><!-- End .ratings-val -->
-                                                    </div><!-- End .ratings -->
-                                                </div><!-- End .rating-container -->
-                                                <span class="review-date">6 days ago</span>
-                                            </div><!-- End .col -->
-                                            <div class="col">
-                                                <h4>Good, perfect size</h4>
-
-                                                <div class="review-content">
-                                                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ducimus cum dolores assumenda asperiores facilis porro reprehenderit animi culpa atque blanditiis commodi perspiciatis doloremque, possimus, explicabo, autem fugit beatae quae voluptas!</p>
-                                                </div><!-- End .review-content -->
-
-                                                <div class="review-action">
-                                                    <a href="#"><i class="icon-thumbs-up"></i>Helpful (2)</a>
-                                                    <a href="#"><i class="icon-thumbs-down"></i>Unhelpful (0)</a>
-                                                </div><!-- End .review-action -->
-                                            </div><!-- End .col-auto -->
-                                        </div><!-- End .row -->
-                                    </div><!-- End .review -->
-
-                                    <div class="review">
-                                        <div class="row no-gutters">
-                                            <div class="col-auto">
-                                                <h4><a href="#">John Doe</a></h4>
-                                                <div class="ratings-container">
-                                                    <div class="ratings">
-                                                        <div class="ratings-val" style="width: 100%;"></div><!-- End .ratings-val -->
-                                                    </div><!-- End .ratings -->
-                                                </div><!-- End .rating-container -->
-                                                <span class="review-date">5 days ago</span>
-                                            </div><!-- End .col -->
-                                            <div class="col">
-                                                <h4>Very good</h4>
-
-                                                <div class="review-content">
-                                                    <p>Sed, molestias, tempore? Ex dolor esse iure hic veniam laborum blanditiis laudantium iste amet. Cum non voluptate eos enim, ab cumque nam, modi, quas iure illum repellendus, blanditiis perspiciatis beatae!</p>
-                                                </div><!-- End .review-content -->
-
-                                                <div class="review-action">
-                                                    <a href="#"><i class="icon-thumbs-up"></i>Helpful (0)</a>
-                                                    <a href="#"><i class="icon-thumbs-down"></i>Unhelpful (0)</a>
-                                                </div><!-- End .review-action -->
-                                            </div><!-- End .col-auto -->
-                                        </div><!-- End .row -->
-                                    </div><!-- End .review -->
-                                </div><!-- End .reviews -->
+                                    <h3>Reviews (<%= product.reviews.length %>)</h3>
+                                    <% product.reviews.forEach((review) => { %>
+                                        <div class="review">
+                                            <div class="row no-gutters">
+                                                <div class="col-auto">
+                                                    <% // Splitting the Gmail address to extract only the name part %>
+                                                    <h4><a href="#">User</a></h4>
+                                                    <div class="ratings-container">
+                                                        <div class="ratings">
+                                                            <div class="ratings-val" style="width: <%= review.rating * 20 %>%;"></div>
+                                                        </div>
+                                                    </div>
+                                                    <% // Calculating the number of days since the review %>
+                                                    <span class="review-date"><%=  %></span>                                                </div>
+                                                <div class="col">
+                                                    <h4></h4>
+                                                    <div class="review-content">
+                                                        <p><%= review.reviewText %></p>
+                                                    </div>
+                                                    <div class="review-action">
+                                                        <!-- You can add helpful/unhelpful buttons or any other actions here -->
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <% }) %>
+                                </div>
+                                
                             </div><!-- .End .tab-pane -->
                         </div><!-- End .tab-content -->
                     </div><!-- End .product-details-tab -->
+              
+                    
 
                     <h2 class="title text-center mb-4">You May Also Like</h2><!-- End .title text-center -->
 
@@ -690,21 +740,6 @@
         </div><!-- End .modal-dialog -->
     </div><!-- End .modal -->
 
-    <!-- Plugins JS File -->
-    <script src="/user/assets/js/jquery.min.js"></script>
-    <script src="/user/assets/js/bootstrap.bundle.min.js"></script>
-    <script src="/user/assets/js/jquery.hoverIntent.min.js"></script>
-    <script src="/user/assets/js/jquery.waypoints.min.js"></script>
-    <script src="/user/assets/js/superfish.min.js"></script>
-    <script src="/user/assets/js/owl.carousel.min.js"></script>
-    <script src="/user/assets/js/bootstrap-input-spinner.js"></script>
-    <script src="/user/assets/js/jquery.elevateZoom.min.js"></script>
-    <script src="/user/assets/js/bootstrap-input-spinner.js"></script>
-    <script src="/user/assets/js/jquery.magnific-popup.min.js"></script>
-    <!-- Main JS File -->
-    <script src="/user/assets/js/main.js"></script>
-</body>
 
 
-<!-- /product.html  22 Nov 2019 09:55:05 GMT -->
-</html>
+<%-include('../layout/userFoot')-%>

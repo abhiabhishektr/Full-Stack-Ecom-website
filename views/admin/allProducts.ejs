@@ -26,14 +26,31 @@
                                         <th scope="row"><%=serialNumber %></th>
                                         <td><%= product?.name %></td>
                                         <td><%= product.category ? product.category : 'N/A' %></td>
-                                        <td><%= product.price  %></td>
-                                        <td><%= product.gender %></td>
-                                        <td><%= product.manufacturer %></td>
+                                        <td><%if(product.priceoffer ){ %>
+                                            <span style="font-size: 80%;"><%= product.price  %>/<%= product.priceoffer %></span>
+                                            <%}else{%>
+
+                                                <span style="font-size: 80%;"><%= product.price  %></span>
+                                                <%}%>
+                                                
+                                                
+                                            
+                                        </td>
+                                        
+                                        
+                                        <td>
+                                            
+                                            <span style="font-size: 80%;"><%= product.gender %></span>
+                                        </td>
+
+                                        <td>
+                                            <span style="font-size: 80%;"><%= product.manufacturer %></span></td>
                                         <td>
                                             <span class="badge rounded-pill <%= product.status === 'Active' ? 'alert-success' : 'alert-warning' %>">
                                                 <%= product.status %>
                                             </span>
                                         </td>
+                                        
                                         <td>
                                             <% for (let j = 0; j < product.imageUrls.length; j++) { %>
                                                 <img src="/uploads/<%= product.imageUrls[j]%>" alt="Product Image" style="width: 30px; height: 30px; margin-left: 5px;">
@@ -68,7 +85,19 @@
                                                 </a>
                                                
                                             <% } %>
+
+                                            <% if (product.priceoffer&&product.priceoffer!==null) { %>
+                                                <button onclick="cancelOfferWithConfirmation('<%= product._id %>')" class="btn btn-sm btn-success rounded-circle">
+                                                    <i class="material-icons"></i> Cancel Offer
+                                                </button>
+                                            <% } else { %>
+                                                <button onclick="applyOfferWithConfirmation('<%= product._id %>')" class="btn btn-sm btn-warning rounded-circle">
+                                                    <i class="material-icons"></i> Apply Offer
+                                                </button>
+                                            <% } %>
                                         </td>
+
+
                                     </tr>
                                     <% serialNumber++; %>
                                 <% }) %>
@@ -80,8 +109,97 @@
             </div>
 
 
+<!-- Add this script in your HTML file -->
 
+<script>
+    // Function to apply an offer with SweetAlert confirmation
+    function applyOfferWithConfirmation(productId) {
+        Swal.fire({
+            title: 'Enter Discount Percentage',
+            input: 'number',
+            inputAttributes: {
+                min: 1,
+                max: 100,
+                step: 1,
+            },
+            showCancelButton: true,
+            confirmButtonText: 'Apply',
+            cancelButtonText: 'Cancel',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const discountPercentage = result.value;
+                // Call the applyOffer function with the discountPercentage
+                applyOffer(productId, discountPercentage);
+            }
+        });
+    }
 
+    // Function to apply an offer
+    function applyOffer(productId, discountPercentage) {
+        // Make a fetch request with the productId and discountPercentage
+        fetch(`/applyoffer/${productId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ discountPercentage }),
+        })
+        .then(response => {
+            // Handle the response as needed
+            if (response.ok) {
+                console.log('Offer applied successfully');
+                // You may want to update the UI accordingly
+                window.location.reload();
+                        } else {
+                console.error('Failed to apply offer');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+
+    function cancelOfferWithConfirmation(productId) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'This will cancel the offer. Do you want to proceed?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, cancel it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // If the user confirms, call the cancelOffer function
+                cancelOffer(productId);
+            }
+        });
+    }
+    
+    function cancelOffer(productId) {
+        // Make a fetch request to cancel the offer
+        fetch(`/canceloffer/${productId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => {
+            // Handle the response as needed
+            if (response.ok) {
+                console.log('Offer canceled successfully');
+                // You may want to update the UI accordingly
+                window.location.reload();
+            } else {
+                console.error('Failed to cancel offer');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+    
+</script>
 
 
 
@@ -105,6 +223,8 @@
 
 
 
+<!-- Add SweetAlert library -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
         <script src="/admin/src/assets/libs/jquery/dist/jquery.min.js"></script>
         <script src="/admin/src/assets/libs/popper.js/dist/umd/popper.min.js"></script>

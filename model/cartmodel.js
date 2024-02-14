@@ -48,7 +48,7 @@ const cartSchema = new mongoose.Schema({
     subtotal: {
         type: Number,  // Use Number for the type
         default: 0  // Set the default to a numerical value
-      }
+      },
 });
 
 const Cart = mongoose.model('cart', cartSchema);

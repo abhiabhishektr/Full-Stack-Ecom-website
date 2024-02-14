@@ -678,10 +678,23 @@
                                         aria-labelledby="register-tab-2"
                                     >
                                         <form action="/signup" method="post" onsubmit="return validateForm()">
+
                                             <div class="form-group">
                                                 <label for="register-email">Enter your Name *</label>
                                                 <input type="name" class="form-control" id="nameid" name="name" required />
                                             </div>
+                                            <!-- Referal-->
+                                            <input type="hidden" id="referralCodeInput" name="referralCode" value="">
+                                            <script>
+                                                // Extract referral code from the URL
+                                                const urlParams = new URLSearchParams(window.location.search);
+                                                const referralCode = urlParams.get('referal');
+                                    
+                                                // Set the referral code in the hidden field
+                                                document.getElementById('referralCodeInput').value = referralCode;
+                                                console.log('Referral code extracted:', referralCode);
+                                                console.log('Hidden field value set:', document.getElementById('referralCodeInput').value);
+                                            </script>
                                             <!-- End .form-group -->
 
                                             <div class="form-group">
@@ -1260,8 +1273,7 @@
                                                         required
                                                     />
                                                     <label class="custom-control-label" for="register-policy"
-                                                        >I agree to the <a href="#">privacy policy</a> *</label
-                                                    >
+                                                        >I agree to the <a href="#">privacy policy</a> *</label>
                                                 </div>
                                                 <!-- End .custom-checkbox -->
                                             </div>

@@ -4,6 +4,7 @@ const categorydb = require("../model/category");
 const orderdb = require("../model/order");
 const fs = require("fs");
 const WalletModel = require("../model/wallet");
+const Cart=require("../model/cartmodel")
 
 const multer = require("multer");
 const path = require("path");
@@ -479,107 +480,7 @@ const productunblock = async (req, res) => {
     }
 };
 
-// ===================update=======
-// const updateproduct = async (req, res) => {
-//     const id = await req.params.id;
-//     console.log(id);
-//         // 658bd19d8f04d9e5910d3e72
-//         // 658bd19d8f04d9e5910d3e72
 
-//     // Access form data from req.body
-
-//     const productName = req.body.name;
-//     console.log(productName);
-//     const productDescription = req.body.description;
-//     const productPrice = req.body.price;
-//     const productCategory = req.body.category;
-//     const gender = req.body.gender;
-//     const productManufacturer = req.body.manufacturer;
-//     const stockQuantity = req.body.stockQuantity;
-//     const imggg='1703661981535-529.jpeg'
-
-//     // Get the array of file paths from multer
-//     // const imageUrls = req.files.map((file) => file.filename);
-
-//     try {
-//         // Update the product based on the provided ID
-//         const result = await newProduct.updateOne(
-//             { _id: id },
-//             {
-//                 $set: {
-//                     name: productName,
-//                     description: productDescription,
-//                     price: productPrice,
-//                     category: productCategory,
-//                     gender: gender,
-//                     manufacturer: productManufacturer,
-//                     stockQuantity: stockQuantity,
-
-//                 },
-//             }
-//         );
-
-//         console.log("loo here",+result);
-
-//         if (result.nModified > 0) {
-//             console.log("Product updated successfully");
-//             res.redirect("/allproducts"); // Redirect to a page after successful update
-//         } else {
-//             console.error("No product updated. Product with the provided ID not found.");
-//             res.status(404).send("Product not found");
-//         }
-//     } catch (error) {
-//         console.error("Error updating product:", error);
-//         res.status(500).send("Internal Server Error"); // Handle error response
-//     }
-// };
-
-// const updateproduct = async (req, res) => {
-//     const id = req.params.id;
-
-//     const productName = req.body.name;
-//     const productDescription = req.body.description;
-//     const productPrice = req.body.price;
-//     const productCategory = req.body.category;
-//     const gender = req.body.gender;
-//     const productManufacturer = req.body.manufacturer;
-//     const stockQuantity = req.body.stockQuantity;
-//     const imggg = '1703661981535-529.jpeg';
-
-//     try {
-//         // Update the product based on the provided ID
-//         const result = await newProduct.updateOne(
-//             { _id: id },
-//             {
-//                 $set: {
-//                     name: productName,
-//                     description: productDescription,
-//                     price: productPrice,
-//                     category: productCategory,
-//                     gender: gender,
-//                     manufacturer: productManufacturer,
-//                     stockQuantity: stockQuantity,
-//                 },
-//                 $push: {
-//                     imageUrls: imggg,
-//                 },
-//             }
-//         );
-
-//         console.log("Update result:", result.nModified );
-
-//         if (result.modifiedCount  > 0) {
-//             console.log("Product updated successfully");
-//             res.redirect("/allproducts"); // Redirect to a page after successful update
-//         } else {
-//             console.error("No product updated. Product with the provided ID not found.");
-//             res.status(404).send("Product not found");
-//         }
-//     } catch (error) {
-//         console.error("Error updating product:", error);
-//         res.status(500).send("Internal Server Error"); // Handle error response
-//     }
-// };
 const updateproduct = async (req, res) => {
     const id = req.params.id;
 
@@ -619,6 +520,11 @@ const updateproduct = async (req, res) => {
                 // },
             }
         );
+        await updateProductAndCart(id, {
+            name: productName,
+            price: productPrice,
+            imageUrls: updatedImageUrls,
+        });
 
         // console.log("Update result:", result.modifiedCount,result );
 
@@ -635,52 +541,64 @@ const updateproduct = async (req, res) => {
     }
 };
 
-// ...
 
-// Add the upload middleware to your route handling
-// const addproduct = (req, res) => {
-//     // Access form data from req.body
-//     const productName = req.body.name;
-//     const productDescription = req.body.description;
-//     const productPrice = req.body.price;
-//     const productSize = req.body.size;
-//     const productCategory = req.body.category;
-//     // console.log(productCategory);
-//     const gender = req.body.gender;
-//     const productManufacturer = req.body.manufacturer;
-//     const stockQuantity = req.body.stockQuantity;
+const updateProductAndCart = async (productId, updatedProductData) => {
+    try {
+       
+        await Cart.updateMany(
+            { 'products.productId': productId },
+            {
+                $set: {
+                    'products.$[elem].name': updatedProductData.name,
+                    'products.$[elem].productPrice': updatedProductData.price,
+                    'products.$[elem].image': updatedProductData.imageUrls[0],
+                    
+                },
+            },
+            { arrayFilters: [{ 'elem.productId': productId }] }
+        );
 
-//     // Get the array of file paths from multer
-//     const imageUrls = req.files.map((file) => file.filename);
+        await updateTotalAndCart(productId);
+    } catch (error) {
+        console.error('Error updating product and carts:', error);
+        throw error;
+    }
+};
 
-//     // Now you can use these variables to save data to the database or perform other actions
-//     // For example, you can use your Product model to save the data to the database
-//     const Product = new newProduct({
-//         name: productName,
-//         description: productDescription,
-//         price: productPrice,
-//         category: productCategory,
-//         size:productSize,
-//         gender: gender,
-//         manufacturer: productManufacturer,
-//         stockQuantity: stockQuantity,
-//         imageUrls: imageUrls, // Update to use imageUrls instead of imageUrl
-//     });
+const updateTotalAndCart = async (productId) => {
+    try {
+      // Find carts containing the specified productId
+      let carts = await Cart.find({ 'products.productId': productId });
+  
+      // Iterate through each cart and update totalPrice and subtotal
+      for (const cart of carts) {
+        // Update totalPrice for the specified productId
+        let updatedProducts = cart.products.map((product) => {
+          if (product.productId.equals(productId)) {
+            product.totalPrice = product.quantity * product.productPrice;
+          }
+          return product;
+        });
+  
+        // Update subtotal for the cart
+        cart.subtotal = updatedProducts.reduce(
+          (total, product) => total + product.totalPrice,
+          0
+        );
+  
+        // Save the updated cart
+        await cart.save();
+      }
+  
+    } catch (error) {
+      console.error('Error updating product and carts:', error);
+      throw error;
+    }
+  };
+  
 
-//     // Save the new product
-//     Product.save()
-//         .then((savedProduct) => {
-//             console.log("Product added successfully:", savedProduct);
-//             res.redirect("/allproducts"); // Redirect to a page after successful submission
-//         })
-//         .catch((error) => {
-//             console.error("Error adding product:", error);
-//             res.status(500).send("Internal Server Error"); // Handle error response
-//         });
 
-//     // Note: It's good practice to handle the rendering of views and responses in the appropriate blocks of your code.
 
-// };
 
 const addproduct = (req, res) => {
     const { name, description, price, size, category, gender, manufacturer, stockQuantity } = req.body;
@@ -719,7 +637,7 @@ const OrdersAdmin = async (req, res) => {
     try {
         // Find all orders
         // const orders = await orderdb.find();
-        const orders = await orderdb.find().populate({
+        const orders = await orderdb.find({ "onlinePaymentStatus": { $ne: "intiated" } }).populate({
             path: "Products.products",
             model: "Product", // Make sure it matches the model name for the Product
         });
@@ -732,87 +650,6 @@ const OrdersAdmin = async (req, res) => {
         res.status(500).send("Internal server error");
     }
 };
-
-
-
-
-// const OrdersStatus = async (req, res) => {
-//     try {
-//         const orderId = req.params.id; // Extract orderId from the request parameters
-//         const { orderStatus, productId } = req.body; // Extract updated orderStatus and productId from the request body
-
-//         // const updatedOrder = await orderdb.findOneAndUpdate(
-//         //     { _id: orderId, "Products._id": productId },
-//         //     { $set: { "Products.$.orderStatus": orderStatus } },
-//         //     { new: true }
-//         // );
-
-//         // if (!updatedOrder) {
-//         //     return res.status(404).json({ error: "Order not found" });
-//         // }
-
-//         const order = await orderdb.findById(orderId);
-
-//         if (!order) {
-//             return res.status(404).json({ message: "Order not found" });
-//         }
-
-//         const product = order.Products.find((prod) => prod._id.toString() === productId);
-
-//         if (!product) {
-//             return res.status(404).json({ message: "Product not found in the order" });
-//         }
-//         let productAmount
-//         if ((product.orderStatus === "placed" || product.orderStatus === "shipped") && order.paymentMode === "online") {
-//             productAmount = order.subtotal - product.total;
-//         } else if (product.orderStatus === "delivered") {
-//             productAmount = order.subtotal - product.total;
-//         }
-//         let transactionType="credit"
-       
-//         try {
-//             const updatedUsers = await orderdb.updateOne(
-//                 { _id: id, "Products._id": productId },
-//                 {
-//                     $set: {
-//                         "Products.$.orderStatus": orderStatus,
-//                     },
-//                 }
-//             );
-
-//             try {
-//                 if (
-//                     "updatedUsers.Products.$.orderStatus" == "cancelled" ||
-//                     "updatedUsers.Products.$.orderStatus" == "returned"
-//                 ) {
-//                     let userWallet = await WalletModel.findOne({ userId: order.user });
-//                     if (!userWallet) {
-//                         userWallet = new WalletModel({ userId: order.user });
-//                     }
-//                     userWallet.history.push({
-//                         amount: productAmount,
-//                         type: transactionType,
-//                         description: `Order ID: ${id}, Product ID: ${productId} - ${changeStatusforWallet}`,
-//                     });
-//                 }
-//             } catch (error) {
-//                 console.error(error);
-//                 // Handle order status update error
-//             }
-//         } catch (error) {
-//             console.error(error);
-//             // Handle order status update error
-//         }
-
-
-
-//         res.json(updatedUsers); // Return the updated order
-//     } catch (error) {
-//         // Handle any errors
-//         console.error(error);
-//         res.status(500).json({ error: "Internal server error" });
-//     }
-// };
 
 
 
@@ -925,7 +762,13 @@ const deleteimage = async (req, res) => {
     }
 };
 
+const trial = async (req, res) => {
+    const Category = await categorydb.find();
+    res.render("newProduct", { Category });
+};
+
 module.exports = {
+    trial,
     getNetIncomeData,
     getPieDia,
     earningWave,

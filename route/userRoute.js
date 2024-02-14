@@ -37,9 +37,7 @@ router.post('/otpvalidation',userController.otpvalidation)
 
 router.post('/sendotp',userController.sendotp)
 
-// router.get('/trial', (req, res) => {
-//   res.render("d-dash");
-// });
+
 
 
 // ===============================product=====================
@@ -55,11 +53,21 @@ router.get('/product/:id', cartCountMiddleware,userController.product)
 // ======================  CART   ==================
 //===================================================
 router.get('/cart',userMid.islogin, cartCountMiddleware,cartController.cart) // cart page showing 
+router.put('/cart',cartController.cartItemRemove) // cart page showing 
+
 router.put('/updatecart/:id',cartController.updatecart)  // add to cart
 router.post('/updatequantity',cartController.updateCartDetails) //quantity management in the cart page
-router.get('/paymentmethod',cartController.paymentmethod) //payment method and address selecting page 
+router.get('/paymentmethod',userMid.islogin, cartCountMiddleware,cartController.paymentmethod) //payment method and address selecting page 
 router.post('/addAddress/:id',cartController.addAddress) //adding address in the paymet page
-router.put('/cart/:productId',cartController.cartItemRemove) //product cancelling fron the cart
+router.post('/addReview',cartController.addReview)
+
+//=====================================================
+// ======================  Wishlist   ==================
+//===================================================
+router.get('/wishlist',userMid.islogin, cartCountMiddleware,cartController.wishlist) // cart page showing 
+router.put('/wishlistManagement',cartController.wishlistManagement)
+
+
 //=====================================================
 // ======================  CHECK OUT  ==================
 //===================================================
@@ -81,7 +89,8 @@ router.patch('/updateMobile',userController.updateMobile)
 router.patch('/passwordChange',userController.passwordChange)
 router.post('/updateAddress/:id',userController.updateAddress)
 
-router.get('/orderDetails/:orderId',userController.orderDetails)
+router.get('/orderDetails/:orderId',userMid.islogin, cartCountMiddleware,userController.orderDetails)
+router.get('/downloadInvoice/:orderId',userMid.islogin,userController.downloadInvoice)
 
 
 
@@ -101,7 +110,7 @@ router.get('/orderDetails/:orderId',userController.orderDetails)
 
 
 // router.get('/trial', (req, res) => {
-//   res.render("trial");
+//   res.render("invoice");
 // });
 
 // router.get('/error', (req, res) => {

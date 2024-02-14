@@ -85,9 +85,26 @@
                            blocked
                         <% } %>
                       </td>
-                    
-                      
-                      
+
+
+                      <!-- ======== -->
+                      <% if (locals.Offer) { %>
+                        <td>
+                            <form action="/OfferApply/block?id=<%= Category._id %>" method="post">
+                              <button type="submit" class="btn btn-warning">Canel Offer</button>
+                            </form>
+                          </td>
+                          
+                     <% } else { %>
+ <td>
+                        <form action="/OfferApply/unblock?id=<%= Category._id %>" method="post">
+                          <button type="submit" class="btn btn-success">Apply Offer</button>
+                        </form>
+                      </td>
+                     <% } %>
+                      <!-- ======== -->
+
+
                       <% if (Category.Status) { %>
                         <td>
                             <form action="/Cblock/<%= Category._id %>" method="post">
@@ -112,6 +129,7 @@
                             Update
                         </button>
                     </td>
+
                       
                       <td>
                         <form action="/Cdelete/<%= Category._id %>" method="post">

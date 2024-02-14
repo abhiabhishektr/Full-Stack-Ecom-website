@@ -26,10 +26,10 @@ const couponSchema = new mongoose.Schema({
     minOrderAmount: {
         type: Number,
     },
-    usedBy: {
+    usedBy: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
-    },
+    }],
     couponActive:{
         type: String,
         default:"Active"

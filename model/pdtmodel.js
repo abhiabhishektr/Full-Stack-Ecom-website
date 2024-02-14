@@ -12,6 +12,9 @@
       type: Number,
       required: true,
     },
+    priceoffer: {
+      type: Number,
+    },
     gender: {
       type: String,
     },
@@ -39,6 +42,63 @@
     productDeleted: {
       type: String,
     },
+     averageRating: {
+    type: Number,
+    default: 0,
+  },
+  totalRatings: {
+    type: Number,
+    default: 0,
+  },
+
+  //reviews
+
+  reviews: [{
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+   
+  },
+  userName:{
+    type: String,
+  },
+    rating: {
+      type: Number,
+    },
+    reviewText: {
+      type: String,
+    },
+    date: {
+      type: Date,
+      default: Date.now,
+    },
+  }],
+
+//offers
+offers: [
+  {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Offer',
+  },
+],
+singleOffer: [{
+  date: {
+      type: Date,
+      default: Date.now,
+  },
+  discountPercentage: {
+      type: Number,
+      required: true,
+  },
+  discountedAmount: {
+      type: Number,
+      required: true,
+  },
+}],
+
+
+
+
   }, { versionKey: false });
 
   module.exports = mongoose.model('Product', productSchema);

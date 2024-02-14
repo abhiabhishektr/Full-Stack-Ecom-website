@@ -75,34 +75,171 @@
               
 
                           
-<!-- Products -->
+
+
 <% order.Products.forEach(product => { %>
-  <div class="media">
-    <!-- Image -->
-    <img src="/uploads/<%= product.image %>" alt="Product Image" class="mr-3" style="max-width: 100px; max-height: 100px; object-fit: cover;">
-    <div class="media-body d-flex flex-column align-items-start">
-      <!-- Product Details -->
-      <h5 class="mt-0"><%= product.name %></h5>
-      <p style="margin: 0;">Quantity: <%= product.quantity %></p>
-      <p style="margin: 0;">Total: $<%= product.total %></p>
-      <p style="margin: 0;">orderStatus : <%= product.orderStatus %></p>
-      <!-- Add more product details as needed -->
-
-      <!-- Button for Cancel/Return based on order status -->
-      <% if (product.orderStatus === 'placed') { %>
-        <button type="button" class="btn btn-danger align-self-start mt-2" onclick="handleOrderAction('<%= order._id %>','<%= product._id %>', 'cancel')">Cancel</button>
-      <% } else if (product.orderStatus === 'delivered') { %>
-        <button type="button" class="btn btn-warning align-self-start mt-2" onclick="handleOrderAction('<%= order._id %>','<%= product._id %>', 'return')">Return</button>
-      <% } %>
-
+    <div class="container">
+        <div class="row ">
+            <div class="col-md-6">
+    <div class="media">
+      <!-- Image -->
+      <img src="/uploads/<%= product.image %>" alt="Product Image" class="mr-3" style="max-width: 100px; max-height: 100px; object-fit: cover;">
+      <div class="media-body d-flex flex-column align-items-start">
+        <!-- Product Details -->
+        <h5 class="mt-0"><%= product.name %></h5>
+        <p style="margin: 0;">Quantity: <%= product.quantity %></p>
+        <p style="margin: 0;">Total: $<%= product.total %></p>
+        
+        <% if (order.onlinePaymentStatus === 'intiated') { %>
+          <p style="margin: 0;">orderStatus: Payment failed</p>
+        <% } else { %>
+          <p style="margin: 0;">orderStatus: <%= product.orderStatus %></p>
+          <!-- Add more product details as needed -->
+        </div>
     </div>
-  </div>
-<% }); %>
+    
+    
+    <div class="col-md-6">
+        <!-- Combined Ratings and Reviews Form -->
+       
+            <!-- Input fields for Ratings -->
+            <div style="margin-bottom: 10px;">
+                <input type="radio" id="form1" name="rating" value="1">
+                <label for="form1"> 1</label>
+        
+                <input type="radio" id="form2" name="rating" value="2">
+                <label for="form2"> 2</label>
+        
+                <input type="radio" id="form3" name="rating" value="3">
+                <label for="form3"> 3</label>
+        
+                <input type="radio" id="form4" name="rating" value="4">
+                <label for="form4"> 4</label>
+        
+                <input type="radio" id="form5" name="rating" value="5">
+                <label for="form5"> 5</label>
+            </div>
+    
+            <!-- Input field for Review -->
+            <div class="form-group">
+                <label for="review">Review:</label>
+                <textarea class="form-control" id="review" name="review" rows="3" disabled></textarea>
+                <p id="reviewError" style="color: red;"></p>
+            </div>
+    
+            <!-- Submit button for the combined form -->
+            <button onclick="postReview('<%= product.products %>', '<%= order._id %>')" type="button" id="submitBtn" disabled>Post Review</button>
+      
+    </div>
+    
+    
+ <% } %>
+
+
+
+
+ <script >
+    function postReview(ProductId,orderId) {
+     
+        const ratingSelected = document.querySelector('input[name="rating"]:checked');
+        const reviewInput = document.getElementById('review');
+        const reviewError = document.getElementById('reviewError');
+        let reviewValue 
+        if (ratingSelected) {
+            const ratingValue = ratingSelected.value;
+            if (reviewInput) {
+             reviewValue = reviewInput.value;
+          //  console.log(reviewValue)
+            if (reviewValue.length > 0 && (reviewValue.length < 4 || reviewValue.length > 100)) {
+                reviewError.textContent = 'Review must be between 4 and 100 characters.';
+                return; // Stop execution if the review length is invalid
+            }
+                 }
+     
+                 fetch('/addReview', {
+                     method: 'POST',
+                     headers: {
+                         'Content-Type': 'application/json',
+                     },
+                     body: JSON.stringify({ rating: ratingValue, review: reviewValue ,ProductId,orderId}),
+                 })
+                 .then(response => response.json())
+                 .then(data => {
+                    if (data && data.message === "Review added successfully") {
+                        // Display SweetAlert success message
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Review Added Successfully',
+                            text: 'Thank you for your review!',
+                        }).then((result) => {
+                            // You can add additional actions after the user clicks 'OK' if needed
+                            if (result.isConfirmed) {
+                                // Redirect or perform other actions
+                            }
+                        });
+                    } else {
+                        // Handle unexpected response or error from the backend
+                        console.error('Unexpected response from the backend:', data);
+                    }
+                 })
+                 .catch(error => {
+                     console.error('Error:', error);
+                     // Handle error
+                 });
+           
+        } else {
+            alert('Please select a rating before submitting your review.');
+        }
+    }
+
+    // Enable submit button and review textarea when a rating is selected
+   // Enable submit button and review textarea when a rating is selected
+const ratingInputs = document.querySelectorAll('input[name="rating"]');
+ratingInputs.forEach(input => {
+input.addEventListener('change', () => {
+    const submitBtn = document.getElementById('submitBtn');
+    const reviewInput = document.getElementById('review');
+    const reviewError = document.getElementById('reviewError');
+
+    if (input.checked) {
+        // Rating is selected
+        submitBtn.removeAttribute('disabled');
+        reviewInput.removeAttribute('disabled');
+        reviewError.textContent = ''; // Clear any previous error message
+    } else {
+        // No rating selected
+        submitBtn.setAttribute('disabled', 'true');
+        reviewInput.setAttribute('disabled', 'true');
+    }
+});
+});
+
+
+
+</script>
+
+ 
+
+<div class="row "></div>
+        <!-- Button for Cancel/Return based on order status -->
+        <% if (order.onlinePaymentStatus !== 'intiated') { %>
+          <% if (product.orderStatus === 'placed') { %>
+            <button type="button" class="btn btn-danger align-self-start mt-2" onclick="handleOrderAction('<%= order._id %>','<%= product._id %>', 'cancel')">Cancel</button>
+          <% } else if (product.orderStatus === 'delivered') { %>
+            <button type="button" class="btn btn-warning align-self-start mt-2" onclick="handleOrderAction('<%= order._id %>','<%= product._id %>', 'return')">Return</button>
+          <% } %>
+        <% } %>
+     
+    </div>
+
+</div>
+  <% }); %>
+  
 
               
                           <!-- Additional Order Details -->
                           <p class="card-text" style="margin: 0;">Payment Mode: <%= order.paymentMode %></p>
-                          <p class="card-text" style="margin: 0;">Subtotal: $<%= order.subtotal %></p>
+                          <p class="card-text" style="margin: 0;">Subtotal: ₹ <%= order.subtotal %></p>
               
                           <!-- Address Details -->
                           <p class="card-text" style="margin: 0;">Address: <%= order.address.streetAddress1 %>, <%= order.address.townCity %>, <%= order.address.stateCounty %> <%= order.address.postcodeZIP %></p>
@@ -111,9 +248,16 @@
                         </div>
                       </div>
               
+                      <a href="/downloadInvoice/<%=order._id%>">
+                        <button a style="background: linear-gradient(to bottom right, #4c78af, #4c78af); border: 0; border-radius: 8px; color: #FFFFFF; cursor: pointer; font-family: -apple-system, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 500; line-height: 2; outline: transparent; padding: 0.5rem 1rem; text-align: center; text-decoration: none; transition: box-shadow .2s ease-in-out; user-select: none; -webkit-user-select: none; touch-action: manipulation; white-space: nowrap;" 
+                        onmouseover="this.style.background = 'linear-gradient(to bottom right, #2196F3, #1976D2)'; this.style.boxShadow = '0 0 .25rem rgba(0, 0, 0, 0.5), -.125rem -.125rem 1rem rgba(33, 150, 243, 0.5), .125rem .125rem 1rem rgba(25, 118, 210, 0.5)';" 
+                        onmouseout="this.style.background = 'linear-gradient(to bottom right, #4CAF50, #45a049)'; this.style.boxShadow = 'none';" >See Invoice</button></a>
+
                     <% }); %>
                     
                   </div>
+            
+                 
                 </div>
               </div>
               
@@ -348,6 +492,11 @@
         }
     });
 }
+
+
+
+
+
 
 
 </script>

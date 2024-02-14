@@ -4,6 +4,7 @@ const productdb = require("../model/pdtmodel");
 const orderdb = require("../model/order");
 require("dotenv").config();
 const WalletModel = require("../model/wallet");
+const Coupon = require("../model/couponModel");
 
 const Razorpay = require("razorpay");
 const { RAZORPAY_ID_KEY, RAZORPAY_SECRET_KEY } = process.env;
@@ -14,6 +15,7 @@ const razorpay = new Razorpay({
 
 const success = async (req, res) => {
     try {
+        const couponCode = req.query.code;
         const userId = req.session.userid;
         console.log("i'm in thee sussec");
         const { razorpayOrderId, paymentResponse, mongodbOrderIds } = req.body;
@@ -34,6 +36,12 @@ const success = async (req, res) => {
             path: "products.productId",
             model: "Product",
         });
+
+        if (couponCode && couponCode.length > 0) {
+            const coupon = await Coupon.findOne({ code: couponCode });
+            coupon.usedBy.push(userId);
+            await coupon.save();
+        }
 
         await Cartdb.findOneAndDelete({ user: userId });
 
@@ -69,6 +77,7 @@ const failure = async (req, res) => {
     try {
         console.log("I'm in  failure ");
         const { razorpayOrderId, error, paymentResponse, mongodbOrderIds } = req.body;
+        console.log(paymentResponse);
 
         console.log("Razorpay Order ID:", razorpayOrderId);
         console.log("Error Details:", error);
@@ -100,6 +109,44 @@ const checkOut = async (req, res) => {
     try {
         const { RAZORPAY_ID_KEY } = process.env;
         const paymentOption = req.params.paymentOption;
+        const couponId = req.query.code;
+        let coupon;
+        if (couponId && couponId.length > 0) {
+            const formattedCouponId = couponId.trim();
+            coupon = await Coupon.findOne({
+                code: { $regex: new RegExp(`^${formattedCouponId}$`, "i") },
+                couponActive: "Active", // Add this condition
+            });
+
+            if (!coupon) {
+                // Coupon not found
+                return res.status(404).json({ error: "Coupon not found" });
+            }
+
+            // Check if the coupon is expired
+            const currentDate = new Date();
+            if (coupon.expirationDate < currentDate) {
+                return res.json({ valid: false, error: "Coupon has expired" });
+            }
+
+            if (coupon.startDate > currentDate) {
+                return res.json({ valid: false, error: "Coupon is not yet Started" });
+            }
+
+            // Check if the currently logged-in user has already used the coupon
+            const loggedInUserId = req.session.userid; // Assuming you store the user ID in the session
+            if (coupon.usedBy.includes(loggedInUserId)) {
+                return res.json({ valid: false, error: "Coupon has already been used by this user" });
+            }
+
+            // Coupon is valid
+            // Now, update the user's cart to include the applied coupon information
+            const userCart = await Cartdb.findOne({ user: loggedInUserId });
+
+            if (userCart.subtotal < coupon.minOrderAmount) {
+                return res.json({ valid: false, error: `Cart Value should be greater than ${coupon.minOrderAmount}` });
+            }
+        }
 
         if (paymentOption === "online") {
             const addressIndex = req.body.add;
@@ -116,7 +163,11 @@ const checkOut = async (req, res) => {
             }
 
             // Extract relevant information from the cart
-            const { user, userEmail, products, subtotal } = cart;
+            let { user, userEmail, products, subtotal } = cart;
+            let ogAmount = subtotal;
+            if (couponId && couponId.length > 0) {
+                subtotal -= coupon.discountAmount;
+            }
 
             // Create an order document based on the cart data
             const order = new orderdb({
@@ -139,6 +190,10 @@ const checkOut = async (req, res) => {
                 address: addresses,
                 onlinePaymentStatus: "intiated",
                 onlineTransactionId: "Not Available",
+                coupon: {
+                    code: coupon && coupon.code ? coupon.code : "NA",
+                    originalAmount: ogAmount,
+                },
             });
 
             // Save the order document
@@ -202,7 +257,11 @@ const checkOut = async (req, res) => {
                 }
 
                 // Extract relevant information from the cart
-                const { user, userEmail, products, subtotal } = cart;
+                let { user, userEmail, products, subtotal } = cart;
+                let ogAmount = subtotal;
+                if (couponId && couponId.length > 0) {
+                    subtotal -= coupon.discountAmount;
+                }
 
                 // Check if there's enough balance in the user's wallet
                 const userWallet = await WalletModel.findOne({ userId });
@@ -228,6 +287,10 @@ const checkOut = async (req, res) => {
                     subtotal: subtotal,
                     date: new Date(),
                     address: addresses,
+                    coupon: {
+                        code: coupon && coupon.code ? coupon.code : "NA",
+                        originalAmount: ogAmount,
+                    },
                 });
 
                 // Save the order document
@@ -243,6 +306,11 @@ const checkOut = async (req, res) => {
                 });
                 await userWallet.save();
 
+                if (couponId && couponId.length > 0) {
+                    const coupon = await Coupon.findOne({ code: couponId });
+                    coupon.usedBy.push(userId);
+                    await coupon.save();
+                }
                 // Clear the user's cart after successful checkout
                 await Cartdb.findOneAndDelete({ user: savedOrder.user });
 
@@ -270,7 +338,8 @@ const checkOut = async (req, res) => {
                 console.error(error);
                 res.status(500).json({ error: "Internal server error" });
             }
-        } else {
+        } else if (paymentOption === "cod") {
+            console.log(couponId);
             try {
                 const addressIndex = req.body.addressIndex;
                 const selectedBillingOption = req.body.billingOption;
@@ -299,9 +368,14 @@ const checkOut = async (req, res) => {
                         });
                     }
                 }
-
                 // Extract relevant information from the cart
-                const { user, userEmail, products, subtotal } = cart;
+                let { user, userEmail, products, subtotal } = cart;
+
+                let ogAmount = subtotal;
+
+                if (couponId && couponId.length > 0) {
+                    subtotal -= coupon.discountAmount;
+                }
 
                 // Create an order document based on the cart data
                 const order = new orderdb({
@@ -321,10 +395,20 @@ const checkOut = async (req, res) => {
                     subtotal: subtotal,
                     date: new Date(),
                     address: addresses,
+                    coupon: {
+                        code: coupon && coupon.code ? coupon.code : "NA",
+                        originalAmount: ogAmount,
+                    },
                 });
 
                 // Save the order document
                 const savedOrder = await order.save();
+
+                if (couponId && couponId.length > 0) {
+                    const coupon = await Coupon.findOne({ code: couponId });
+                    coupon.usedBy.push(userId);
+                    await coupon.save();
+                }
 
                 // Clear the user's cart after successful checkout
                 await Cartdb.findOneAndDelete({ user: savedOrder.user });

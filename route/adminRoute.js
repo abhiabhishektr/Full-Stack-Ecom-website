@@ -7,6 +7,7 @@ router.set("views", "views/admin");
 
 const adminController = require("../controller/adminController");
 const userAdsBanner =require('../controller/userAdsBanner')
+const adminOffers=require('../controller/adminOffers')
 
 
 router.get('/adminDash/netIncome', adminController.getNetIncomeData);
@@ -71,10 +72,25 @@ router.put('/generate_report',userAdsBanner.generateSalesReport);
 
 router.get("/bannersAdmin",userAdsBanner.bannersAdmin);
 
+router.post("/addBanner",userAdsBanner.addBanner);
+
 router.get("/CouponsAdmin",userAdsBanner.CouponsAdmin);
 
 router.post("/CouponsAdmin",userAdsBanner.CouponsAdminPost);
 
+
+router.post("/CouponsAdminManagements/:manage",userAdsBanner.CouponsAdminManagements);
+
+
+
+// =======================================
+// =============Offers=================
+// ====================================
+router.get("/offersAdmin",adminOffers.Offers);
+router.post("/addOffers",adminOffers.adminOffers);
+router.get("/OfferManagement/:manage",adminOffers.OffersAdminManagement);
+router.post("/applyoffer/:id",adminOffers.applyoffer);
+router.post("/canceloffer/:id",adminOffers.canceloffer);
 
 
 
@@ -85,7 +101,7 @@ router.post("/CouponsAdmin",userAdsBanner.CouponsAdminPost);
 //     res.redirect('/error');
 //   });
   
-
+router.get('/trial',adminController.trial);
 
 
 

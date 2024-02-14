@@ -363,13 +363,19 @@
                                 </div>
                                 <h3 class="product-title"><a href="<%= product.productUrl %>"><%= product.name %></a></h3>
                                 <div class="product-price">
-                                    <%= product.price %>
+                                    <% if (product.priceoffer && product.priceoffer !== null) { %>
+                                        <span class="new-price"> ₹ <%=product.price %></span>
+                                        <span class="old-price">₹ <%=  product.priceoffer %></span>
+                                    <% } else { %>
+                                        ₹ <%= product.price %>
+                                    <% } %>
                                 </div>
+                                
                                 <div class="ratings-container">
                                     <div class="ratings">
-                                        <div class="ratings-val" style="width: <%= product.rating %>%;"></div>
+                                        <div class="ratings-val" style="width: <%= product.averageRating*20 %>%;"></div>
                                     </div>
-                                    <span class="ratings-text">( <%= product.reviews %> Reviews )</span>
+                                    <span class="ratings-text">( <%= product.totalRatings %> Reviews )</span>
                                 </div>
                             </div>
                         </div>

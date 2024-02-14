@@ -53,12 +53,103 @@
                         
                         
                         
-            			<div class="checkout-discount">
-            				<form action="#">
-        						<input type="text" class="form-control" required id="checkout-discount-input">
-            					<label for="checkout-discount-input" class="text-truncate">Have a coupon? <span>Click here</span></label>
-            				</form>
-            			</div><!-- End .checkout-discount -->
+            		
+                        <div class="checkout-discount">
+                            <div>
+                            <form action="#">
+                                <input type="text" class="form-control" required id="checkout-discount-input">
+                                <label for="checkout-discount-input" class="text-truncate">Have a coupon? <span>Click here</span></label>
+                        </form>
+                    </div>
+                       </div>
+                       <div class="checkout-discount">
+                        <button type="button" class="btn btn-outline-primary-2 btn-order btn-block" onclick="sendCouponData()">
+                            <span class="btn-text">Add Coupon</span>
+                            <span class="btn-hover-text">Click to Check</span>
+                        </button>
+                    </div>
+                        
+
+
+
+                    <script>
+                        function sendCouponData() {
+                            // Get the input value
+                            var couponCode = document.getElementById("checkout-discount-input").value;
+                        
+                            // Check if the input is not empty
+                            if (couponCode.trim() !== "") {
+                                // Set up the Fetch API request
+                                fetch(`/CouponsAdminManagements/check?couponId=${couponCode}`, {
+                                    method: "POST",
+                                    headers: {
+                                        "Content-Type": "application/json",
+                                    },
+                                    body: JSON.stringify({ couponCode: couponCode }),
+                                })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error(`HTTP error! Status: ${response.status}`);
+                                    }
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    // Handle the backend response data as needed
+                                    console.log("Coupon data sent successfully", data);
+                        
+                                    // Display SweetAlert based on the response
+                                    if (data.valid) {
+                                        // Display SweetAlert for successful coupon application
+                                        Swal.fire({
+                                            icon: 'success',
+                                            title: 'Coupon Added!',
+                                            text: `Discount: ${data.discount} for ${data.code}`,
+                                        });
+                                        const newTotal = (data.subtotal - data.discount).toFixed(2) || 0;
+
+                                        // Update the displayed prices on the page
+                                        document.querySelector('.summary-subtotal td:last-child').textContent = `₹${data.subtotal.toFixed(2)}`;
+                                        document.querySelector('.summary-total td:last-child').textContent = `₹${newTotal}`;
+                                
+                                        // Display coupon applied information
+                                        const couponAppliedInfo = document.getElementById('couponAppliedInfo');
+                                        couponAppliedInfo.innerHTML = `
+                                            <p>Coupon Applied: ${data.code}</p>
+                                            <p>New Total after Discount: ₹${newTotal}</p>
+                                        `;
+                                    } else {
+                                        // Display SweetAlert for invalid coupon
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Invalid Coupon',
+                                            text: data.error || 'Error applying coupon. Please try again.',
+                                        });
+                                    }
+                                    
+                                })
+                                .catch(error => {
+                                    // Handle errors
+                                    console.error("Error sending coupon data", error);
+                        
+                                    // Display SweetAlert for the error
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error',
+                                        text: 'Error adding coupon. Please try again.',
+                                    });
+                                });
+                            } else {
+                                // Display SweetAlert for empty input
+                                Swal.fire({
+                                    icon: 'warning',
+                                    title: 'Warning',
+                                    text: 'Please enter a coupon code.',
+                                });
+                            }
+                        }
+                        
+                    </script>
+                    
 
 
                         <div class="custom-control custom-checkbox">
@@ -174,14 +265,14 @@
                                                     <% cart.products.forEach(product => { %>
                                                         <tr>
                                                             <td><a href="#"><%= product.productId.name %></a></td>
-                                                            <td>$<%= product.totalPrice %></td>
+                                                            <td>₹<%= product.totalPrice %></td>
                                                         </tr>
                                                         <% subtotal += product.totalPrice; %>
                                                     <% }); %>
                                                 
                                                     <tr class="summary-subtotal">
                                                         <td>Subtotal:</td>
-                                                        <td>$<%= subtotal.toFixed(2) %></td>
+                                                        <td>₹<%= subtotal.toFixed(2) %></td>
                                                     </tr><!-- End .summary-subtotal -->
                                                 
                                                     <tr>
@@ -191,11 +282,14 @@
                                                 
                                                     <tr class="summary-total">
                                                         <td>Total:</td>
-                                                        <td>$<%= (subtotal + 0).toFixed(2) %></td>
+                                                        <td>₹<%= (subtotal + 0).toFixed(2) %></td>
                                                     </tr><!-- End .summary-total -->
                                                 </tbody>
                                                 
                                             </table><!-- End .table table-summary -->
+                                            <!-- Add this element where you want to display coupon information and new total -->
+<div id="couponAppliedInfo" class="coupon-applied-info"></div>
+
                                             
                                 
                                             <!-- Shipping Options -->
@@ -655,6 +749,7 @@ function validateAndSubmitForm() {
 
 function orderConfirmation() {
     // Add your validation logic here
+    var couponCode = document.getElementById("checkout-discount-input").value; 
 
     // If validation passes, show SweetAlert confirmation
     Swal.fire({
@@ -672,7 +767,7 @@ function orderConfirmation() {
                const paymentOption = document.querySelector('input[name="billingOption"]:checked').value;
            if(paymentOption === 'Razor-Online'){
                 // If the selected payment option is online, initiate Razorpay payment
-             
+
                 initiateRazorpayPayment();
            }else if(paymentOption === 'COD')
            {
@@ -688,7 +783,8 @@ function orderConfirmation() {
             }).then((result) => {
                 if (result.isConfirmed) {
                     // Handle the "View Orders" action here (e.g., submit form and redirect to orders page)
-                    document.getElementById('checkoutForm').action = '/checkOut/cod';
+                    document.getElementById('checkoutForm').action = `/checkOut/cod?code=${couponCode}`;
+
                     document.getElementById('checkoutForm').submit();
                 } else {
                     // Handle the "Continue Shopping" action here (e.g., submit form and redirect to shopping page)
@@ -710,7 +806,8 @@ function orderConfirmation() {
             }).then((result) => {
                 if (result.isConfirmed) {
                     // Handle the "View Orders" action here (e.g., submit form and redirect to orders page)
-                    document.getElementById('checkoutForm').action = '/checkOut/Wallet';
+                    document.getElementById('checkoutForm').action =  `/checkOut/Wallet?code=${couponCode}`;
+                   
                     document.getElementById('checkoutForm').submit();
                 } else {
                     // Handle the "Continue Shopping" action here (e.g., submit form and redirect to shopping page)
@@ -727,33 +824,32 @@ function orderConfirmation() {
 }
 
 function initiateRazorpayPayment() {
+    var couponCode = document.getElementById("checkout-discount-input").value; 
 
-    const ajaxUrl = '/checkOut/online'; 
+    
+    const ajaxUrl = `/checkOut/online?code=${couponCode}`;
 
     const requestBody = {
-        amount: 100,  // The amount in the smallest currency unit (e.g., paisa for INR)
-        currency: 'INR',  // The currency code (e.g., INR for Indian Rupees)
-        receipt: 'abhishekabtr@gmail.com',  // A unique identifier for the order (can be an email or any unique string)
-        payment_capture: 1,  // Automatically capture the payment after creation (1 for true, 0 for false)
-       add:selectedAddressIndex
+        amount: 100,
+        currency: 'INR',
+        receipt: 'abhishekabtr@gmail.com',
+        payment_capture: 1,
+        add: selectedAddressIndex,
+        
     };
-    
 
     // Perform an Ajax request to create a Razorpay order
     $.ajax({
-        
         url: ajaxUrl,
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(requestBody),
         success: function (response) {
-            // Check if order creation is successful
             console.log('Razorpay Order Creation Response:', response);
 
             if (response.success) {
-          
-                console.log(response.mongodbOrderId)
-                
+                console.log(response.mongodbOrderId);
+
                 // Initiate Razorpay payment with the received response
                 var formData = {
                     key: response.key_id,
@@ -762,85 +858,81 @@ function initiateRazorpayPayment() {
                     name: response.product_name,
                     description: response.description,
                     image: '',
-                    order_id: response.orderId,  // Corrected to use response.orderId
-                   // mongodbOrderId:response.mongodbOrderId,
-                   handler: function (paymentResponse) {
-                    // Handle the successful payment response
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Payment Succeeded',
-                        text: 'Your payment was successful!',
-                        timer: 2000, // Auto close after 2 seconds
-                        showConfirmButton: false, // Hide the "OK" button
-                        willClose: () => {
-                            // Make the AJAX request to '/success'
-                            $.ajax({
-                                url: '/success',
-                                type: 'POST',
-                                contentType: 'application/json',
-                                data: JSON.stringify({
-                                    razorpayOrderId: response.orderId,
-                                    paymentResponse: paymentResponse,
-                                    mongodbOrderIds: response.mongodbOrderId,
-                                }),
-                                success: function (serverResponse) {
-                                    
-                                    console.log('Server Response:', serverResponse);
-                                    window.location.href = "/profile?tab=orders";
-                                },
-                                error: function (xhr, status, error) {
-                                    console.error('Ajax error:', status, error);
-                                }
-                            });
-                        }
-                    });
-                    
-                },
-                    prefill: {  // Fixed comment syntax
+                    order_id: response.orderId,
+                    handler: function (paymentResponse) {
+                        // Handle the successful payment response
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Payment Succeeded',
+                            text: 'Your payment was successful!',
+                            timer: 2000,
+                            showConfirmButton: false,
+                            willClose: () => {
+                                $.ajax({
+                                    url: `/success?code=${couponCode}`,
+                                    type: 'POST',
+                                    contentType: 'application/json',
+                                    data: JSON.stringify({
+                                        razorpayOrderId: response.orderId,
+                                        paymentResponse: paymentResponse,
+                                        mongodbOrderIds: response.mongodbOrderId,
+                                    }),
+                                    success: function (serverResponse) {
+                                        console.log('Server Response:', serverResponse);
+                                        window.location.href = "/profile?tab=orders";
+                                    },
+                                    error: function (xhr, status, error) {
+                                        console.error('Ajax error:', status, error);
+                                    }
+                                });
+                            }
+                        });
+                    },
+                    prefill: {
                         contact: response.contact,
                         name: response.name,
                         email: response.email
                     }
                 };
-        
-                // Call the Razorpay payment handler with the options
+
                 var rzp = new Razorpay(formData);
 
-                // Handle payment failure
                 rzp.on('payment.failed', function (response) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Payment failed',
-                        text: 'Oops! Something went wrong with your payment.',
-                        timer: 2000, // Auto close after 2 seconds
-                        showConfirmButton: false, // Hide the "OK" button
-                        willClose: () => {
-                            // Handle the failed payment response
-                            $.ajax({
-                                url: '/failure',  // Adjust the URL based on your server setup
-                                type: 'POST',
-                                contentType: 'application/json',
-                                data: JSON.stringify({
-                                    razorpayOrderId: response.razorpay_order_id,
-                                    error: response.error,
-                                    paymentResponse: response,
-                                    mongodbOrderIds: response.notes.mongodbOrderId
-                                }),
-                                success: function (serverResponse) {
-                                    console.log('Server Response:', serverResponse);
-                                    window.location.href = "/profile?tab=orders";
-                                },
-                                error: function (xhr, status, error) {
-                                    console.error('Ajax error:', status, error);
-                                }
-                            });
+                    // Display custom error message above Razorpay popup
+                    showErrorMessage(response.error.description);
+
+                    // Close Razorpay popup
+                    rzp.close();
+
+                    // Handle the failed payment response
+                   $.ajax({
+                        url: '/failure',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            razorpayOrderId: response.razorpay_order_id,
+                            error: response.error,
+                            paymentResponse: response,
+                            mongodbOrderIds: response.notes.mongodbOrderId
+                        }),
+                        success: function (serverResponse) {
+                            console.log('Server Response:', serverResponse);
+                            window.location.href = "/profile?tab=orders";
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('Ajax error:', status, error);
                         }
                     });
                 });
-                
-                
 
                 rzp.open();
+
+                rzp.modal.ondismiss(function () {
+                    // Simulate a failure animation when the modal is dismissed
+                    showErrorMessage('Payment canceled');
+
+                    // Additional logic or AJAX request if needed
+                });
             } else {
                 // Handle error
                 console.error(response.error);
@@ -853,6 +945,16 @@ function initiateRazorpayPayment() {
     });
 }
 
+function showErrorMessage(message) {
+    // Display a custom error message above Razorpay popup
+    Swal.fire({
+        icon: 'error',
+        title: 'Payment failed',
+        text: message,
+        timer: 2000,
+        showConfirmButton: false,
+    });
+}
 
 
 

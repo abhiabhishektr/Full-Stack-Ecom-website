@@ -6,6 +6,7 @@ const cartdb = require("../model/cartmodel");
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
 const WalletModel = require("../model/wallet");
+const Wishlist=require('../model/wishlistModel')
 
 const home = async (req, res) => {
     try {
@@ -210,7 +211,8 @@ const comparePasswords = async (plainPassword, hashedPassword) => {
 
 const signup = async (req, res) => {
     // console.log(req.body.email);
-
+const referal= req.body.referralCode
+console.log('referal::',referal);
     const hashedPassword = await crypting(req.body.password);
     let emailcheck = await user.findOne({ email: req.body.email });
 
@@ -222,6 +224,7 @@ const signup = async (req, res) => {
             name: req.body.name,
             email: req.body.email,
             password: hashedPassword,
+            appliedReferal:referal|| null
         });
         usernew.save();
 
@@ -233,19 +236,107 @@ const otp = async (req, res) => {
     res.render("otp1");
 };
 
+
+
+
 const otpvalidation = async (req, res) => {
     try {
         const mailid = req.body.email;
-        // console.log("Here's the email: " + mailid);
-
         const fullotp = req.body.otp;
 
         // Assuming `generettedOtp` is defined somewhere in your code
         if (fullotp === generettedOtp) {
-            res.status(200).json({ message: "Registration successful, login now" });
-
             // Update user document to set OTP to true
             await user.updateOne({ email: mailid }, { $set: { otp: true } });
+
+            // Check if the user has a referral code
+            const userWithReferral = await user.findOne({ email: mailid, appliedReferal: { $exists: true } });
+
+            if (userWithReferral) {
+                // Check if the referral code exists in the system
+                const referrer = await user.findOne({ referalcode: userWithReferral.appliedReferal });
+
+                if (referrer) {
+                    // Check if the referrer already has a wallet
+                    const existingReferrerWallet = await WalletModel.findOne({ userId: referrer._id });
+
+                    if (existingReferrerWallet) {
+                        // Add $200 to the existing referrer's wallet
+                        const referrerWalletUpdate = await WalletModel.updateOne(
+                            { userId: referrer._id },
+                            {
+                                $inc: { balance: 200 },
+                                $push: {
+                                    history: {
+                                        amount: 200,
+                                        type: 'credit',
+                                        description: 'Referral Bonus from ' + userWithReferral.name,
+                                    },
+                                },
+                            }
+                        );
+
+                        console.log(`${referrerWalletUpdate.nModified} referrer's wallet updated`);
+                    } else {
+                        // Create a new wallet for the referrer and push $200
+                        const newReferrerWallet = new WalletModel({
+                            userId: referrer._id,
+                            balance: 200,
+                            history: [
+                                {
+                                    amount: 200,
+                                    type: 'credit',
+                                    description: 'Referral Bonus from ' + userWithReferral.name,
+                                },
+                            ],
+                        });
+
+                        await newReferrerWallet.save();
+                        console.log('New wallet created for the referrer');
+                    }
+                }
+
+                // Check if the referred user already has a wallet
+                const existingWallet = await WalletModel.findOne({ userId: userWithReferral._id });
+
+                if (existingWallet) {
+                    // Add $200 to the existing wallet
+                    const walletUpdate = await WalletModel.updateOne(
+                        { userId: userWithReferral._id },
+                        {
+                            $inc: { balance: 200 },
+                            $push: {
+                                history: {
+                                    amount: 200,
+                                    type: 'credit',
+                                    description: 'Referral Bonus',
+                                },
+                            },
+                        }
+                    );
+
+                    console.log(`${walletUpdate.nModified} wallet updated`);
+                } else {
+                    // Create a new wallet for the referred user and push $200
+                    const newWallet = new WalletModel({
+                        userId: userWithReferral._id,
+                        balance: 200,
+                        history: [
+                            {
+                                amount: 200,
+                                type: 'credit',
+                                description: 'Referral Bonus',
+                            },
+                        ],
+                    });
+
+                    await newWallet.save();
+                    console.log('New wallet created for the referred user');
+                }
+                await user.updateOne({ email: mailid }, { $unset: { appliedReferal: 1 } });
+            }
+
+            res.status(200).json({ message: "Registration successful, login now" });
 
             // Delete documents where otp is false
             const result = await user.deleteMany({ otp: false });
@@ -253,13 +344,49 @@ const otpvalidation = async (req, res) => {
         } else {
             res.status(400).json({ message: "Failed" });
         }
-
-        // Use the values as needed
     } catch (error) {
         console.error("Error in otpvalidation:", error);
         res.status(500).json({ message: "Internal Server Error" });
     }
 };
+
+
+
+
+
+
+
+
+
+// const otpvalidation = async (req, res) => {
+//     try {
+//         const mailid = req.body.email;
+//         // console.log("Here's the email: " + mailid);
+
+//         const fullotp = req.body.otp;
+
+//         // Assuming `generettedOtp` is defined somewhere in your code
+//         if (fullotp === generettedOtp) {
+//             res.status(200).json({ message: "Registration successful, login now" });
+
+//             // Update user document to set OTP to true
+//             await user.updateOne({ email: mailid }, { $set: { otp: true } });
+            
+//             const userWithReferral = await user.findOne({ email: mailid, appliedReferal: { $exists: true } });
+            
+//             // Delete documents where otp is false
+//             const result = await user.deleteMany({ otp: false });
+//             console.log(`${result.deletedCount} documents deleted`);
+//         } else {
+//             res.status(400).json({ message: "Failed" });
+//         }
+
+//         // Use the values as needed
+//     } catch (error) {
+//         console.error("Error in otpvalidation:", error);
+//         res.status(500).json({ message: "Internal Server Error" });
+//     }
+// };
 
 let generettedOtp;
 
@@ -469,7 +596,6 @@ const fullpdt = async (req, res) => {
             // Fetch products based on the specified gender category
             query.gender = MainCat;
         } else if (MainCat == 0) {
-            
             // Fetch products based on all active categories
         } else {
             console.log(MainCat);
@@ -491,9 +617,9 @@ const fullpdt = async (req, res) => {
 
         const products = await ptd.find(query).skip(skip).limit(itemsPerPage);
         const sizes = await ptd.distinct("size", query);
-        const uniqueSubNames =await ptd.distinct("category", query);
-        const brands =await ptd.distinct("manufacturer", query);
-        
+        const uniqueSubNames = await ptd.distinct("category", query);
+        const brands = await ptd.distinct("manufacturer", query);
+
         // const categories = await catdb.find();
         // const uniqueSubNames = [...new Set(categories.map((category) => category.subName))];
 
@@ -532,14 +658,22 @@ const product = async (req, res) => {
 
         const userId = req.session.userid;
         const cart = await cartdb.findOne({ user: userId });
+        const wishlist = await Wishlist.findOne({ user: userId });
 
-        let isInCart = false;
+        let isInCart = false,isInwish=false;
         if (cart) {
-            const cartProductIds = cart.products.map(product => product.productId.toString());
+            const cartProductIds = cart.products.map((product) => product.productId.toString());
             isInCart = cartProductIds.includes(productId);
         }
-console.log(isInCart);
-        res.render("product", { product, products,isInCart, cartCount: req.cartCount });
+        if (wishlist) {
+            const wishlistProductIds = wishlist.products.map((product) => product.productId.toString());
+            isInwish = wishlistProductIds.includes(productId);
+        }
+
+        console.log("isInCart ::", isInCart);
+        console.log("isInwish ::",isInwish );
+        
+        res.render("product", { product, products, isInCart,isInwish, cartCount: req.cartCount });
     } catch (error) {
         console.error("Error finding product:", error);
     }
@@ -548,33 +682,59 @@ console.log(isInCart);
 // =====================Profile ====================
 
 const profile = async (req, res) => {
-    // const fromprofile = await req.query.tab;
+    try {
+        const userId = req.session.userid;
+        const email = req.session.user;
 
-    const userId = await req.session.userid; // Corrected syntax
-    const userdata = await user.findById(userId);
-    const addresses = await userdata.addresses;
-    const orders =
-        (await orderdb
-            .find({ user: userId }) // Find one order that matches the user ID
+        if (!userId) {
+            res.redirect('/login');
+        }
+
+        const userdata = await user.findById(userId);
+
+        if (!userdata) {
+            return res.status(404).send("User not found");
+        }
+
+        // Check if the user already has a referral code
+        if (!userdata.referalcode) {
+            // If not, generate a referral code based on the user's email
+            const userEmailWithoutDomain = email.split('@')[0];
+            const randomDigits = Math.floor(1000 + Math.random() * 9000); // Add random digits
+            const referralCode = `${userEmailWithoutDomain}${randomDigits}`;
+            userdata.referalcode=referralCode
+            // Update the user's data with the referral code
+            await user.findByIdAndUpdate(userId, { referalcode: referralCode }, { new: true });
+        }
+
+        const addresses = userdata.addresses || [];
+
+        const orders = await orderdb
+            .find({ user: userId })
             .populate({
-                // Populate the order with...
-                path: "Products.products", // the products in the order
-                model: "Product", // from the Product model
-            })) || 0; // If the query doesn't return a result, return 0
-    const walletData = await WalletModel.findOne({ userId }).limit(15);
-    // console.log(walletData);
-    const selectedTab = (await req.query.tab) || "defaultTab";
+                path: "Products.products",
+                model: "Product",
+            });
 
-    res.render("profile", {
-        addresses,
-        orders,
-        selectedTab,
-        userId,
-        userdata,
-        walletData,
-        cartCount: req.cartCount,
-    });
+        const walletData = await WalletModel.findOne({ userId }).limit(15);
+
+        const selectedTab = req.query.tab || "defaultTab";
+        res.render("profile", {
+            addresses,
+            orders,
+            selectedTab,
+            userId,
+            userdata,
+            walletData,
+            referal:userdata.referalcode,
+            cartCount: req.cartCount,
+        });
+    } catch (error) {
+        console.error('Error in profile:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
 };
+
 
 // =====================delete Address ====================
 const deleteAddress = async (req, res) => {
@@ -637,6 +797,9 @@ const orderStatusUpdation = async (req, res) => {
 
         if (!order) {
             return res.status(404).json({ message: "Order not found" });
+        }
+        if (order.onlinePaymentStatus === 'initiated') {
+            return res.status(404).json({ message: "Invalid request. Order not yet completed properly or payment failed" });
         }
 
         let changeStatus;
@@ -779,69 +942,38 @@ const orderDetails = async (req, res) => {
         // Find orders from the database using the orderId
         const orders = await orderdb.find({ _id: orderId });
 
-        res.render("orderDetails", { orders });
+        res.render("orderDetails", { orders,cartCount: req.cartCount, });
     } catch (error) {
         console.error("Error fetching orders:", error);
         res.status(500).send("Internal Server Error");
     }
 };
 
-// const cateFilter = async (req, res) => {
-//     try {
-//         // console.log("ii");
-//         // Assuming the request body contains selected categories, sizes, and brands
-//         const selectedCategories = req.body.selectedCategories || [];
-//         const selectedSizes = req.body.selectedSizes || [];
-//         const selectedBrands = req.body.selectedBrands || [];
+const downloadInvoice = async (req, res) => {
+    try {
+        // Assuming you want to find orders based on the orderId
+        const orderId = req.params.orderId;
+        // Find orders from the database using the orderId
+        const orders = await orderdb.find({ _id: orderId });
 
-//         const trimmedCategories = selectedCategories.map((category) => category.trim());
-//         const trimmedSizes = selectedSizes.map((size) => size.trim());
-//         const trimmedBrands = selectedBrands.map((brand) => brand.trim());
-//         console.log(trimmedCategories);
-//         console.log(trimmedSizes);
-//         console.log(trimmedBrands);
-//         // Define the base query
-//         let query = {
-//             status: "Active",
-//             productDeleted: { $ne: "deleted" },
-//         };
-
-
-//         const activeCategories = await catdb.find({ Status: true });
-//         const activeCategoryNames = activeCategories.map((category) => category.subName);
-//         query.category = { $in: activeCategoryNames };
+        res.render("invoice", { orders });
+    } catch (error) {
+        console.error("Error fetching orders:", error);
+        res.status(500).send("Internal Server Error");
+    }
+};
 
 
 
-//         if (trimmedCategories.length > 0) {
-//             query.category = { $in: trimmedCategories };
-//         }
 
-//         if (trimmedSizes.length > 0) {
-//             query.size = { $in: trimmedSizes };
-//         }
-
-//         if (trimmedBrands.length > 0) {
-//             query.manufacturer = { $in: trimmedBrands };
-//         }
-
-//         // Filter products based on the constructed query
-//         const filteredProducts = await ptd.find(query);
-//         console.log(filteredProducts);
-//         // Send the filtered products as JSON response
-//         res.json({ products: filteredProducts });
-//     } catch (error) {
-//         console.error("Error:", error);
-//         res.status(500).json({ error: "Internal Server Error" });
-//     }
-// };
 const cateFilter = async (req, res) => {
     try {
         // Assuming the request body contains selected categories, sizes, and brands
         const selectedCategories = req.body.selectedCategories || [];
         const selectedSizes = req.body.selectedSizes || [];
         const selectedBrands = req.body.selectedBrands || [];
-
+        const sortingOption = req.body.sortingOption || "popularity"; // Default sorting option
+      const  currentUrl = req.body.currentUrl
         // Trim the selected filters
         const trimmedCategories = selectedCategories.map((category) => category.trim());
         const trimmedSizes = selectedSizes.map((size) => size.trim());
@@ -852,6 +984,16 @@ const cateFilter = async (req, res) => {
             status: "Active",
             productDeleted: { $ne: "deleted" },
         };
+
+
+      if (currentUrl.includes("/fullpdt/Men")) {
+    query.gender = 'Men';
+} else if (currentUrl.includes("/fullpdt/Women")) {
+    query.gender = 'Women';
+} else if (currentUrl.includes("/fullpdt/Kids")) {
+    query.gender = 'Kids';
+}
+
 
         // Get the updated list of active categories
         const updatedCategories = await catdb.find({ Status: true });
@@ -879,6 +1021,29 @@ const cateFilter = async (req, res) => {
             delete query.manufacturer;
         }
 
+        let sortOptions = {};
+
+        // Adjust the sort options based on the sorting option selected by the client
+        switch (sortingOption) {
+            case "popularity":
+                sortOptions = {
+                    /* your popularity sort criteria here */
+                };
+                break;
+            case "price-high":
+                sortOptions = { price: -1 }; // Sort by price high to low
+                break;
+            case "price-low":
+                sortOptions = { price: 1 }; // Sort by price low to high
+                break;
+            // Add additional cases for other sorting options if needed
+            default:
+                // Default to popularity sort if an invalid sorting option is provided
+                sortOptions = {
+                    /* your default sort criteria here */
+                };
+                break;
+        }
         // Fetch the updated list of available sizes and brands
         const updatedSizes = await ptd.distinct("size", query);
 
@@ -890,7 +1055,7 @@ const cateFilter = async (req, res) => {
             .distinct("manufacturer");
 
         // Filter products based on the constructed query
-        const filteredProducts = await ptd.find(query);
+        const filteredProducts = await ptd.find(query).sort(sortOptions);
 
         // Send the filtered products and updated filter options as JSON response
         res.json({
@@ -904,11 +1069,6 @@ const cateFilter = async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
-
-
-
-
-
 
 module.exports = {
     home,
@@ -934,6 +1094,7 @@ module.exports = {
     resetPasswordPost,
     orderDetails,
     cateFilter,
+    downloadInvoice
 };
 
 //<!-- <div><strong><%= product.products.name %> &nbsp;&nbsp;</strong></div> -->
