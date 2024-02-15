@@ -42,7 +42,7 @@ router.post('/sendotp',userController.sendotp)
 
 // ===============================product=====================
 router.get('/fullpdt/:MainCat', cartCountMiddleware,userController.fullpdt)
-router.post('/cateFilter', cartCountMiddleware,userController.cateFilter)
+// router.get('/cateFilter', cartCountMiddleware,userController.cateFilter)
 
 router.post('/loginSubmit',userController.logincheck)
 

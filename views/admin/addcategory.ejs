@@ -97,9 +97,12 @@
                           
                      <% } else { %>
  <td>
-                        <form action="/OfferApply/unblock?id=<%= Category._id %>" method="post">
-                          <button type="submit" class="btn btn-success">Apply Offer</button>
-                        </form>
+<!-- Your Apply Offer button -->
+<button type="button" class="btn btn-success" data-toggle="modal" data-target="#applyOfferModal<%= Category._id %>">
+  Apply Offer
+</button>
+
+                        
                       </td>
                      <% } %>
                       <!-- ======== -->
@@ -147,6 +150,111 @@
                    
                 </tbody>
               </table>  
+              <!-- Add this modal structure at the end of your body tag -->
+<!-- Add this modal structure at the end of your body tag -->
+<!-- 
+<div class="modal fade" id="applyOfferModal" tabindex="-1" role="dialog" aria-labelledby="applyOfferModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="applyOfferModalLabel">Available Offers</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="modal-body">
+              <form action="applySelectedOffersEndpoint" method="post">
+                  <% offers.forEach(offer => { %>
+                      <div class="offer-block">
+                          <input type="checkbox" name="selectedOffers" value="<%= offer._id %>">
+                          <h6><strong><%= offer.name %></strong></h6>
+                          <p><strong>Discount:</strong> <%= offer.discountPercentage %>%</p>
+                      </div>
+                  <% }); %>
+                  <div class="modal-footer">
+                      <button type="submit" class="btn btn-success">Apply Selected Offers</button>
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                  </div>
+              </form>
+          </div>
+      </div>
+  </div>
+</div> -->
+
+<!-- Apply Offer Modal for a specific category -->
+<div class="modal fade" id="applyOfferModal<%= Category._id %>" tabindex="-1" role="dialog" aria-labelledby="applyOfferModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="applyOfferModalLabel">Available Offers for <%= Category.Name %></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <!-- Loop through available offers -->
+        <% offers.forEach(offer => { %>
+          <div class="offer-block">
+            <input type="radio" name="selectedOffer<%= Category._id %>" value="<%= offer._id %>">
+            <strong><%= offer.name %></strong><br>
+            <span>Discount: <%= offer.discountPercentage %>%</span><br>
+            <!-- Add more details as needed -->
+          </div>
+          <% }); %>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-success" onclick="applyOffer('<%= Category._id %>')">Apply Offer</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+      </form>
+  </div>
+</div>
+</div>
+</div>
+
+
+
+  <script>
+    $(document).ready(function() {
+      console.log("hia is thus")
+      // Handle button click event
+      $("#applyOfferBtn").click(function() {
+        // Show the offers modal
+        $("#offersModal").modal("show");
+      });
+    });
+  </script>
+
+  <!-- Apply button inside the modal body -->
+
+<!-- JavaScript to handle form submission -->
+<script>
+  function applyOffer(categoryId) {
+    const selectedOfferId = document.querySelector('input[name="selectedOffer' + categoryId + '"]:checked').value;
+
+    // Use AJAX or another method to send the selectedOfferId and categoryId to the backend
+    // For example, you can use the Fetch API or jQuery.ajax
+
+    // Example using Fetch API
+    fetch('/applyOfferCategory', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ categoryId, selectedOfferId }),
+    })
+      .then(response => response.json())
+      .then(data => {
+        // Handle the response from the backend
+        console.log(data);
+        // Optionally, close the modal
+        $('#applyOfferModal' + categoryId).modal('hide');
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+  }
+</script>
+
 
 
               <div class="modal fade" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="updateModalLabel" aria-hidden="true">

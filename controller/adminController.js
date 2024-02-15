@@ -5,6 +5,8 @@ const orderdb = require("../model/order");
 const fs = require("fs");
 const WalletModel = require("../model/wallet");
 const Cart=require("../model/cartmodel")
+const Offer=require("../model/offerModal")
+
 
 const multer = require("multer");
 const path = require("path");
@@ -264,16 +266,38 @@ const newproducts = async (req, res) => {
     res.render("addProducts", { Category });
 };
 
+// const category = async (req, res) => {
+//     let existingCategory = req.query.existingCategory;
+//     if (existingCategory) {
+//         const Category = await categorydb.find();
+//         res.render("addcategory", { Category, existingCategory });
+//     } else {
+//         const Category = await categorydb.find();
+//         res.render("addcategory", { Category });
+//     }
+// };
 const category = async (req, res) => {
-    let existingCategory = req.query.existingCategory;
-    if (existingCategory) {
+    try {
+        let existingCategory = req.query.existingCategory;
+
+        // Fetch existing categories
         const Category = await categorydb.find();
-        res.render("addcategory", { Category, existingCategory });
-    } else {
-        const Category = await categorydb.find();
-        res.render("addcategory", { Category });
+
+        // Fetch existing offers (assuming you have an 'offersdb' database model)
+        const offers = await Offer.find();
+
+        if (existingCategory) {
+            res.render("addcategory", { Category, existingCategory, offers });
+        } else {
+            res.render("addcategory", { Category, offers });
+        }
+    } catch (error) {
+        // Handle errors appropriately
+        console.error(error);
+        res.status(500).send("Internal Server Error");
     }
 };
+
 
 const addcategory = async (req, res) => {
     try {

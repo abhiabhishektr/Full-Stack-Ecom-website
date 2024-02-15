@@ -577,11 +577,77 @@ const logincheck = async (req, res) => {
 //     }
 // };
 
+// const fullpdt = async (req, res) => {
+//     try {
+//         const MainCat = req.params.MainCat;
+//         const page = parseInt(req.query.page) || 1; // Get the requested page from the query parameters
+//         const itemsPerPage = 12; // Adjust the number of items per page as needed
+
+//         let query = {
+//             status: "Active",
+//             productDeleted: { $ne: "deleted" },
+//         };
+
+//         const activeCategories = await catdb.find({ Status: true });
+//         const activeCategoryNames = activeCategories.map((category) => category.subName);
+//         query.category = { $in: activeCategoryNames };
+
+//         if (MainCat === "Men" || MainCat === "Women" || MainCat === "Kids") {
+//             // Fetch products based on the specified gender category
+//             query.gender = MainCat;
+//         } else if (MainCat == 0) {
+//             // Fetch products based on all active categories
+//         } else {
+//             console.log(MainCat);
+//             // Fetch products based on search text
+//             const regex = new RegExp(MainCat, "i");
+//             query.$or = [
+//                 { name: regex },
+//                 { manufacturer: regex },
+//                 { category: regex },
+//                 // Add more fields if needed
+//             ];
+//         }
+
+//         const totalProducts = await ptd.countDocuments(query);
+//         let totalProductsCount = totalProducts;
+
+//         const totalPages = Math.ceil(totalProducts / itemsPerPage);
+//         const skip = (page - 1) * itemsPerPage;
+
+//         const products = await ptd.find(query).skip(skip).limit(itemsPerPage);
+//         const sizes = await ptd.distinct("size", query);
+//         const uniqueSubNames = await ptd.distinct("category", query);
+//         const brands = await ptd.distinct("manufacturer", query);
+
+//         res.render("fullpdt", {
+//             products,
+//             uniqueSubNames,
+//             brands,
+//             cartCount: req.cartCount,
+//             totalPages,
+//             currentPage: page,
+//             MainCat,
+//             totalProductsCount,
+//             sizes,
+//         });
+//     } catch (error) {
+//         console.error("Error fetching products:", error);
+//         res.status(500).send("Internal Server Error");
+//     }
+// };
+
+
+
+
 const fullpdt = async (req, res) => {
     try {
         const MainCat = req.params.MainCat;
         const page = parseInt(req.query.page) || 1; // Get the requested page from the query parameters
         const itemsPerPage = 12; // Adjust the number of items per page as needed
+
+        // Get selected sort option
+        const selectedSortOption = req.query.sortby;
 
         let query = {
             status: "Active",
@@ -598,7 +664,6 @@ const fullpdt = async (req, res) => {
         } else if (MainCat == 0) {
             // Fetch products based on all active categories
         } else {
-            console.log(MainCat);
             // Fetch products based on search text
             const regex = new RegExp(MainCat, "i");
             query.$or = [
@@ -609,26 +674,69 @@ const fullpdt = async (req, res) => {
             ];
         }
 
+        // Apply filtering based on categories, sizes, and brands
+        if (req.query.categories || req.query.sizes || req.query.brands) {
+            // Get selected categories, sizes, and brands
+            const selectedCategories = req.query.categories ? req.query.categories.split(',') : [];
+            const selectedSizes = req.query.sizes ? req.query.sizes.split(',') : [];
+            const selectedBrands = req.query.brands ? req.query.brands.split(',') : [];
+
+            // Update the query with selected filters
+            
+          
+            if (selectedCategories.length!==0) {
+                query.category = { $in: selectedCategories };
+            }
+            if (selectedSizes.length!==0) {
+                query.size = { $in: selectedSizes };
+            }
+            if (selectedBrands.length!==0) {
+                     query.manufacturer = { $in: selectedBrands };
+            }
+            
+       
+        }
+
         const totalProducts = await ptd.countDocuments(query);
         let totalProductsCount = totalProducts;
 
         const totalPages = Math.ceil(totalProducts / itemsPerPage);
         const skip = (page - 1) * itemsPerPage;
 
-        const products = await ptd.find(query).skip(skip).limit(itemsPerPage);
+        // Apply sorting based on the selected sort option
+        let sort = {};
+        if (selectedSortOption === 'price-high') {
+            sort.price = -1; // Sort by price in descending order
+        } else if (selectedSortOption === 'price-low') {
+            sort.price = 1; // Sort by price in ascending order
+        } else {
+            sort.popularity = -1; // Sort by popularity in descending order
+        }
+
+        const products = await ptd.find(query).sort(sort).skip(skip).limit(itemsPerPage);
         const sizes = await ptd.distinct("size", query);
         const uniqueSubNames = await ptd.distinct("category", query);
         const brands = await ptd.distinct("manufacturer", query);
 
-        // const categories = await catdb.find();
-        // const uniqueSubNames = [...new Set(categories.map((category) => category.subName))];
+        // Get the base URL without any query parameters
+        let baseUrl = req.originalUrl.split('?')[0];
 
-        // const brands = await ptd
-        //     .find({
-        //         status: "Active",
-        //         productDeleted: { $ne: "deleted" },
-        //     })
-        //     .distinct("manufacturer");
+        // Get the current query parameters and convert them to an object
+        let queryParams = new URLSearchParams(req.originalUrl.split('?')[1]);
+
+        // Update the 'page' query parameter for the previous and next pages
+        queryParams.set('page', page > 1 ? page - 1 : 1);
+        let prevPageUrl = baseUrl + '?' + queryParams.toString();
+
+        queryParams.set('page', page < totalPages ? page + 1 : totalPages);
+        let nextPageUrl = baseUrl + '?' + queryParams.toString();
+
+        // Generate the URLs for each page number
+        let pageUrls = [];
+        for (let i = 1; i <= totalPages; i++) {
+            queryParams.set('page', i);
+            pageUrls[i] = baseUrl + '?' + queryParams.toString();
+        }
 
         res.render("fullpdt", {
             products,
@@ -640,12 +748,21 @@ const fullpdt = async (req, res) => {
             MainCat,
             totalProductsCount,
             sizes,
+            prevPageUrl,
+            nextPageUrl,
+            pageUrls,
         });
     } catch (error) {
         console.error("Error fetching products:", error);
         res.status(500).send("Internal Server Error");
     }
 };
+
+
+
+
+
+
 
 // =====================product ====================
 
@@ -966,109 +1083,110 @@ const downloadInvoice = async (req, res) => {
 
 
 
-const cateFilter = async (req, res) => {
-    try {
-        // Assuming the request body contains selected categories, sizes, and brands
-        const selectedCategories = req.body.selectedCategories || [];
-        const selectedSizes = req.body.selectedSizes || [];
-        const selectedBrands = req.body.selectedBrands || [];
-        const sortingOption = req.body.sortingOption || "popularity"; // Default sorting option
-      const  currentUrl = req.body.currentUrl
-        // Trim the selected filters
-        const trimmedCategories = selectedCategories.map((category) => category.trim());
-        const trimmedSizes = selectedSizes.map((size) => size.trim());
-        const trimmedBrands = selectedBrands.map((brand) => brand.trim());
+// const cateFilter = async (req, res) => {
+//     console.log('kjjkjk');
+//     try {
+//         // Assuming the request body contains selected categories, sizes, and brands
+//         const selectedCategories = req.body.selectedCategories || [];
+//         const selectedSizes = req.body.selectedSizes || [];
+//         const selectedBrands = req.body.selectedBrands || [];
+//         const sortingOption = req.body.sortingOption || "popularity"; // Default sorting option
+//       const  currentUrl = req.body.currentUrl
+//         // Trim the selected filters
+//         const trimmedCategories = selectedCategories.map((category) => category.trim());
+//         const trimmedSizes = selectedSizes.map((size) => size.trim());
+//         const trimmedBrands = selectedBrands.map((brand) => brand.trim());
 
-        // Define the base query
-        let query = {
-            status: "Active",
-            productDeleted: { $ne: "deleted" },
-        };
-
-
-      if (currentUrl.includes("/fullpdt/Men")) {
-    query.gender = 'Men';
-} else if (currentUrl.includes("/fullpdt/Women")) {
-    query.gender = 'Women';
-} else if (currentUrl.includes("/fullpdt/Kids")) {
-    query.gender = 'Kids';
-}
+//         // Define the base query
+//         let query = {
+//             status: "Active",
+//             productDeleted: { $ne: "deleted" },
+//         };
 
 
-        // Get the updated list of active categories
-        const updatedCategories = await catdb.find({ Status: true });
-        const updatedCategoryNames = updatedCategories.map((category) => category.subName);
+//       if (currentUrl.includes("/fullpdt/Men")) {
+//     query.gender = 'Men';
+// } else if (currentUrl.includes("/fullpdt/Women")) {
+//     query.gender = 'Women';
+// } else if (currentUrl.includes("/fullpdt/Kids")) {
+//     query.gender = 'Kids';
+// }
 
-        // Set the base query for category
-        query.category = { $in: updatedCategoryNames };
 
-        // Update the query dynamically based on selected filters
-        if (trimmedCategories.length > 0) {
-            query.category = { $in: trimmedCategories };
-        } else {
-            delete query.category;
-        }
+//         // Get the updated list of active categories
+//         const updatedCategories = await catdb.find({ Status: true });
+//         const updatedCategoryNames = updatedCategories.map((category) => category.subName);
 
-        if (trimmedSizes.length > 0) {
-            query.size = { $in: trimmedSizes };
-        } else {
-            delete query.size;
-        }
+//         // Set the base query for category
+//         query.category = { $in: updatedCategoryNames };
 
-        if (trimmedBrands.length > 0) {
-            query.manufacturer = { $in: trimmedBrands };
-        } else {
-            delete query.manufacturer;
-        }
+//         // Update the query dynamically based on selected filters
+//         if (trimmedCategories.length > 0) {
+//             query.category = { $in: trimmedCategories };
+//         } else {
+//             delete query.category;
+//         }
 
-        let sortOptions = {};
+//         if (trimmedSizes.length > 0) {
+//             query.size = { $in: trimmedSizes };
+//         } else {
+//             delete query.size;
+//         }
 
-        // Adjust the sort options based on the sorting option selected by the client
-        switch (sortingOption) {
-            case "popularity":
-                sortOptions = {
-                    /* your popularity sort criteria here */
-                };
-                break;
-            case "price-high":
-                sortOptions = { price: -1 }; // Sort by price high to low
-                break;
-            case "price-low":
-                sortOptions = { price: 1 }; // Sort by price low to high
-                break;
-            // Add additional cases for other sorting options if needed
-            default:
-                // Default to popularity sort if an invalid sorting option is provided
-                sortOptions = {
-                    /* your default sort criteria here */
-                };
-                break;
-        }
-        // Fetch the updated list of available sizes and brands
-        const updatedSizes = await ptd.distinct("size", query);
+//         if (trimmedBrands.length > 0) {
+//             query.manufacturer = { $in: trimmedBrands };
+//         } else {
+//             delete query.manufacturer;
+//         }
 
-        const updatedBrands = await ptd
-            .find({
-                status: "Active",
-                productDeleted: { $ne: "deleted" },
-            })
-            .distinct("manufacturer");
+//         let sortOptions = {};
 
-        // Filter products based on the constructed query
-        const filteredProducts = await ptd.find(query).sort(sortOptions);
+//         // Adjust the sort options based on the sorting option selected by the client
+//         switch (sortingOption) {
+//             case "popularity":
+//                 sortOptions = {
+//                     /* your popularity sort criteria here */
+//                 };
+//                 break;
+//             case "price-high":
+//                 sortOptions = { price: -1 }; // Sort by price high to low
+//                 break;
+//             case "price-low":
+//                 sortOptions = { price: 1 }; // Sort by price low to high
+//                 break;
+//             // Add additional cases for other sorting options if needed
+//             default:
+//                 // Default to popularity sort if an invalid sorting option is provided
+//                 sortOptions = {
+//                     /* your default sort criteria here */
+//                 };
+//                 break;
+//         }
+//         // Fetch the updated list of available sizes and brands
+//         const updatedSizes = await ptd.distinct("size", query);
 
-        // Send the filtered products and updated filter options as JSON response
-        res.json({
-            products: filteredProducts,
-            updatedCategories: updatedCategoryNames,
-            updatedSizes,
-            updatedBrands,
-        });
-    } catch (error) {
-        console.error("Error:", error);
-        res.status(500).json({ error: "Internal Server Error" });
-    }
-};
+//         const updatedBrands = await ptd
+//             .find({
+//                 status: "Active",
+//                 productDeleted: { $ne: "deleted" },
+//             })
+//             .distinct("manufacturer");
+
+//         // Filter products based on the constructed query
+//         const filteredProducts = await ptd.find(query).sort(sortOptions);
+
+//         // Send the filtered products and updated filter options as JSON response
+//         res.json({
+//             products: filteredProducts,
+//             updatedCategories: updatedCategoryNames,
+//             updatedSizes,
+//             updatedBrands,
+//         });
+//     } catch (error) {
+//         console.error("Error:", error);
+//         res.status(500).json({ error: "Internal Server Error" });
+//     }
+// };
 
 module.exports = {
     home,
@@ -1093,7 +1211,7 @@ module.exports = {
     resetPassword,
     resetPasswordPost,
     orderDetails,
-    cateFilter,
+    // cateFilter,
     downloadInvoice
 };
 

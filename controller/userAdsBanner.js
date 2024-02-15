@@ -7,8 +7,7 @@ const Banner=require("../model/banner")
 const path = require('path');
 
 const generateSalesReport = async (req, res) => {
-    console.log("Start Date from Request:", req.body["start-date"]);
-    console.log("End Date from Request:", req.body["end-date"]);
+   
 
     try {
         const startDate = req.body["start-date"];
@@ -32,11 +31,16 @@ const generateSalesReport = async (req, res) => {
             // Add more aggregation stages if needed
         ]);
 
-        console.log("Orders Count:", orders.length);
-        // console.log(orders,startDate,endDate);
-        // Send the response with the orders, start date, and end date
+        const updatedOrders = orders.map(order => {
+            order.Products.forEach(product => {
+                product._id = generateRandomString(5); // You can adjust the length as needed
+            });
+            return order;
+        });
+        
+
         return res.status(200).json({
-            orders: orders,
+            orders: updatedOrders,
             startDate: startDate,
             endDate: endDate,
         });
@@ -45,6 +49,18 @@ const generateSalesReport = async (req, res) => {
         return res.status(500).json({ error: "Failed to generate sales report" });
     }
 };
+
+const generateRandomString = (length) => {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return result;
+};
+
+
+
 
 // Helper function to check if a date is valid
 const isValidDate = (dateString) => {

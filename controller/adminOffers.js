@@ -180,7 +180,17 @@ const canceloffer = async (req, res) => {
 };
 
 
-
+const applyOfferCategory = async (req, res) => {
+  
+    try {
+        
+            
+        }
+     catch (error) {
+        console.error(error);
+       
+    }
+}
 
 
 module.exports = {
@@ -188,5 +198,6 @@ module.exports = {
     adminOffers,
     OffersAdminManagement,
     applyoffer,
-    canceloffer
+    canceloffer,
+    applyOfferCategory
 }

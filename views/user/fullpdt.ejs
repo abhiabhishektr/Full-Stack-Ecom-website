@@ -122,47 +122,57 @@
                             <ul class="pagination justify-content-center">
                                 <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
                                     <a class="page-link page-link-prev"
-                                        href="<%= currentPage > 1 ? '/fullpdt/' + MainCat + '?page=' + (currentPage - 1) : '#' %>"
+                                        href="<%= prevPageUrl %>"
                                         aria-label="Previous" tabindex="-1" aria-disabled="<%= currentPage === 1 %>">
                                         <span aria-hidden="true"><i class="icon-long-arrow-left"></i></span>Prev
                                     </a>
                                 </li>
-
+                        
                                 <% for (let i=1; i <=totalPages; i++) { %>
                                     <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-                                        <a class="page-link" href="/fullpdt/<%= MainCat %>?page=<%= i %>">
+                                        <a class="page-link" href="<%= pageUrls[i] %>">
                                             <%= i %>
                                         </a>
                                     </li>
-                                    <% } %>
-
-                                        <li class="page-item-total">of <%= totalPages %>
-                                        </li>
-
-                                        <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
-                                            <a class="page-link page-link-next"
-                                                href="<%= currentPage < totalPages ? '/fullpdt/' + MainCat + '?page=' + (currentPage + 1) : '#' %>"
-                                                aria-label="Next">
-                                                Next <span aria-hidden="true"><i
-                                                        class="icon-long-arrow-right"></i></span>
-                                            </a>
-                                        </li>
+                                <% } %>
+                        
+                                <li class="page-item-total">of <%= totalPages %>
+                                </li>
+                        
+                                <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+                                    <a class="page-link page-link-next"
+                                        href="<%= nextPageUrl %>"
+                                        aria-label="Next">
+                                        Next <span aria-hidden="true"><i class="icon-long-arrow-right"></i></span>
+                                    </a>
+                                </li>
                             </ul>
                         </nav>
-
+                        
+                        
 
                     </div><!-- End .col-lg-9 -->
+
+
+                    
+
+                  
+                    
+
+
+
                     <aside class="col-lg-3 order-lg-first">
                         <div class="sidebar sidebar-shop">
                             <div class="widget widget-clean">
-                                <label>Filters: </label> <button id="applyFiltersBtn">Apply Filters</button>
+                                <label>Filters: </label> 
                                 <a href="#" class="sidebar-filter-clear" onclick="cleanAll()">Clean All</a>
 
                                 <script>
                                     function cleanAll() {
+                                        // Uncheck all checkboxes
                                         // Get the current URL
                                         const currentUrl = window.location.href;
-                                
+                                    
                                         // Check if the current URL contains "/fullpdt/Men"
                                         if (currentUrl.includes('/fullpdt/Men')) {
                                             // Redirect to "/fullpdt/Men"
@@ -178,6 +188,7 @@
                                             window.location.href = '/fullpdt/0';
                                         }
                                     }
+
                                 </script>
                                 
                                 
@@ -194,139 +205,27 @@
                                 <div class="collapse show" id="widget-1">
                                     <div class="widget-body">
                                         <div class="filter-items filter-items-count">
-                                            <% uniqueSubNames.forEach((category, index)=> { %>
+                                            <% uniqueSubNames.forEach((category)=> { %>
                                                 <div class="filter-item">
                                                     <div class="custom-control custom-checkbox">
                                                         <input type="checkbox" class="custom-control-input"
-                                                            id="cat-<%= index + 1 %>">
-                                                        <label class="custom-control-label" for="cat-<%= index + 1 %>">
+                                                            id="cat-<%= category %>"> <!-- Use category name as ID -->
+                                                        <label class="custom-control-label" for="cat-<%= category %>">
                                                             <%= category %>
                                                         </label>
                                                     </div><!-- End .custom-checkbox -->
                                                 </div><!-- End .filter-item -->
-                                                <% }) %>
-
-
+                                            <% }) %>
                                         </div><!-- End .filter-items -->
                                     </div><!-- End .widget-body -->
                                 </div><!-- End .collapse -->
-
-
-
                             </div><!-- End .widget -->
 
-                            <script>
-                                // Add an event listener to the button
-                                document.getElementById('applyFiltersBtn').addEventListener('click', function () {
-                                    const checkedCheckboxes = document.querySelectorAll('.custom-control-input:checked');
-                                    const selectedCategories = Array.from(checkedCheckboxes).map(checkbox => checkbox.nextElementSibling.textContent);
-                                
-                                    const checkedSizeCheckboxes = document.querySelectorAll('.size-checkbox:checked');
-                                    const selectedSizes = Array.from(checkedSizeCheckboxes).map(checkbox => checkbox.nextElementSibling.textContent);
-                                
-                                    const checkedBrandCheckboxes = document.querySelectorAll('.brand-checkbox:checked');
-                                    const selectedBrands = Array.from(checkedBrandCheckboxes).map(checkbox => checkbox.nextElementSibling.textContent);
-                                
-                                    const sortingOption = document.getElementById('sortby').value;
-                                    const currentUrl = window.location.href;
-                                    const data = {
-                                        selectedCategories: selectedCategories,
-                                        selectedSizes: selectedSizes,
-                                        selectedBrands: selectedBrands,
-                                        sortingOption: sortingOption,
-                                        currentUrl: currentUrl
-                                    };
-
-                                    // Make a fetch request to send the data to the backend
-                                   // Make a fetch request to send the data to the backend
-fetch('/cateFilter', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json'
-        // Add any additional headers if needed
-    },
-    body: JSON.stringify(data)
-})
-    .then(response => response.json())
-    .then(result => {
-        // Assuming 'result' contains the updated products array
-        const productsContainer = document.getElementById('productListing');
-
-        if (result.products && result.products.length > 0) {
-            // Generate the updated HTML content based on the returned data
-            const updatedHTML = result.products.map(product => {
-                return `
-                    <div class="col-6 col-md-4 col-lg-4">
-                        <div class="product product-${product._id} text-center">
-                            <figure class="product-media">
-                                <span class="product-label label-new">New</span>
-                                <a href="/product/${product._id}">
-                                    <img src="/uploads/${product.imageUrls[0]}" alt="Product image" class="product-image">
-                                </a>
-
-                                <div class="product-action-vertical">
-                                    <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>Add to Wishlist</span></a>
-                                    <a href="${product.quickViewUrl}" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick View</span></a>
-                                    <a href="#" class="btn-product-icon btn-compare" title="Compare"><span>Compare</span></a>
-                                </div><!-- End .product-action-vertical -->
-
-                                <div class="product-action">
-                                    <a href="#" class="btn-product btn-cart"><span>Add to Cart</span></a>
-                                </div><!-- End .product-action -->
-                            </figure><!-- End .product-media -->
-
-                            <div class="product-body">
-                                <div class="product-cat">
-                                    <a href="${product.categoryUrl}">
-                                        ${product.manufacturer}
-                                    </a>
-                                </div><!-- End .product-cat -->
-                                <h3 class="product-title"><a href="${product.productUrl}">
-                                        ${product.name}
-                                    </a></h3><!-- End .product-title -->
-                                <div class="product-price">
-                                    ${product.price}
-                                </div><!-- End .product-price -->
-                                <div class="ratings-container">
-                                    <div class="ratings">
-                                        <div class="ratings-val" style="width: ${product.rating}%;">
-                                        </div><!-- End .ratings-val -->
-                                    </div><!-- End .ratings -->
-                                    <span class="ratings-text">(  Reviews )</span>
-                                </div><!-- End .rating-container -->
-
-                                <div class="product-nav product-nav-thumbs">
-                                    ${product.imageUrls.map((imageUrl, index) => `
-                                        <a href="#" class="${index === 0 ? 'active' : ''}">
-                                            <img src="/uploads/${imageUrl}" alt="product desc">
-                                        </a>
-                                    `).join('')}
-                                </div><!-- End .product-nav -->
-                            </div><!-- End .product-body -->
-                        </div><!-- End .product -->
-                    </div><!-- End .col-6 col-md-4 col-lg-4 -->`;
-            }).join('');
-
-            // Replace the content of the products container with the updated HTML
-            productsContainer.innerHTML = updatedHTML;
-        } else {
-            // If no products found, display a message
-            productsContainer.innerHTML = '<div class="col-12"><p>No products found.</p></div>';
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
-
-                                    
-                                });
-
-                            </script>
+                     
 
                             
 
-                            <!-- ... existing HTML code ... -->
-<!-- 
+
                             <div class="widget widget-collapsible">
                                 <h3 class="widget-title">
                                     <a data-toggle="collapse" href="#widget-2" role="button" aria-expanded="true"
@@ -343,8 +242,8 @@ fetch('/cateFilter', {
                                                     <div class="custom-control custom-checkbox">
                                                         <input type="checkbox"
                                                             class="custom-control-input size-checkbox"
-                                                            id="size-<%= index + 1 %>">
-                                                        <label class="custom-control-label" for="size-<%= index + 1 %>">
+                                                            id="size-<%= size %>">
+                                                        <label class="custom-control-label" for="size-<%= size %>">
                                                             <%= size %>
                                                         </label>
                                                     </div>
@@ -374,9 +273,9 @@ fetch('/cateFilter', {
                                                     <div class="custom-control custom-checkbox">
                                                         <input type="checkbox"
                                                             class="custom-control-input brand-checkbox"
-                                                            id="brand-<%= index + 1 %>">
+                                                            id="brand-<%= brand  %>">
                                                         <label class="custom-control-label"
-                                                            for="brand-<%= index + 1 %>">
+                                                            for="brand-<%= brand %>">
                                                             <%= brand %>
                                                         </label>
                                                     </div>
@@ -385,10 +284,91 @@ fetch('/cateFilter', {
                                         </div>
                                     </div>
                                 </div>
-                            </div> -->
 
-                    
-                            <!-- <div class="widget widget-collapsible">
+                            </div>
+
+                                <script>
+ // Function to update filters and trigger the filter immediately
+function updateFilters() {
+    // Get selected categories, sizes, and brands
+    const selectedCategories = getSelectedCheckboxes('cat');
+    const selectedSizes = getSelectedCheckboxes('size');
+    const selectedBrands = getSelectedCheckboxes('brand');
+
+    // Get selected sort option
+    const selectedSortOption = document.getElementById('sortby').value;
+
+    const currentUrl = window.location.href;
+    let urlRoot
+
+    if (currentUrl.includes('/fullpdt/Men')) {
+        urlRoot=  'Men'
+    } else if (currentUrl.includes('/fullpdt/Women')) {
+        urlRoot=  'Women'
+    } else if (currentUrl.includes('/fullpdt/Kids')) {
+        urlRoot=  'Kids'
+    } else {
+        urlRoot='0'
+    }
+    // Construct the URL with selected filters and sort option
+    const url = `/fullpdt/${urlRoot}?categories=${selectedCategories.join(',')}&sizes=${selectedSizes.join(',')}&brands=${selectedBrands.join(',')}&sortby=${selectedSortOption}`;
+
+    // Store the state of the checkboxes in local storage
+    localStorage.setItem('selectedCategories', JSON.stringify(selectedCategories));
+    localStorage.setItem('selectedSizes', JSON.stringify(selectedSizes));
+    localStorage.setItem('selectedBrands', JSON.stringify(selectedBrands));
+
+    // Redirect or make an AJAX request with the constructed URL
+    window.location.href = url; // or use fetch() for AJAX request
+}
+
+// Function to get selected checkboxes by a given prefix
+function getSelectedCheckboxes(prefix) {
+    const checkboxes = document.querySelectorAll(`input[id^=${prefix}-]:checked`);
+    return Array.from(checkboxes).map(checkbox => checkbox.id.replace(`${prefix}-`, ''));
+}
+
+// Function to restore the state of the checkboxes
+function restoreCheckboxState() {
+    // Get the state of the checkboxes from local storage
+    const selectedCategories = JSON.parse(localStorage.getItem('selectedCategories')) || [];
+    const selectedSizes = JSON.parse(localStorage.getItem('selectedSizes')) || [];
+    const selectedBrands = JSON.parse(localStorage.getItem('selectedBrands')) || [];
+
+    // Check the checkboxes that were previously selected
+    selectedCategories.forEach(category => document.getElementById(`cat-${category}`).checked = true);
+    selectedSizes.forEach(size => document.getElementById(`size-${size}`).checked = true);
+    selectedBrands.forEach(brand => document.getElementById(`brand-${brand}`).checked = true);
+}
+
+// Add event listeners to checkboxes
+document.querySelectorAll('input[type=checkbox]').forEach(checkbox => {
+    checkbox.addEventListener('change', updateFilters);
+});
+
+// Add event listener to sort select
+document.getElementById('sortby').addEventListener('change', updateFilters);
+
+document.querySelectorAll('.page-link').forEach(pageLink => {
+    pageLink.addEventListener('click', event => {
+        event.preventDefault();
+        const url = event.target.href;
+        window.location.href = url;
+    });
+});
+
+// Restore the state of the checkboxes when the page loads
+window.onload = restoreCheckboxState;
+
+                                </script>
+                            
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </div>
+    </main>
+  <!-- <div class="widget widget-collapsible">
                                 <h3 class="widget-title">
                                     <a data-toggle="collapse" href="#widget-5" role="button" aria-expanded="true"
                                         aria-controls="widget-5">
@@ -409,17 +389,6 @@ fetch('/cateFilter', {
                                     </div>
                                 </div>
                             </div> -->
-
-                            
-
-
-                        </div>
-                    </aside>
-                </div>
-            </div>
-        </div>
-    </main>
-
     <footer class="footer">
         <div class="footer-middle">
             <div class="container">
@@ -804,6 +773,8 @@ fetch('/cateFilter', {
             </div><!-- End .modal-content -->
         </div><!-- End .modal-dialog -->
     </div><!-- End .modal -->
+
+
 
     <!-- Plugins JS File -->
     <script src="/user/assets/js/jquery.min.js"></script>

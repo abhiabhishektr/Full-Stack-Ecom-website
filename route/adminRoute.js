@@ -91,6 +91,8 @@ router.post("/addOffers",adminOffers.adminOffers);
 router.get("/OfferManagement/:manage",adminOffers.OffersAdminManagement);
 router.post("/applyoffer/:id",adminOffers.applyoffer);
 router.post("/canceloffer/:id",adminOffers.canceloffer);
+router.post("/applyOfferCategory",adminOffers.applyOfferCategory);
+
 
 
 
