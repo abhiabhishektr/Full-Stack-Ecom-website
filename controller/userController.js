@@ -35,45 +35,6 @@ const home = async (req, res) => {
     }
 };
 
-// const forgotPasswordReset = async (req, res) => {
-//     try {
-//         // Replace '659640d89109598e3af4385d' with the actual ObjectId of the user document you want to update
-//         const userId = '659640d89109598e3af4385d';
-//         const foundUser = await user.findOne({ _id: userId });
-
-//         if (!foundUser) {
-//             console.log("User not found");
-//             // Handle the case where the user is not found
-//             return res.json({ success: false, message: "User not found." });
-//         }
-
-//         console.log("User found");
-//         // Do something with the found user
-// let tok="111871"
-//         if (!foundUser.token) {
-//             // Token field does not exist, update the document
-//             const result = await user.updateOne(
-//                 { _id: userId },
-//                 { $set: { token: tok } }
-//             );
-
-//             if (result.nModified > 0) {
-//                 console.log("Token added successfully.");
-//                 return res.json({ success: true, message: "Token added successfully." });
-//             } else {
-//                 console.error("Error:");
-//                 return res.json({ success: false, message: "Failed to add token." });
-//             }
-//         } else {
-//             console.log("Token already exists.");
-//             return res.json({ success: true, message: "Token already exists." });
-//         }
-//     } catch (error) {
-//         console.error("An error occurred:", error);
-//         return res.status(500).json({ success: false, message: "Internal server error." });
-//     }
-// };
-
 const forgotPasswordReset = async (req, res) => {
     console.log("Hai i'm here");
     const nodemailer = require("nodemailer");
@@ -196,6 +157,17 @@ const login = (req, res) => {
 
     // Render the login page with the loginMessage variable
     res.render("login", { loginMessage });
+};
+
+const signOutUser = (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            console.error('Error destroying sessions:', err);
+            res.status(500).send('Internal Server Error');
+        } else {
+            res.redirect('/'); // Redirect to login page after destroying sessions
+        }
+    });
 };
 
 // Hash the password
@@ -338,7 +310,8 @@ const otpvalidation = async (req, res) => {
 
             res.status(200).json({ message: "Registration successful, login now" });
 
-            // Delete documents where otp is false
+            // for Currently In testing purpose the false datas are deleted manually after deplaying It can be 
+            //given to a set time interval one day or any other time. by considering the potential false of this process
             const result = await user.deleteMany({ otp: false });
             console.log(`${result.deletedCount} documents deleted`);
         } else {
@@ -354,39 +327,6 @@ const otpvalidation = async (req, res) => {
 
 
 
-
-
-
-
-// const otpvalidation = async (req, res) => {
-//     try {
-//         const mailid = req.body.email;
-//         // console.log("Here's the email: " + mailid);
-
-//         const fullotp = req.body.otp;
-
-//         // Assuming `generettedOtp` is defined somewhere in your code
-//         if (fullotp === generettedOtp) {
-//             res.status(200).json({ message: "Registration successful, login now" });
-
-//             // Update user document to set OTP to true
-//             await user.updateOne({ email: mailid }, { $set: { otp: true } });
-            
-//             const userWithReferral = await user.findOne({ email: mailid, appliedReferal: { $exists: true } });
-            
-//             // Delete documents where otp is false
-//             const result = await user.deleteMany({ otp: false });
-//             console.log(`${result.deletedCount} documents deleted`);
-//         } else {
-//             res.status(400).json({ message: "Failed" });
-//         }
-
-//         // Use the values as needed
-//     } catch (error) {
-//         console.error("Error in otpvalidation:", error);
-//         res.status(500).json({ message: "Internal Server Error" });
-//     }
-// };
 
 let generettedOtp;
 
@@ -434,30 +374,8 @@ const sendotp = async (req, res) => {
     res.json({ message: "OTP sent successfully" });
 };
 
-// const logincheck = async (req, res) => {
-//     // console.log(req.body.email);
-//     // console.log(req.body.password);
 
-//     let usercheck = await user.findOne({ email: req.body.email });
 
-//     if (
-//         usercheck &&
-//         (await comparePasswords(req.body.password, usercheck.password)) &&
-//         usercheck.otp == true &&
-//         usercheck.Status == true
-//     ) {
-//         req.session.user = req.body.email;
-//         req.session.userid = usercheck._id;
-
-//         res.redirect("/login");
-//     } else {
-//         if (usercheck.Status == false) {
-//             res.render("login", { message: "User blocked" });
-//         } else {
-//             res.render("login", { message: "Invalid username or password" });
-//         }
-//     }
-// };
 const logincheck = async (req, res) => {
     try {
         let usercheck = await user.findOne({ email: req.body.email });
@@ -471,7 +389,7 @@ const logincheck = async (req, res) => {
             req.session.user = req.body.email;
             req.session.userid = usercheck._id;
 
-            res.redirect("/login");
+            res.redirect("/");
         } else {
             if (usercheck && usercheck.Status == false) {
                 res.render("login", { message: "User blocked" });
@@ -642,10 +560,11 @@ const logincheck = async (req, res) => {
 
 const fullpdt = async (req, res) => {
     try {
+        console.log(req.query);
         const MainCat = req.params.MainCat;
         const page = parseInt(req.query.page) || 1; // Get the requested page from the query parameters
         const itemsPerPage = 12; // Adjust the number of items per page as needed
-
+        const search=req.query.search || req.query.q
         // Get selected sort option
         const selectedSortOption = req.query.sortby;
 
@@ -663,13 +582,16 @@ const fullpdt = async (req, res) => {
             query.gender = MainCat;
         } else if (MainCat == 0) {
             // Fetch products based on all active categories
-        } else {
+        }
+        // && search!=='[object Event]'
+        if (search && search.length>1 ) {
+          
             // Fetch products based on search text
-            const regex = new RegExp(MainCat, "i");
+            const regex = new RegExp(req.query.search, "i");
             query.$or = [
                 { name: regex },
-                { manufacturer: regex },
-                { category: regex },
+              { manufacturer: regex },
+               { category: regex },
                 // Add more fields if needed
             ];
         }
@@ -798,6 +720,71 @@ const product = async (req, res) => {
 
 // =====================Profile ====================
 
+// const profile = async (req, res) => {
+//     try {
+//         const userId = req.session.userid;
+//         const email = req.session.user;
+
+//         if (!userId) {
+//             res.redirect('/login');
+//         }
+
+//         const userdata = await user.findById(userId);
+
+//         if (!userdata) {
+//             return res.status(404).send("User not found");
+//         }
+
+//         // Check if the user already has a referral code
+//         if (!userdata.referalcode) {
+//             // If not, generate a referral code based on the user's email
+//             const userEmailWithoutDomain = email.split('@')[0];
+//             const randomDigits = Math.floor(1000 + Math.random() * 9000); // Add random digits
+//             const referralCode = `${userEmailWithoutDomain}${randomDigits}`;
+//             userdata.referalcode = referralCode;
+//             // Update the user's data with the referral code
+//             await user.findByIdAndUpdate(userId, { referalcode: referralCode }, { new: true });
+//         }
+
+//         const addresses = userdata.addresses || [];
+
+//         // Pagination for orders
+//         const page = parseInt(req.query.page) || 1;
+//         const pageSize = 10; // Adjust this value based on the desired number of orders per page
+
+//         const totalOrders = await orderdb.countDocuments({ user: userId });
+//         const totalPages = Math.ceil(totalOrders / pageSize);
+
+//         const orders = await orderdb
+//             .find({ user: userId })
+//             .populate({
+//                 path: "Products.products",
+//                 model: "Product",
+//             })
+//             .skip((page - 1) * pageSize)
+//             .limit(pageSize);
+
+//         const walletData = await WalletModel.findOne({ userId }).limit(15);
+
+//         const selectedTab = req.query.tab || "defaultTab";
+//         res.render("profile", {
+//             addresses,
+//             orders,
+//             selectedTab,
+//             userId,
+//             userdata,
+//             walletData,
+//             referal: userdata.referalcode,
+//             cartCount: req.cartCount,
+//             currentPage: page,
+//             totalPages,
+//         });
+//     } catch (error) {
+//         console.error('Error in profile:', error);
+//         // res.status(500).json({ error: 'Internal Server Error' });
+//     }
+// };
+
 const profile = async (req, res) => {
     try {
         const userId = req.session.userid;
@@ -819,19 +806,35 @@ const profile = async (req, res) => {
             const userEmailWithoutDomain = email.split('@')[0];
             const randomDigits = Math.floor(1000 + Math.random() * 9000); // Add random digits
             const referralCode = `${userEmailWithoutDomain}${randomDigits}`;
-            userdata.referalcode=referralCode
+            userdata.referalcode = referralCode;
             // Update the user's data with the referral code
             await user.findByIdAndUpdate(userId, { referalcode: referralCode }, { new: true });
         }
 
         const addresses = userdata.addresses || [];
 
+        // Pagination for orders
+        const page = parseInt(req.query.page) || 1;
+        const pageSize = 10; // Adjust this value based on the desired number of orders per page
+
+        const totalOrders = await orderdb.countDocuments({ user: userId });
+        const totalPages = Math.ceil(totalOrders / pageSize);
+
         const orders = await orderdb
             .find({ user: userId })
             .populate({
                 path: "Products.products",
                 model: "Product",
-            });
+            })
+            .skip((page - 1) * pageSize)
+            .limit(pageSize);
+
+        // Calculate pagination URLs
+        const pageUrls = Array.from({ length: totalPages }, (_, i) => `/profile?tab=orders&page=${i + 1}`);
+
+        // Define prevPageUrl and nextPageUrl
+        const prevPageUrl = page > 1 ? `/profile?tab=orders&page=${page - 1}` : null;
+        const nextPageUrl = page < totalPages ? `/profile?tab=orders&page=${page + 1}` : null;
 
         const walletData = await WalletModel.findOne({ userId }).limit(15);
 
@@ -843,14 +846,20 @@ const profile = async (req, res) => {
             userId,
             userdata,
             walletData,
-            referal:userdata.referalcode,
+            referal: userdata.referalcode,
             cartCount: req.cartCount,
+            currentPage: page,
+            totalPages,
+            prevPageUrl,
+            nextPageUrl,
+            pageUrls,
         });
     } catch (error) {
         console.error('Error in profile:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        res.status(500).render("error", { error: "Internal Server Error" });
     }
 };
+ 
 
 
 // =====================delete Address ====================
@@ -1082,112 +1091,6 @@ const downloadInvoice = async (req, res) => {
 
 
 
-
-// const cateFilter = async (req, res) => {
-//     console.log('kjjkjk');
-//     try {
-//         // Assuming the request body contains selected categories, sizes, and brands
-//         const selectedCategories = req.body.selectedCategories || [];
-//         const selectedSizes = req.body.selectedSizes || [];
-//         const selectedBrands = req.body.selectedBrands || [];
-//         const sortingOption = req.body.sortingOption || "popularity"; // Default sorting option
-//       const  currentUrl = req.body.currentUrl
-//         // Trim the selected filters
-//         const trimmedCategories = selectedCategories.map((category) => category.trim());
-//         const trimmedSizes = selectedSizes.map((size) => size.trim());
-//         const trimmedBrands = selectedBrands.map((brand) => brand.trim());
-
-//         // Define the base query
-//         let query = {
-//             status: "Active",
-//             productDeleted: { $ne: "deleted" },
-//         };
-
-
-//       if (currentUrl.includes("/fullpdt/Men")) {
-//     query.gender = 'Men';
-// } else if (currentUrl.includes("/fullpdt/Women")) {
-//     query.gender = 'Women';
-// } else if (currentUrl.includes("/fullpdt/Kids")) {
-//     query.gender = 'Kids';
-// }
-
-
-//         // Get the updated list of active categories
-//         const updatedCategories = await catdb.find({ Status: true });
-//         const updatedCategoryNames = updatedCategories.map((category) => category.subName);
-
-//         // Set the base query for category
-//         query.category = { $in: updatedCategoryNames };
-
-//         // Update the query dynamically based on selected filters
-//         if (trimmedCategories.length > 0) {
-//             query.category = { $in: trimmedCategories };
-//         } else {
-//             delete query.category;
-//         }
-
-//         if (trimmedSizes.length > 0) {
-//             query.size = { $in: trimmedSizes };
-//         } else {
-//             delete query.size;
-//         }
-
-//         if (trimmedBrands.length > 0) {
-//             query.manufacturer = { $in: trimmedBrands };
-//         } else {
-//             delete query.manufacturer;
-//         }
-
-//         let sortOptions = {};
-
-//         // Adjust the sort options based on the sorting option selected by the client
-//         switch (sortingOption) {
-//             case "popularity":
-//                 sortOptions = {
-//                     /* your popularity sort criteria here */
-//                 };
-//                 break;
-//             case "price-high":
-//                 sortOptions = { price: -1 }; // Sort by price high to low
-//                 break;
-//             case "price-low":
-//                 sortOptions = { price: 1 }; // Sort by price low to high
-//                 break;
-//             // Add additional cases for other sorting options if needed
-//             default:
-//                 // Default to popularity sort if an invalid sorting option is provided
-//                 sortOptions = {
-//                     /* your default sort criteria here */
-//                 };
-//                 break;
-//         }
-//         // Fetch the updated list of available sizes and brands
-//         const updatedSizes = await ptd.distinct("size", query);
-
-//         const updatedBrands = await ptd
-//             .find({
-//                 status: "Active",
-//                 productDeleted: { $ne: "deleted" },
-//             })
-//             .distinct("manufacturer");
-
-//         // Filter products based on the constructed query
-//         const filteredProducts = await ptd.find(query).sort(sortOptions);
-
-//         // Send the filtered products and updated filter options as JSON response
-//         res.json({
-//             products: filteredProducts,
-//             updatedCategories: updatedCategoryNames,
-//             updatedSizes,
-//             updatedBrands,
-//         });
-//     } catch (error) {
-//         console.error("Error:", error);
-//         res.status(500).json({ error: "Internal Server Error" });
-//     }
-// };
-
 module.exports = {
     home,
     signup,
@@ -1211,8 +1114,7 @@ module.exports = {
     resetPassword,
     resetPasswordPost,
     orderDetails,
-    // cateFilter,
-    downloadInvoice
+    downloadInvoice,
+    signOutUser
 };
 
-//<!-- <div><strong><%= product.products.name %> &nbsp;&nbsp;</strong></div> -->

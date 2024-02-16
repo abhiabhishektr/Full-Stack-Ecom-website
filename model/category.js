@@ -19,7 +19,11 @@ const category= new mongoose.Schema({
         type: Boolean,
         required: true,
         default: true 
+    },
+    OfferApplied:{
+        type:String,
     }
+
 
 }, { versionKey: false });
 

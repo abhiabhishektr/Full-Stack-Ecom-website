@@ -20,7 +20,11 @@ router.use(session({
 router.get('/',userController.home)
 
 
-router.get('/login',userMid.islogout,userMid.isblock,userController.login)
+router.get('/login',userMid.islogin,userController.login)
+
+router.get('/signOutUser',userController.signOutUser)
+
+
 router.get('/forgotPassword',userController.forgotPassword)
 router.post('/forgotPassword',userController.forgotPasswordReset)
 router.get('/resetPassword',userController.resetPassword)
@@ -53,7 +57,7 @@ router.get('/product/:id', cartCountMiddleware,userController.product)
 // ======================  CART   ==================
 //===================================================
 router.get('/cart',userMid.islogin, cartCountMiddleware,cartController.cart) // cart page showing 
-router.put('/cart',cartController.cartItemRemove) // cart page showing 
+router.put('/cart/:productId',cartController.cartItemRemove) // cart page showing 
 
 router.put('/updatecart/:id',cartController.updatecart)  // add to cart
 router.post('/updatequantity',cartController.updateCartDetails) //quantity management in the cart page
@@ -91,7 +95,6 @@ router.post('/updateAddress/:id',userController.updateAddress)
 
 router.get('/orderDetails/:orderId',userMid.islogin, cartCountMiddleware,userController.orderDetails)
 router.get('/downloadInvoice/:orderId',userMid.islogin,userController.downloadInvoice)
-
 
 
 

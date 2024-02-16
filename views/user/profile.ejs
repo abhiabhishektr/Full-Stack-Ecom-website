@@ -53,7 +53,7 @@
                                         Programe</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a style="color: rgb(23, 108, 253);" class="nav-link" href="#">Sign Out</a>
+                                    <a style="color: rgb(23, 108, 253);" class="nav-link" href="/signOutUser">Sign Out</a>
                                 </li>
                             </ul>
                         </aside><!-- End .col-lg-3 -->
@@ -65,16 +65,10 @@
 
 
 
-                                    <p>Hello <span class="font-weight-normal text-dark">User</span> (not <span
-                                            class="font-weight-normal text-dark">User</span>? <a href="#">Log out</a>)
-
+                                    <p>Hello <span class="font-weight-normal text-dark"> <%= userdata.name %></span>
                                         <br>
 
-                                        From your account dashboard you can view your <a href="#tab-orders"
-                                            class="tab-trigger-link link-underline">recent orders</a>, manage your <a
-                                            href="#tab-address" class="tab-trigger-link">shipping and billing
-                                            addresses</a>, and <a href="#tab-account" class="tab-trigger-link">edit your
-                                            password and account details</a>.
+                                      
                                     </p>
 
                                     <!-- Main -->
@@ -453,6 +447,38 @@
                                             <br><br>
                                             <a href="/" class="btn btn-outline-primary-2"><span>Continue
                                                     Shopping</span><i class="icon-long-arrow-right"></i></a>
+
+                                                    <nav aria-label="Page navigation">
+                                                        <ul class="pagination justify-content-center">
+                                                          <!-- Previous page link -->
+                                                          <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+                                                            <a class="page-link page-link-prev" href="<%= prevPageUrl %>" aria-label="Previous" tabindex="-1" aria-disabled="<%= currentPage === 1 %>">
+                                                              <span aria-hidden="true"><i class="icon-long-arrow-left"></i></span>Prev
+                                                            </a>
+                                                          </li>
+                                                      
+                                                          <!-- Page numbers -->
+                                                          <% for (let i=1; i <=totalPages; i++) { %>
+                                                            <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                                                              <a class="page-link" href="<%= pageUrls[i] %>">
+                                                                <%= i %>
+                                                              </a>
+                                                            </li>
+                                                          <% } %>
+                                                      
+                                                          <!-- Total number of pages -->
+                                                          <li class="page-item-total">of <%= totalPages %></li>
+                                                      
+                                                          <!-- Next page link -->
+                                                          <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+                                                            <a class="page-link page-link-next" href="<%= nextPageUrl %>" aria-label="Next">
+                                                              Next <span aria-hidden="true"><i class="icon-long-arrow-right"></i></span>
+                                                            </a>
+                                                          </li>
+                                                        </ul>
+                                                      </nav>
+                                                      
+                                            
                                 </div><!-- .End .tab-pane -->
 
 
@@ -472,12 +498,12 @@
                                         
                                             <!-- Mentioning the $200 discount for both referrer and new user -->
                                             <p>Introduce a friend to us, and they will enjoy a special ₹200 discount on their
-                                                first purchase. As a token of our appreciation, you, the referrer, will also receive a $200 credit
+                                                first purchase. As a token of our appreciation, you, the referrer, will also receive a ₹200 credit
                                                 in your account when your friend makes their first purchase!</p>
                                         
                                             <!-- Providing information on how to refer -->
                                             <p>It's simple! Share your referral link with friends and family. When they make
-                                                their first purchase using your link, they'll instantly receive a ₹200 discount, and you'll get a $200
+                                                their first purchase using your link, they'll instantly receive a ₹200 discount, and you'll get a ₹200
                                                 credit as well. The more you refer, the more savings for everyone!</p>
                                         
                                             <!-- Adding a pleasant message about the mutual benefits of the referral offer -->

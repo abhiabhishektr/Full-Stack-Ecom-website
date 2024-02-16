@@ -74,24 +74,11 @@
                                 <% } %>
                                 
                                 
-                            </div><!-- End .header-search-wrapper -->
+                            </div>
                         </form>
-                    </div><!-- End .header-search -->
+                    </div>
                     
-                    <script>
-                        // Function to handle form submission
-                        function searchProducts(event) {
-                            event.preventDefault(); // Prevent the form from submitting traditionally
-                            const searchQuery = document.getElementById('q').value;
-                            const form = event.target;
-                    
-                            // Set the action attribute of the form dynamically with the search query
-                            form.action = `/fullpdt/${encodeURIComponent(searchQuery)}`;
-                            
-                            // Now submit the form
-                            form.submit();
-                        }
-                    </script>
+
                     
 
 
@@ -122,7 +109,7 @@
                                 <i class="icon-shopping-cart"></i>
                                 <% if (locals.cartCount && cartCount.count > 0) { %>
                                     <span class="cart-count"><%= cartCount.count %></span>
-                                    <span class="cart-txt">₹ <%= cartCount.subtotal %></span>
+                                    <span class="cart-txt">₹ <%= cartCount.subtotal.toFixed(2) %></span>
                                 <% } else { %>
                                     <span class="cart-count">0</span>
                                 <% } %>
@@ -208,8 +195,34 @@
                     </div><!-- End .header-left -->
 
                     <div class="header-right">
-                        <i class="la la-lightbulb-o"></i><p>Clearance Up to 30% Off</span></p>
+                        <i class="la la-lightbulb-o"></i><p>Offers Up to 30% Off</span></p>
                     </div>
                 </div><!-- End .container -->
             </div><!-- End .header-bottom -->
         </header><!-- End .header -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+           <!-- izitoast -->
+   <script>
+    function searchProducts(event) {
+        event.preventDefault(); // Prevent the form from submitting traditionally
+      
+        const searchQuery = document.getElementById('q').value;
+        // Update filters after form submission
+        const url = `/fullpdt/0?search=${encodeURIComponent(searchQuery)}`;
+        window.location.href = url; 
+    }
+</script>

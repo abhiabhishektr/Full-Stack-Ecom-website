@@ -86,8 +86,8 @@
 
                                     <div class="product-price">
                                         <% if (product.priceoffer && product.priceoffer !== null) { %>
-                                            <span class="new-price"> ₹ <%= product.price %></span>
-                                            <span class="old-price">₹ <%=  product.priceoffer %></span>
+                                            <span class="new-price"> ₹ <%= product.price.toFixed(2) %></span>
+                                            <span class="old-price">₹ <%=  product.priceoffer.toFixed(2) %></span>
                                         <% } else { %>
                                             ₹ <%= product.price %>
                                         <% } %>

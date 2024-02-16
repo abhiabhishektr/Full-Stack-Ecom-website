@@ -81,12 +81,15 @@
     <div class="container">
         <div class="row ">
             <div class="col-md-6">
-    <div class="media">
+    <div class="media mt-2">
+        <div class="container">
+            <div class="row ">
+                <div class="col-md-6">
       <!-- Image -->
       <img src="/uploads/<%= product.image %>" alt="Product Image" class="mr-3" style="max-width: 100px; max-height: 100px; object-fit: cover;">
       <div class="media-body d-flex flex-column align-items-start">
         <!-- Product Details -->
-        <h5 class="mt-0"><%= product.name %></h5>
+        <h5 class="mt-2"><%= product.name %></h5>
         <p style="margin: 0;">Quantity: <%= product.quantity %></p>
         <p style="margin: 0;">Total: $<%= product.total %></p>
         
@@ -96,9 +99,17 @@
           <p style="margin: 0;">orderStatus: <%= product.orderStatus %></p>
           <!-- Add more product details as needed -->
         </div>
+         <!-- Button for Cancel/Return based on order status -->
+         <% if (order.onlinePaymentStatus !== 'intiated') { %>
+            <% if (product.orderStatus === 'placed') { %>
+              <button type="button" class="btn btn-danger align-self-start mt-2 mb=2" onclick="handleOrderAction('<%= order._id %>','<%= product._id %>', 'cancel')">Cancel</button>
+            <% } else if (product.orderStatus === 'delivered') { %>
+              <button type="button" class="btn btn-warning align-self-start mt-2  mb=2" onclick="handleOrderAction('<%= order._id %>','<%= product._id %>', 'return')">Return</button>
+            <% } %>
+          <% } %>
     </div>
     
-    
+
     <div class="col-md-6">
         <!-- Combined Ratings and Reviews Form -->
        
@@ -136,7 +147,7 @@
  <% } %>
 
 
-
+</div>
 
  <script >
     function postReview(ProductId,orderId) {
@@ -220,17 +231,9 @@ input.addEventListener('change', () => {
 
  
 
-<div class="row "></div>
-        <!-- Button for Cancel/Return based on order status -->
-        <% if (order.onlinePaymentStatus !== 'intiated') { %>
-          <% if (product.orderStatus === 'placed') { %>
-            <button type="button" class="btn btn-danger align-self-start mt-2" onclick="handleOrderAction('<%= order._id %>','<%= product._id %>', 'cancel')">Cancel</button>
-          <% } else if (product.orderStatus === 'delivered') { %>
-            <button type="button" class="btn btn-warning align-self-start mt-2" onclick="handleOrderAction('<%= order._id %>','<%= product._id %>', 'return')">Return</button>
-          <% } %>
-        <% } %>
-     
-    </div>
+       
+     </div>
+ 
 
 </div>
   <% }); %>
@@ -247,12 +250,12 @@ input.addEventListener('change', () => {
               
                         </div>
                       </div>
-              
+                      <% if (order.onlinePaymentStatus !== 'intiated') { %>
                       <a href="/downloadInvoice/<%=order._id%>">
                         <button a style="background: linear-gradient(to bottom right, #4c78af, #4c78af); border: 0; border-radius: 8px; color: #FFFFFF; cursor: pointer; font-family: -apple-system, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 500; line-height: 2; outline: transparent; padding: 0.5rem 1rem; text-align: center; text-decoration: none; transition: box-shadow .2s ease-in-out; user-select: none; -webkit-user-select: none; touch-action: manipulation; white-space: nowrap;" 
                         onmouseover="this.style.background = 'linear-gradient(to bottom right, #2196F3, #1976D2)'; this.style.boxShadow = '0 0 .25rem rgba(0, 0, 0, 0.5), -.125rem -.125rem 1rem rgba(33, 150, 243, 0.5), .125rem .125rem 1rem rgba(25, 118, 210, 0.5)';" 
                         onmouseout="this.style.background = 'linear-gradient(to bottom right, #4CAF50, #45a049)'; this.style.boxShadow = 'none';" >See Invoice</button></a>
-
+                        <% }%>
                     <% }); %>
                     
                   </div>

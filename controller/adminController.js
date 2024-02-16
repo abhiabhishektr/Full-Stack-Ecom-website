@@ -211,12 +211,27 @@ const adminsignout = (req, res) => {
 
 const allusers = async (req, res) => {
     try {
-        const users = await user.find(); //users name is given by the programmer
-        res.render("allusers", { users });
+        const page = parseInt(req.query.page) || 1;
+        const pageSize = 20; 
+
+        const totalUsers = await user.countDocuments();
+        const totalPages = Math.ceil(totalUsers / pageSize);
+
+        const users = await user.find()
+            .skip((page - 1) * pageSize)
+            .limit(pageSize);
+
+        res.render("allusers", {
+            users,
+            currentPage: page,
+            totalPages
+        });
     } catch (error) {
-        console.log("error while showing user", +error);
+        console.log("Error while showing users", error);
+        res.status(500).send("Internal Server Error");
     }
 };
+
 
 const unblock = async (req, res) => {
     const id = await req.params.id;
@@ -249,17 +264,30 @@ const userdelete = async (req, res) => {
 
 const allproducts = async (req, res) => {
     try {
-        // Assuming you fetch products with imageUrls from the database
-        let product = await newProduct.find({ productDeleted: { $ne: "deleted" } });
+        const page = parseInt(req.query.page) || 1;
+        const pageSize = 15; // Adjust this value based on the desired number of products per page
 
-        // Render the view with the products
-        res.render("allProducts", { product });
+        // Assuming you fetch products with imageUrls from the database
+        let totalProducts = await newProduct.countDocuments({ productDeleted: { $ne: "deleted" } });
+        const totalPages = Math.ceil(totalProducts / pageSize);
+
+        let product = await newProduct.find({ productDeleted: { $ne: "deleted" } })
+            .skip((page - 1) * pageSize)
+            .limit(pageSize);
+
+        // Render the view with the products and pagination information
+        res.render("allProducts", {
+            product,
+            currentPage: page,
+            totalPages
+        });
     } catch (error) {
         console.log("Error while showing all products", error);
         // Handle the error accordingly, for example, redirect to an error page
         res.status(500).render("error", { error: "Internal Server Error" });
     }
 };
+
 
 const newproducts = async (req, res) => {
     const Category = await categorydb.find();
@@ -659,21 +687,30 @@ const addproduct = (req, res) => {
 
 const OrdersAdmin = async (req, res) => {
     try {
-        // Find all orders
-        // const orders = await orderdb.find();
-        const orders = await orderdb.find({ "onlinePaymentStatus": { $ne: "intiated" } }).populate({
-            path: "Products.products",
-            model: "Product", // Make sure it matches the model name for the Product
-        });
+        const page = parseInt(req.query.page) || 1;
+        const pageSize = 10; // Adjust this value based on the desired number of orders per page
 
-        // Render the EJS file and pass the orders data
-        res.render("OrdersAdmin", { orders });
+        // Find all orders
+        const totalOrders = await orderdb.countDocuments({ "onlinePaymentStatus": { $ne: "intiated" } });
+        const totalPages = Math.ceil(totalOrders / pageSize);
+
+        const orders = await orderdb.find({ "onlinePaymentStatus": { $ne: "intiated" } })
+            .populate({
+                path: "Products.products",
+                model: "Product", // Make sure it matches the model name for the Product
+            })
+            .skip((page - 1) * pageSize)
+            .limit(pageSize);
+
+        // Render the EJS file and pass the paginated orders data
+        res.render("OrdersAdmin", { orders, currentPage: page, totalPages });
     } catch (error) {
         // Handle any errors
         console.error(error);
-        res.status(500).send("Internal server error");
+        res.status(500).render("error", { error: "Internal server error" });
     }
 };
+
 
 
 

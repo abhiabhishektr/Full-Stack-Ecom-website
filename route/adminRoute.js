@@ -92,7 +92,7 @@ router.get("/OfferManagement/:manage",adminOffers.OffersAdminManagement);
 router.post("/applyoffer/:id",adminOffers.applyoffer);
 router.post("/canceloffer/:id",adminOffers.canceloffer);
 router.post("/applyOfferCategory",adminOffers.applyOfferCategory);
-
+router.post("/cancelOfferCategory/:categoryId",adminOffers.removeCategoryOffersAndClearCart);
 
 
 

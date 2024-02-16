@@ -8,7 +8,7 @@
         <table class="table table-bordered">
             <thead class="thead-dark">
                 <tr>
-                    <th class="w-5" >User</th>
+                    <th class="w-5" >Order ID</th>
                     <th>Product Name</th>
                     <th>Price</th>
                     <th>Quantity</th>
@@ -24,8 +24,14 @@
                 <% orders.reverse().forEach(order => { %>
                     <% order.Products.reverse().forEach(product => { %>
                         <tr>
-                            <td class="w-5" style="font-size: 12px; line-height: 1; padding: 6px; height: 20px;"><%= order._id %></td>
-                            <td><%= product.name %></td>
+  <!-- Modify your table data (td) to open the modal and pass order data to it -->
+  <td class="w-5" style="font-size: 12px; line-height: 1; padding: 6px; height: 20px; cursor: pointer;" 
+      onclick="openOrderDetailsModal('<%= JSON.stringify(order) %>')"
+      data-toggle="modal" 
+      data-target="#orderDetailsModal"
+  >
+    <%= order._id %>
+  </td>                            <td><%= product.name %></td>
                             <td>$<%= product.price.toFixed(2) %></td>
                             <td><%= product.quantity %></td>
                             <td>$<%= product.total.toFixed(2) %></td>
@@ -116,7 +122,116 @@
 
 
 
+<!-- Add this modal structure wherever you need in your HTML file -->
+<div class="modal fade" id="orderDetailsModal" tabindex="-1" role="dialog" aria-labelledby="orderDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="orderDetailsModalLabel">Order Details</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <!-- Display order details here -->
+          <div id="orderDetailsContent"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
 
+  
+<!-- Add the following styles to your HTML file or link Bootstrap stylesheet -->
+
+<!-- Add this script below your existing script -->
+<script>
+  function openOrderDetailsModal(orderData) {
+    try {
+      const order = JSON.parse(orderData);
+      const orderDetailsContent = document.getElementById('orderDetailsContent');
+      orderDetailsContent.innerHTML = '';
+
+      // Display order details inside the modal
+      for (const product of order.Products) {
+        const productDetails = `
+          <div class="row">
+            <div class="col-md-4">
+              <img src="/uploads/${product.image}" alt="${product.name}" class="img-fluid" style="width: 90%; height: auto;">
+            </div>
+            <div class="col-md-4">
+              <p><strong>Name:</strong> ${product.name}</p>
+              <p><strong>Price:</strong> ${product.price}</p>
+              <p><strong>Quantity:</strong> ${product.quantity}</p>
+              <p><strong>Total:</strong> ${product.total}</p>
+              <p><strong>Status:</strong> ${product.orderStatus}</p>
+              <!-- Add other product details as needed -->
+            </div>
+            <div class="col-md-4">
+              ${product.reason ? `<p><strong>Return Reason:</strong> ${product.reason}</p>` : ''}
+              ${product.rating ? `<p><strong>Rating:</strong> ${product.rating}</p>` : ''}
+              ${product.review ? `<p><strong>Review:</strong> ${product.review}</p>` : ''}
+            </div>
+          </div>
+          <hr>
+        `;
+        orderDetailsContent.insertAdjacentHTML('beforeend', productDetails);
+      }
+
+      // Display address details
+      const addressDetails = `
+        <div>
+          <h5>Address:</h5>
+          <p><strong>Street 1:</strong> ${order.address.streetAddress1}</p>
+          <p><strong>Street 2:</strong> ${order.address.streetAddress2}</p>
+          <p><strong>City:</strong> ${order.address.townCity}</p>
+          <p><strong>State:</strong> ${order.address.stateCounty}</p>
+          <p><strong>Zip Code:</strong> ${order.address.postcodeZIP}</p>
+          <p><strong>Country:</strong> ${order.address.country}</p>
+          <p><strong>Phone:</strong> ${order.address.phone}</p>
+          <!-- Add other address details as needed -->
+        </div>
+      `;
+      orderDetailsContent.insertAdjacentHTML('beforeend', addressDetails);
+
+      // Add other order details if needed
+      // Example: orderDetailsContent.insertAdjacentHTML('beforeend', `<p>Subtotal: ${order.subtotal}</p>`);
+
+    } catch (error) {
+      console.error('Error parsing order data:', error);
+    }
+  }
+</script>
+
+  
+<nav aria-label="Page navigation" class="d-flex justify-content-center mt-4">
+  <ul class="pagination">
+      <% if (currentPage > 1) { %>
+          <li class="page-item">
+              <a class="page-link" href="?page=<%= currentPage - 1 %>" aria-label="Previous">
+                  <span aria-hidden="true">&laquo;</span>
+              </a>
+          </li>
+      <% } %>
+
+      <% for (let i = 1; i <= totalPages; i++) { %>
+          <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+              <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+          </li>
+      <% } %>
+
+      <% if (currentPage < totalPages) { %>
+          <li class="page-item">
+              <a class="page-link" href="?page=<%= currentPage + 1 %>" aria-label="Next">
+                  <span aria-hidden="true">&raquo;</span>
+              </a>
+          </li>
+      <% } %>
+  </ul>
+</nav>
 
 
 <%-include('../layout/adminFoot')-%>
