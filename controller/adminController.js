@@ -6,13 +6,12 @@ const fs = require("fs");
 const WalletModel = require("../model/wallet");
 const Cart=require("../model/cartmodel")
 const Offer=require("../model/offerModal")
-
+const sharp = require('sharp');
 
 const multer = require("multer");
 const path = require("path");
 
 const getNetIncomeData = async (req, res) => {
-    console.log("hai thius ");
     try {
         const monthlySales = await orderdb.aggregate([
             {
@@ -191,6 +190,8 @@ const storage = multer.diskStorage({
         cb(null, uniqueFileName);
     },
 });
+
+
 
 // Create the multer instance with the defined storage
 const upload = multer({ storage: storage });
@@ -672,7 +673,6 @@ const addproduct = (req, res) => {
     newProducts
         .save()
         .then((savedProduct) => {
-            console.log("Product added successfully:", savedProduct);
             res.redirect("/allproducts");
         })
         .catch((error) => {
@@ -680,6 +680,10 @@ const addproduct = (req, res) => {
             res.status(500).send("Internal Server Error");
         });
 };
+
+
+
+
 
 
 
@@ -702,6 +706,10 @@ const OrdersAdmin = async (req, res) => {
             .skip((page - 1) * pageSize)
             .limit(pageSize);
 
+            orders.forEach(order => {
+                order.last10Digits = order._id.toString().slice(-8);
+            });
+    
         // Render the EJS file and pass the paginated orders data
         res.render("OrdersAdmin", { orders, currentPage: page, totalPages });
     } catch (error) {

@@ -303,39 +303,91 @@
               </div> -->
 
 
-              <div class="col-md-6" style=" margin:0 280px">
+              <div class="modal-body">
                 <div class="row">
-                    <div class="col-lg-8 col-md-12">
-                <label for="link">Product link:</label>
-                <input type="text" class="form-control" id="link" name="link" required>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="title">Title:</label>
+                      <input type="text" class="form-control" id="title" name="title" required>
                     </div>
-                
-                <div class="col-lg-4 col-md-12">
-                <button style=" margin:35px 0" onclick="submitForm()">Submit</button>
-                </div>
-            </div>
-                
-            </div>
-              <div style="display: flex; justify-content: center; justify-items: center;">
-                
-
-                <div>
-                  <input type="file" id="imageInput" accept="image/*" onchange="displayImage()">
-                  <img src="" id="image" style="display: block; width: 250px; height: 300px; max-width: 100%;">
-                  <button id="cropImageBtn" onclick="cropImage()">Crop Image</button>
+                    <div class="form-group">
+                      <label for="link">Product link:</label>
+                      <input type="text" class="form-control" id="link" name="link" required>
+                    </div>
+                  </div>
+              
+                  <div class="col-md-6">
+                    <div>
+                      <label for="imageInput">Choose Image:</label>
+                      <input type="file" id="imageInput" accept="image/*" onchange="displayImage()" class="form-control-file">
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <button id="cropImageBtn" onclick="cropImage()" class="btn btn-primary">Crop Image</button>
+                      <button  onclick="deleteImage()" class="btn btn-secondary">Make Defualt</button>
+                      <button style="margin: 0 10px;" onclick="submitForm()" class="btn btn-success">Submit</button>
+                    </div>
+                  </div>
                 </div>
               
-
-           
-                <img src="" id="output" style="display: block; width: 585px; height: 250px; max-width: 100%; margin:100px 20px" alt="image preview">
+                <div class="row mt-4">
+                  <div class="col-md-6">
+                    <img src="" id="image" style="display: block; width: 100%; max-height: 300px; margin-top: 10px;" alt="image preview">
+                  </div>
               
-                
-
+                  <div class="col-md-6">
+                    <img src="" id="output" style="display: block; width: 100%; max-height: 300px; margin-top: 10px;" alt="image preview">
+                  </div>
+                </div>
               </div>
-             
+              
+              
               <script src="https://cdn.jsdelivr.net/npm/cropperjs"></script>
               
               <script>
+                function deleteImage() {
+                  // Display a confirmation dialog
+                  Swal.fire({
+                    title: 'Are you sure?',
+                    text: 'This action will delete the image. Are you sure you want to proceed?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'No, cancel!',
+                  }).then((result) => {
+                    if (result.isConfirmed) {
+                      // If the user confirms, send a request to delete the image
+                      axios.post('/bannerAdmin?delete=yes')
+                        .then(response => {
+                          // Check if there is a message in the response
+                          const message = response.data.message || 'Image deleted successfully!';
+                
+                          Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: message,
+                          });
+                        })
+                        .catch(error => {
+                          // Handle errors
+                          console.error('Error deleting image', error);
+                
+                          // Check if there is an error message in the response
+                          const errorMessage = error.response ? error.response.data.message : 'Failed to delete image. Please try again later.';
+                
+                          Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: errorMessage,
+                          });
+                        });
+                    }
+                  });
+                }
+                
+              
+
+
+
                 let cropper;
               
                 function displayImage() {
@@ -370,150 +422,106 @@
                   }
                 }
 
-                function submitForm() {
-                    // Check if both link and cropped image are available
-                    const link = document.getElementById('link').value.trim();
-                    const croppedImage = document.getElementById('output').src;
-            
-                    if (!link || !croppedImage) {
-                        console.error("Link or Cropped Image is missing.");
-                        return;
-                    }
-            
-                    // Send data to the backend using fetch
-                    fetch('/addBanner', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ link, croppedImage }),
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        // Handle the response from the server
-                        console.log(data);
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
-                }
+
 
 
 
 
               </script>
               
+              <script>
+                function isValidURL(url) {
+                  // Regular expression for a valid URL without the protocol
+                  const urlPattern = /^\/[a-zA-Z0-9_]+\/[0-9]+\?search=[a-zA-Z0-9]+$/;
+                  return urlPattern.test(url);
+              }
               
+              function submitForm() {
+                  // Get values from input fields
+                  const title = document.getElementById('title').value;
+                  const link = document.getElementById('link').value;
+              
+                  // Check if any fields are blank or link is not a valid URL
+                  if (!title || !link || !getCroppedImageData() || !isValidURL(link)) {
+                      // Display a SweetAlert error message with specific details
+                      let errorMessage = 'Please fix the following issues:\n\n';
+              
+                      if (!title) {
+                          errorMessage += '- Title cannot be blank.\n';
+                      }
+              
+                      if (!link) {
+                          errorMessage += '- Link cannot be blank.\n';
+                      } else if (!isValidURL(link)) {
+                          errorMessage += '- Link must be a valid URL with Search Specifed.\n';
+                      }
+              
+                      if (!getCroppedImageData()) {
+                          errorMessage += '- Please crop an image.\n';
+                      }
+              
+                      Swal.fire({
+                          icon: 'error',
+                          title: 'Validation Error',
+                          text: errorMessage,
+                      });
+                      return; // Exit function if validation fails
+                  }
+              
+                  // Get the cropped image data
+                  const croppedImageData = getCroppedImageData();
+              
+                  // Create a FormData object to send data as a multipart/form-data
+                  const formData = new FormData();
+                  formData.append('title', title);
+                  formData.append('link', link);
+                  formData.append('image', croppedImageData);
+              
+                  // Send the data to the backend using Axios
+                  axios.post('/bannerAdmin', formData)
+                      .then(response => {
+                          // Handle the response from the backend
+                          console.log(response.data);
+                          // Display a SweetAlert success message
+                          Swal.fire({
+                              icon: 'success',
+                              title: 'Success',
+                              text: 'Data submitted successfully!',
+                          });
+                      })
+                      .catch(error => {
+                          // Handle errors
+                          console.error('Error sending data to the backend', error);
+                          // Display a SweetAlert error message
+                          Swal.fire({
+                              icon: 'error',
+                              title: 'Error',
+                              text: 'Failed to submit data. Please try again later.',
+                          });
+                      });
+              }
+              
+              
+                function getCroppedImageData() {
+                    // Get the Cropper instance and check if it exists
+                    if (!cropper) {
+                        console.error("Cropper not initialized.");
+                        return '';
+                    }
+                
+                    // Get the cropped image data as a data URL
+                    const croppedImageData = cropper.getCroppedCanvas().toDataURL('image/jpeg', 0.8);
+                
+                    return croppedImageData;
+                }
+                
+              </script>
 
 
-                <!-- <div class="row">
-                    <div class="col-lg-4 col-md-12">
-                        <input type="file" id="image1Input" onchange="previewAndCrop('image1Input', 'image1Preview')" style="width: 100%;">
-                        <div>
-                            <img id="image1Preview" class="preview" alt="Image 1 Preview">
-                        </div>
-                        <button onclick="cropImage('image1Preview', 'image1Input', 'image1Result')">Crop Image</button>
-                        <div class="box-2 img-result hide" id="image1Result">
-                            <img src="" alt="" class="cropped">
-                        </div>
-                    </div>
-            
-                    <div class="col-lg-4 col-md-6">
-                        <input type="file" id="image2Input" onchange="previewAndCrop('image2Input', 'image2Preview')" style="width: 100%;">
-                        <div>
-                            <img id="image2Preview" class="preview" alt="Image 2 Preview">
-                        </div>
-                        <button onclick="cropImage('image2Preview', 'image2Input', 'image2Result')">Crop Image</button>
-                        <div class="box-2 img-result hide" id="image2Result">
-                            <img src="" alt="" class="cropped">
-                        </div>
-                    </div>
-            
-                    <div class="col-lg-4 col-md-6">
-                        <input type="file" id="image3Input" onchange="previewAndCrop('image3Input', 'image3Preview')" style="width: 100%;">
-                        <div>
-                            <img id="image3Preview" class="preview" alt="Image 3 Preview">
-                        </div>
-                        <button onclick="cropImage('image3Preview', 'image3Input', 'image3Result')">Crop Image</button>
-                        <div class="box-2 img-result hide" id="image3Result">
-                            <img src="" alt="" class="cropped">
-                        </div>
-                    </div>
-                </div> -->
-            <!-- </div> -->
-            
+             
             <script src="https://unpkg.com/cropperjs"></script>
-            <script>
-          //     function previewAndCrop(inputId, previewId) {
-          //         const input = document.getElementById(inputId);
-          //         const preview = document.getElementById(previewId);
-          // 
-          //         const file = input.files[0];
-          // 
-          //         if (file) {
-          //             const reader = new FileReader();
-          // 
-          //             reader.onload = function (e) {
-          //                 preview.src = e.target.result;
-          // 
-          //                 // Initialize Cropper for the previewed image
-          //                 initCropper(previewId);
-          //             };
-          // 
-          //             reader.readAsDataURL(file);
-          //         } else {
-          //             preview.src = '';
-          //         }
-          //     }
-            
-           //    function initCropper(imageId) {
-           //        const image = document.getElementById(imageId);
-           //        return new Cropper(image, {
-           //            aspectRatio: 1170 / 500,
-           //            viewMode: 0,
-           //        });
-           //    }
-
-//const image=document.getElementById('image');
-//
-//const cropper= new Cropper(image, {
-//    aspectRatio: 1170 / 500,
-//    viewMode: 0,
-//});
-//
-//
-//
-//
-//                document.getElementById('cropImageBtn').addEventListener('click',
-//                function(){
-//                    var croppedImage=cropper.getCroppedCanvas().toDataURL('image/png');
-//                    document.getElementById('output').src=croppedImage
-//                });
 
 
-            
-          //      function cropImage(imageId, inputId, resultId) {
-          //          const cropper = initCropper(imageId);
-          //          const input = document.getElementById(inputId);
-          //          const result = document.getElementById(resultId);
-          //  
-          //          cropper.getCroppedCanvas().toBlob((blob) => {
-          //              const reader = new FileReader();
-          //  
-          //              reader.onloadend = function () {
-          //                  result.querySelector('.cropped').src = reader.result;
-          //                  result.classList.remove('hide');
-          //                  cropper.destroy();
-          //              };
-          //  
-          //              reader.readAsDataURL(blob);
-          //          });
-          //  
-          //          input.value = ''; // Clear input value to allow reselection of the same file
-          //      }
-            </script>
-            
-
-
+            <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
 <%-include('../layout/adminFoot')-%>

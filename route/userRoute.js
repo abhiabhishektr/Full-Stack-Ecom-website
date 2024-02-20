@@ -17,7 +17,7 @@ router.use(session({
   }));
 
 
-router.get('/',userController.home)
+router.get('/',cartCountMiddleware,userController.home)
 
 
 router.get('/login',userMid.islogin,userController.login)
@@ -95,7 +95,7 @@ router.post('/updateAddress/:id',userController.updateAddress)
 
 router.get('/orderDetails/:orderId',userMid.islogin, cartCountMiddleware,userController.orderDetails)
 router.get('/downloadInvoice/:orderId',userMid.islogin,userController.downloadInvoice)
-
+router.get('/downloadInvoicePdf/:orderId',userController.createinvoice)
 
 
 

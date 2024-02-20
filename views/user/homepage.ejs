@@ -16,25 +16,43 @@
                                         }
                                     }
                                 }'>
+
                                 <div class="intro-slide">
-                                    <figure class="slide-image">
-                                        <picture>
-                                            <source media="(max-width: 480px)" srcset="/user/assets/images/demos/demo-9/slider/slide-1-480w.jpg">
-                                            <img src="/img/main.jpg" alt="Image Desc">
-                                        </picture>
-                                    </figure><!-- End .slide-image -->
-
-                                    <div class="intro-content">
-                                        <h3 class="intro-subtitle">New Collection</h3><!-- End .h3 intro-subtitle -->
-                                        <h1 class="intro-title text-white">Best<br> Shoes & Accessories</h1><!-- End .intro-title -->
-
-                                        <div class="intro-text text-white">2024</div><!-- End .intro-text -->
-
-                                        <a href="/fullpdt/0" class="btn btn-primary">
-                                            <span>DISCOVER NOW</span>
-                                        </a>
-                                    </div><!-- End .intro-content -->
+                                    <% if (banner && banner!==1) { %>
+                                        <figure class="slide-image">
+                                            <picture>
+                                                <source media="(max-width: 480px)" srcset="/user/assets/images/demos/demo-9/slider/slide-1-480w.jpg">
+                                                <img src="/uploads/uploaded_image.jpg" alt="Image Desc">
+                                            </picture>
+                                        </figure><!-- End .slide-image -->
+                                
+                                        <div class="intro-content">
+                                            <h3 class="intro-subtitle">New Collection</h3><!-- End .h3 intro-subtitle -->
+                                            <h1 class="intro-title text-white">Best<br> Shoes & Accessories</h1><!-- End .intro-title -->
+                                            <div class="intro-text text-white">2024</div><!-- End .intro-text -->
+                                            <a href="<%=banner.link%>" class="btn btn-primary">
+                                                <span>DISCOVER NOW</span>
+                                            </a>
+                                        </div>
+                                    <% } else { %>
+                                        <figure class="slide-image">
+                                            <picture>
+                                                <source media="(max-width: 480px)" srcset="/user/assets/images/demos/demo-9/slider/slide-1-480w.jpg">
+                                                <img src="/img/main.jpg" alt="Image Desc">
+                                            </picture>
+                                        </figure><!-- End .slide-image -->
+                                
+                                        <div class="intro-content">
+                                            <h3 class="intro-subtitle">New Collection</h3><!-- End .h3 intro-subtitle -->
+                                            <h1 class="intro-title text-white">Best<br> Shoes & Accessories</h1><!-- End .intro-title -->
+                                            <div class="intro-text text-white">2024</div><!-- End .intro-text -->
+                                            <a href="/fullpdt/0" class="btn btn-primary">
+                                                <span>DISCOVER NOW</span>
+                                            </a>
+                                        </div>
+                                    <% } %>
                                 </div><!-- End .intro-slide -->
+                                
 
                                 <div class="intro-slide">   
                                     <figure class="slide-image">
@@ -532,18 +550,19 @@
                         <div class="col-sm-12 col-lg-6">
                             <div class="widget widget-about">
                                 <img src="/user/assets/images/demos/demo-9/logo-footer.png" class="footer-logo" alt="Footer Logo" width="82" height="25">
-                                <p>Praesent dapibus, neque id cursus ucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus. </p>
+                                <p>"ShoeRack: Elevating Style, Engineered by Abhishek. A Showcase of Front-end Finesse and Back-end Expertise."
+                                </p>
                                 
                                 <div class="widget-about-info">
                                     <div class="row">
                                         <div class="col-sm-6 col-md-4">
                                             <span class="widget-about-title">Got Question? Call us 24/7</span>
-                                            <a href="tel:123456789">+0123 456 789</a>
+                                            <a href="tel:123456789"> Trial Number</a>
                                         </div><!-- End .col-sm-6 -->
                                         <div class="col-sm-6 col-md-8">
                                             <span class="widget-about-title">Payment Method</span>
                                             <figure class="footer-payments">
-                                                <img src="/user/assets/images/payments.png" alt="Payment methods" width="272" height="20">
+                                                <img src="/user/assets/images/payments.png" alt="Payment methods" width="140" height="15">
                                             </figure><!-- End .footer-payments -->
                                         </div><!-- End .col-sm-6 -->
                                     </div><!-- End .row -->
@@ -599,19 +618,15 @@
 
             <div class="footer-bottom">
                 <div class="container">
-                    <p class="footer-copyright">Copyright © 2019 Molla Store. All Rights Reserved.</p><!-- End .footer-copyright -->
-                    <ul class="footer-menu">
-                        <li><a href="#">Terms Of Use</a></li>
-                        <li><a href="#">Privacy Policy</a></li>
-                    </ul><!-- End .footer-menu -->
+             
 
                     <div class="social-icons social-icons-color">
-                        <span class="social-label">Social Media</span>
-                        <a href="#" class="social-icon social-facebook" title="Facebook" target="_blank"><i class="icon-facebook-f"></i></a>
-                        <a href="#" class="social-icon social-twitter" title="Twitter" target="_blank"><i class="icon-twitter"></i></a>
-                        <a href="#" class="social-icon social-instagram" title="Instagram" target="_blank"><i class="icon-instagram"></i></a>
-                        <a href="#" class="social-icon social-youtube" title="Youtube" target="_blank"><i class="icon-youtube"></i></a>
-                        <a href="#" class="social-icon social-pinterest" title="Pinterest" target="_blank"><i class="icon-pinterest"></i></a>
+                        <span class="social-label">Connect the Developer</span>
+                        <a href="/about" class="social-icon social-facebook" title="Facebook" target="_blank"><i class="icon-facebook-f"></i></a>
+                        <a href="/about" class="social-icon social-twitter" title="Twitter" target="_blank"><i class="icon-twitter"></i></a>
+                        <a href="/about" class="social-icon social-instagram" title="Instagram" target="_blank"><i class="icon-instagram"></i></a>
+                        <a href="/about" class="social-icon social-youtube" title="Youtube" target="_blank"><i class="icon-youtube"></i></a>
+                        <a href="/about" class="social-icon social-pinterest" title="Pinterest" target="_blank"><i class="icon-pinterest"></i></a>
                     </div><!-- End .soial-icons -->
                 </div><!-- End .container -->
             </div><!-- End .footer-bottom -->
@@ -667,3 +682,5 @@
 
 <!-- molla/index-9.html  22 Nov 2019 09:58:03 GMT -->
 </html>
+
+

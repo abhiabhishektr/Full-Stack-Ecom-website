@@ -3,12 +3,13 @@ const pdf = require("html-pdf"); // You may need to install this package
 const Order = require("../model/order");
 const Coupon = require("../model/couponModel");
 const Cart = require("../model/cartmodel");
-const Banner=require("../model/banner")
-const path = require('path');
+const Banner = require("../model/banner");
+const path = require("path");
+
+const multer = require("multer");
+const { title } = require("process");
 
 const generateSalesReport = async (req, res) => {
-   
-
     try {
         const startDate = req.body["start-date"];
         const endDate = req.body["end-date"];
@@ -31,13 +32,12 @@ const generateSalesReport = async (req, res) => {
             // Add more aggregation stages if needed
         ]);
 
-        const updatedOrders = orders.map(order => {
-            order.Products.forEach(product => {
+        const updatedOrders = orders.map((order) => {
+            order.Products.forEach((product) => {
                 product._id = generateRandomString(5); // You can adjust the length as needed
             });
             return order;
         });
-        
 
         return res.status(200).json({
             orders: updatedOrders,
@@ -51,16 +51,13 @@ const generateSalesReport = async (req, res) => {
 };
 
 const generateRandomString = (length) => {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let result = '';
+    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let result = "";
     for (let i = 0; i < length; i++) {
         result += characters.charAt(Math.floor(Math.random() * characters.length));
     }
     return result;
 };
-
-
-
 
 // Helper function to check if a date is valid
 const isValidDate = (dateString) => {
@@ -81,69 +78,57 @@ const bannersAdmin = async (req, res) => {
     res.render("banner");
 };
 
+const uploadPath = path.join(__dirname, "..", "public", "uploads");
 
-const addBanner = async (req, res) => {
+const uploadBanner = async (req, res) => {
+
     try {
-        const link = req.body.link;
-        const croppedImageBase64 = req.body.croppedImage;
-
-        // Extract the image extension from the base64 data
-        const matches = croppedImageBase64.match(/^data:image\/([A-Za-z-+\/]+);base64,(.+)$/);
-        if (!matches || matches.length !== 3) {
-            console.error('Invalid base64 image data format');
-            return res.status(400).json({ error: 'Invalid image data format' });
-        }
-
-        const imageExtension = matches[1].split('/')[1];
-
-        // Convert base64 to buffer
-        const croppedImageBuffer = Buffer.from(matches[2], 'base64');
-
-        // Create the 'uploads' directory if it doesn't exist
-        const uploadsDir = path.join(__dirname, 'uploads');
-        if (!fs.existsSync(uploadsDir)) {
-            fs.mkdirSync(uploadsDir);
-        }
-
-        // Save the image to the server with dynamic file extension
-        const filePath = path.join(uploadsDir, `cropped_image.${imageExtension}`);
-        fs.writeFile(filePath, croppedImageBuffer, async (err) => {
-            if (err) {
-                console.error('Error saving cropped image:', err);
-                return res.status(500).json({ error: 'Internal Server Error' });
+        if (req.query.delete && req.query.delete === "yes") {
+            // Check if there are banners to delete
+            const bannersToDelete = await Banner.find();
+            
+            if (bannersToDelete.length > 0) {
+                // If there are banners, delete them
+                await Banner.deleteMany();
+                res.status(200).json({ message: "Banners Deleted successfully" });
+            } else {
+                // If no banners are found, send a message
+                res.status(404).json({ message: "No banners found to delete" });
             }
+        }else{
 
-            // Save data to MongoDB using Mongoose
-            try {
-                const banner = new Banner({
-                    image: filePath,
-                    link: link,
-                });
-                await banner.save();
+        // Extract the base64 image data from the request body
+        const base64Data = req.body.image.split(";base64,").pop();
 
-                // Respond with a success message or any other relevant response
-                console.log('successfully');
-                res.json({ message: 'Form submitted successfully' });
-            } catch (mongoError) {
-                console.error('Error saving data to MongoDB:', mongoError);
-                res.status(500).json({ error: 'Internal Server Error' });
-            }
+        // Generate a unique filename or use the original filename
+        const filename = "uploaded_image.jpg";
+
+        // Construct the full path for saving the file
+        const filePath = path.join(uploadPath, filename);
+
+        // Save the decoded image to the file
+        fs.writeFileSync(filePath, base64Data, { encoding: "base64" });
+
+        console.log("Image saved to:", filePath);
+
+        await Banner.deleteMany();
+
+        const NewBanner = new Banner({
+            title: req.body.title,
+            image: filename,
+            link: req.body.link,
         });
+
+        await NewBanner.save();
+
+        // Respond with success message or other relevant information
+        res.status(200).json({ message: "Image uploaded successfully" });
+    }
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        console.error("Error uploading banner:", error);
+        res.status(500).json({ error: "Internal Server Error" });
     }
 };
-
-
-
-
-
-
-
-
-
-
 
 const CouponsAdmin = async (req, res) => {
     const existingCoupons = await Coupon.find();
@@ -235,7 +220,12 @@ const CouponsAdminManagements = async (req, res) => {
                 }
 
                 if (userCart) {
-                    return res.json({ valid: true, discount: coupon.discountAmount, code: coupon.code ,subtotal:userCart.subtotal});
+                    return res.json({
+                        valid: true,
+                        discount: coupon.discountAmount,
+                        code: coupon.code,
+                        subtotal: userCart.subtotal,
+                    });
                 } else {
                     return res.status(404).json({ error: "Coupon not found" });
                 }
@@ -306,47 +296,6 @@ module.exports = {
     CouponsAdmin,
     CouponsAdminPost,
     CouponsAdminManagements,
-    addBanner
+    // addBanner
+    uploadBanner,
 };
-
-{
-    /* <script>
-    document.getElementById('generateReportBtn').addEventListener('click', async () => {
-        const startDate = document.getElementById('start-date').value;
-        const endDate = document.getElementById('end-date').value;
-
-        try {
-            const response = await fetch('/generate_report', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ 'start-date': startDate, 'end-date': endDate }),
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to fetch data');
-            }else{
-                console.log("jjjj")
-            }
-
-            const data = await response.json();
-            document.getElementById('reportContent').textContent = data.salesReport;
-            document.getElementById('reportPreview').style.display = 'block';
-        } catch (error) {
-            console.error('Error:', error);
-        }
-    });
-
-    document.getElementById('downloadReportBtn').addEventListener('click', async () => {
-        // You can add logic here to trigger the download
-        // For example, you can use Blob to create a downloadable file
-        const content = document.getElementById('reportContent').textContent;
-        const blob = new Blob([content], { type: 'application/pdf' });
-        const link = document.createElement('a');
-        link.href = window.URL.createObjectURL(blob);
-        link.download = 'sales_report.pdf';
-        link.click();
-    });
-</script> */
-}

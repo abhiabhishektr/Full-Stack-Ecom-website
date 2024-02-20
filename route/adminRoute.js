@@ -2,6 +2,8 @@ const express = require("express");
 const router = express();
 const bodyParser=require('body-parser')
 const adminMid=require("../middleware/adminMid")
+const multer = require('multer');
+
 router.set("view engine", "ejs");
 router.set("views", "views/admin");
 
@@ -72,7 +74,13 @@ router.put('/generate_report',userAdsBanner.generateSalesReport);
 
 router.get("/bannersAdmin",userAdsBanner.bannersAdmin);
 
-router.post("/addBanner",userAdsBanner.addBanner);
+
+// const storage = multer.memoryStorage();
+// const upload = multer({ storage: storage });
+
+// router.post("/addBanner",userAdsBanner.addBanner);
+
+router.post("/bannerAdmin", adminController.upload.single("images"), userAdsBanner.uploadBanner);
 
 router.get("/CouponsAdmin",userAdsBanner.CouponsAdmin);
 

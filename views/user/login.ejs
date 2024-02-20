@@ -16,6 +16,10 @@
         <link rel="manifest" href="/user/assets/images/icons/site.html" />
         <link rel="mask-icon" href="/user/assets/images/icons/safari-pinned-tab.svg" color="#666666" />
         <link rel="shortcut icon" href="/user/assets/images/icons/favicon.ico" />
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.20/dist/sweetalert2.min.css">
+
+
         <meta name="apple-mobile-web-app-title" content="Molla" />
         <meta name="application-name" content="Molla" />
         <meta name="msapplication-TileColor" content="#cc9966" />
@@ -719,6 +723,18 @@
                                                     required
                                                 />
                                             </div>
+                                            <div class="form-group">
+                                                <label for="register-password">Reenter Password *</label>
+                                                <input
+                                                    type="password"
+                                                    class="form-control"
+                                                    id="retypePasswordX"
+                                                    name="repassword"
+                                                    required
+                                                />
+                                            </div>
+                                            <!-- End .form-group -->
+                                            
                                             <!-- End .form-group -->
 
                                             <div class="form-footer">
@@ -1331,31 +1347,57 @@
             function validateForm() {
                 var email = document.getElementById("typeEmailX").value;
                 var password = document.getElementById("typePasswordX").value;
+                var reenterPassword = document.getElementById("retypePasswordX").value;
                 var name = document.getElementById("nameid").value;
-
+        
                 // Simple email validation
-
                 var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 if (!emailRegex.test(email)) {
-                    document.getElementById("error-message").innerText = "Please enter a valid email address.";
+                    showError("Please enter a valid email address.");
                     return false;
                 }
-
-                // Password length validation
-
-                if (password.length < 6 || /\s/.test(password)) {
-                    document.getElementById("error-message").innerText =
-                        "Password must be at least 6 characters and No spaces.";
+        
+                // Password length and strength validation
+                if (!isStrongPassword(password)) {
+                    showError("Password must be at least 6 characters, include at least one letter, and one number.");
                     return false;
                 }
+        
+                // Password match validation
+                if (password !== reenterPassword) {
+                    showError("Passwords do not match.");
+                    return false;
+                }
+        
                 if (name.trim() === "") {
-                    document.getElementById("error-message").innerText = "Please enter your name.";
+                    showError("Please enter your name.");
                     return false;
                 }
-
+        
                 return true; // Form will be submitted if all validations pass
             }
+        
+            function isStrongPassword(password) {
+                // Password must be at least 6 characters, include at least one letter, and one number.
+                var passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).{6,}$/;
+                return passwordRegex.test(password);
+            }
+        
+            function showError(message) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: message,
+                });
+            }
         </script>
+        
+<!-- SweetAlert CSS -->
+
+<!-- SweetAlert JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.20/dist/sweetalert2.all.min.js"></script>
+
+        
     </body>
 
     <!-- molla/login.html  22 Nov 2019 10:04:03 GMT -->

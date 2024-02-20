@@ -67,10 +67,10 @@
               <td colspan="4" class="grand total">GRAND TOTAL</td>
               <td class="grand total">₹<%= order.subtotal %></td>
             </tr>
-            <% if (orders.coupon) { %>
+            <% if (order.coupon) { %>
               <tr>
                 <td colspan="4">Coupon Discount (Code: <%= order.coupon.code %>)</td>
-                <td class="total">-₹<%= orders.coupon.originalAmount %></td>
+                <td class="total">-₹<%= order.coupon.originalAmount %></td>
               </tr>
               <tr>
                 <td colspan="4" class="grand total">FINAL TOTAL</td>
@@ -81,7 +81,7 @@
         </tbody>
       </table>
 
-      <% }); %>
+  
       
       <div id="notices">
         <div>NOTICE:</div>
@@ -89,42 +89,19 @@
       </div>
     </main>
     <br>
-  
+  <a href="/downloadInvoicePdf/<%=order._id%>">
     <button id="cmd" style="background: linear-gradient(to bottom right, #4c78af, #4c78af); border: 0; border-radius: 8px; color: #FFFFFF; cursor: pointer; font-family: -apple-system, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 500; line-height: 2; outline: transparent; padding: 0.5rem 1rem; text-align: center; text-decoration: none; transition: box-shadow .2s ease-in-out; user-select: none; -webkit-user-select: none; touch-action: manipulation; white-space: nowrap;" 
     onmouseover="this.style.background = 'linear-gradient(to bottom right, #2196F3, #1976D2)'; this.style.boxShadow = '0 0 .25rem rgba(0, 0, 0, 0.5), -.125rem -.125rem 1rem rgba(33, 150, 243, 0.5), .125rem .125rem 1rem rgba(25, 118, 210, 0.5)';" 
     onmouseout="this.style.background = 'linear-gradient(to bottom right, #4CAF50, #45a049)'; this.style.boxShadow = 'none';" >Generate PDF</button>
-  <footer>
+  </a>    <% }); %>
+    <footer>
       Invoice was created on a computer and is valid without the signature and seal.
     </footer>
 
 
     
-
-    <script>
-        document.getElementById('cmd').addEventListener('click', function () {
-        // var doc = new jsPDF();
-        // var specialElementHandlers = {
-        //     '#editor': function (element, renderer) {
-        //         return true;
-        //     }
-        // };
     
-        // // Get the entire HTML content and pass it to fromHTML
-        // var htmlContent = document.documentElement.innerHTML;
-    
-        // doc.fromHTML(htmlContent, 15, 15, {
-        //     'width': 170,
-        //     'elementHandlers': specialElementHandlers
-        // });
-    
-        // doc.save('sample-file.pdf');
-
-
-window.print()
-
-        });
-    </script>
-    
+      
     
   </body>
 </html>

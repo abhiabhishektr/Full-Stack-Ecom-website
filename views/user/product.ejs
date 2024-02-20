@@ -220,11 +220,12 @@
                 } else if (data.message === 'Product added to wishlist') {
                     
                     isInWishlist = true;
-                    updateWishlistButtonUI();
-                    reloadDetailsActionWrapper()
+                 
+                    window.location.reload()
+
                 } else if (data.message === 'Product removed from wishlist') {
                     isInWishlist = false;
-                    updateWishlistButtonUI();
+                    window.location.reload()
                 }
             } else {
                 // Handle error, e.g., show an error message

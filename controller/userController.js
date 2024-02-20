@@ -6,30 +6,22 @@ const cartdb = require("../model/cartmodel");
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
 const WalletModel = require("../model/wallet");
-const Wishlist=require('../model/wishlistModel')
+const Wishlist = require("../model/wishlistModel");
+const Banner = require("../model/banner");
 
 const home = async (req, res) => {
     try {
-        let userId = req.session.userid;
-
         // Fetch products for the homepage
         let products = await ptd.find().limit(4);
+        
+        // Fetch the banner, providing a default empty object if none is found
+        let banner = await Banner.findOne() || 1;
 
-        // Initialize cart count to 0
-        let cartCount = 0;
-
-        if (userId) {
-            // If user is logged in, fetch the user's cart and count the total number of items
-            const userCart = await cartdb.findOne({ user: userId });
-            if (userCart && userCart.products) {
-                cartCount = userCart.products.length;
-            }
-        }
-
-        // Render the view with the products and cart count
-        res.render("homepage", { products, cartCount });
+        // Render the view with the products, banner, and cart count
+        res.render("homepage", { products, banner, cartCount: req.cartCount });
     } catch (error) {
         console.error("Error while showing all products", error);
+        
         // Handle the error accordingly, for example, redirect to an error page
         res.status(500).render("error", { error: "Internal Server Error" });
     }
@@ -162,10 +154,10 @@ const login = (req, res) => {
 const signOutUser = (req, res) => {
     req.session.destroy((err) => {
         if (err) {
-            console.error('Error destroying sessions:', err);
-            res.status(500).send('Internal Server Error');
+            console.error("Error destroying sessions:", err);
+            res.status(500).send("Internal Server Error");
         } else {
-            res.redirect('/'); // Redirect to login page after destroying sessions
+            res.redirect("/"); // Redirect to login page after destroying sessions
         }
     });
 };
@@ -183,8 +175,8 @@ const comparePasswords = async (plainPassword, hashedPassword) => {
 
 const signup = async (req, res) => {
     // console.log(req.body.email);
-const referal= req.body.referralCode
-console.log('referal::',referal);
+    const referal = req.body.referralCode;
+    console.log("referal::", referal);
     const hashedPassword = await crypting(req.body.password);
     let emailcheck = await user.findOne({ email: req.body.email });
 
@@ -196,7 +188,7 @@ console.log('referal::',referal);
             name: req.body.name,
             email: req.body.email,
             password: hashedPassword,
-            appliedReferal:referal|| null
+            appliedReferal: referal || null,
         });
         usernew.save();
 
@@ -207,9 +199,6 @@ console.log('referal::',referal);
 const otp = async (req, res) => {
     res.render("otp1");
 };
-
-
-
 
 const otpvalidation = async (req, res) => {
     try {
@@ -241,8 +230,8 @@ const otpvalidation = async (req, res) => {
                                 $push: {
                                     history: {
                                         amount: 200,
-                                        type: 'credit',
-                                        description: 'Referral Bonus from ' + userWithReferral.name,
+                                        type: "credit",
+                                        description: "Referral Bonus from " + userWithReferral.name,
                                     },
                                 },
                             }
@@ -257,14 +246,14 @@ const otpvalidation = async (req, res) => {
                             history: [
                                 {
                                     amount: 200,
-                                    type: 'credit',
-                                    description: 'Referral Bonus from ' + userWithReferral.name,
+                                    type: "credit",
+                                    description: "Referral Bonus from " + userWithReferral.name,
                                 },
                             ],
                         });
 
                         await newReferrerWallet.save();
-                        console.log('New wallet created for the referrer');
+                        console.log("New wallet created for the referrer");
                     }
                 }
 
@@ -280,8 +269,8 @@ const otpvalidation = async (req, res) => {
                             $push: {
                                 history: {
                                     amount: 200,
-                                    type: 'credit',
-                                    description: 'Referral Bonus',
+                                    type: "credit",
+                                    description: "Referral Bonus",
                                 },
                             },
                         }
@@ -296,21 +285,21 @@ const otpvalidation = async (req, res) => {
                         history: [
                             {
                                 amount: 200,
-                                type: 'credit',
-                                description: 'Referral Bonus',
+                                type: "credit",
+                                description: "Referral Bonus",
                             },
                         ],
                     });
 
                     await newWallet.save();
-                    console.log('New wallet created for the referred user');
+                    console.log("New wallet created for the referred user");
                 }
                 await user.updateOne({ email: mailid }, { $unset: { appliedReferal: 1 } });
             }
 
             res.status(200).json({ message: "Registration successful, login now" });
 
-            // for Currently In testing purpose the false datas are deleted manually after deplaying It can be 
+            // for Currently In testing purpose the false datas are deleted manually after deplaying It can be
             //given to a set time interval one day or any other time. by considering the potential false of this process
             const result = await user.deleteMany({ otp: false });
             console.log(`${result.deletedCount} documents deleted`);
@@ -322,11 +311,6 @@ const otpvalidation = async (req, res) => {
         res.status(500).json({ message: "Internal Server Error" });
     }
 };
-
-
-
-
-
 
 let generettedOtp;
 
@@ -373,8 +357,6 @@ const sendotp = async (req, res) => {
 
     res.json({ message: "OTP sent successfully" });
 };
-
-
 
 const logincheck = async (req, res) => {
     try {
@@ -555,16 +537,13 @@ const logincheck = async (req, res) => {
 //     }
 // };
 
-
-
-
 const fullpdt = async (req, res) => {
     try {
         console.log(req.query);
         const MainCat = req.params.MainCat;
         const page = parseInt(req.query.page) || 1; // Get the requested page from the query parameters
         const itemsPerPage = 12; // Adjust the number of items per page as needed
-        const search=req.query.search || req.query.q
+        const search = req.query.search || req.query.q;
         // Get selected sort option
         const selectedSortOption = req.query.sortby;
 
@@ -584,14 +563,13 @@ const fullpdt = async (req, res) => {
             // Fetch products based on all active categories
         }
         // && search!=='[object Event]'
-        if (search && search.length>1 ) {
-          
+        if (search && search.length > 1) {
             // Fetch products based on search text
             const regex = new RegExp(req.query.search, "i");
             query.$or = [
                 { name: regex },
-              { manufacturer: regex },
-               { category: regex },
+                { manufacturer: regex },
+                { category: regex },
                 // Add more fields if needed
             ];
         }
@@ -599,24 +577,21 @@ const fullpdt = async (req, res) => {
         // Apply filtering based on categories, sizes, and brands
         if (req.query.categories || req.query.sizes || req.query.brands) {
             // Get selected categories, sizes, and brands
-            const selectedCategories = req.query.categories ? req.query.categories.split(',') : [];
-            const selectedSizes = req.query.sizes ? req.query.sizes.split(',') : [];
-            const selectedBrands = req.query.brands ? req.query.brands.split(',') : [];
+            const selectedCategories = req.query.categories ? req.query.categories.split(",") : [];
+            const selectedSizes = req.query.sizes ? req.query.sizes.split(",") : [];
+            const selectedBrands = req.query.brands ? req.query.brands.split(",") : [];
 
             // Update the query with selected filters
-            
-          
-            if (selectedCategories.length!==0) {
+
+            if (selectedCategories.length !== 0) {
                 query.category = { $in: selectedCategories };
             }
-            if (selectedSizes.length!==0) {
+            if (selectedSizes.length !== 0) {
                 query.size = { $in: selectedSizes };
             }
-            if (selectedBrands.length!==0) {
-                     query.manufacturer = { $in: selectedBrands };
+            if (selectedBrands.length !== 0) {
+                query.manufacturer = { $in: selectedBrands };
             }
-            
-       
         }
 
         const totalProducts = await ptd.countDocuments(query);
@@ -627,9 +602,9 @@ const fullpdt = async (req, res) => {
 
         // Apply sorting based on the selected sort option
         let sort = {};
-        if (selectedSortOption === 'price-high') {
+        if (selectedSortOption === "price-high") {
             sort.price = -1; // Sort by price in descending order
-        } else if (selectedSortOption === 'price-low') {
+        } else if (selectedSortOption === "price-low") {
             sort.price = 1; // Sort by price in ascending order
         } else {
             sort.popularity = -1; // Sort by popularity in descending order
@@ -641,23 +616,23 @@ const fullpdt = async (req, res) => {
         const brands = await ptd.distinct("manufacturer", query);
 
         // Get the base URL without any query parameters
-        let baseUrl = req.originalUrl.split('?')[0];
+        let baseUrl = req.originalUrl.split("?")[0];
 
         // Get the current query parameters and convert them to an object
-        let queryParams = new URLSearchParams(req.originalUrl.split('?')[1]);
+        let queryParams = new URLSearchParams(req.originalUrl.split("?")[1]);
 
         // Update the 'page' query parameter for the previous and next pages
-        queryParams.set('page', page > 1 ? page - 1 : 1);
-        let prevPageUrl = baseUrl + '?' + queryParams.toString();
+        queryParams.set("page", page > 1 ? page - 1 : 1);
+        let prevPageUrl = baseUrl + "?" + queryParams.toString();
 
-        queryParams.set('page', page < totalPages ? page + 1 : totalPages);
-        let nextPageUrl = baseUrl + '?' + queryParams.toString();
+        queryParams.set("page", page < totalPages ? page + 1 : totalPages);
+        let nextPageUrl = baseUrl + "?" + queryParams.toString();
 
         // Generate the URLs for each page number
         let pageUrls = [];
         for (let i = 1; i <= totalPages; i++) {
-            queryParams.set('page', i);
-            pageUrls[i] = baseUrl + '?' + queryParams.toString();
+            queryParams.set("page", i);
+            pageUrls[i] = baseUrl + "?" + queryParams.toString();
         }
 
         res.render("fullpdt", {
@@ -680,12 +655,6 @@ const fullpdt = async (req, res) => {
     }
 };
 
-
-
-
-
-
-
 // =====================product ====================
 
 const product = async (req, res) => {
@@ -699,7 +668,8 @@ const product = async (req, res) => {
         const cart = await cartdb.findOne({ user: userId });
         const wishlist = await Wishlist.findOne({ user: userId });
 
-        let isInCart = false,isInwish=false;
+        let isInCart = false,
+            isInwish = false;
         if (cart) {
             const cartProductIds = cart.products.map((product) => product.productId.toString());
             isInCart = cartProductIds.includes(productId);
@@ -710,9 +680,9 @@ const product = async (req, res) => {
         }
 
         console.log("isInCart ::", isInCart);
-        console.log("isInwish ::",isInwish );
-        
-        res.render("product", { product, products, isInCart,isInwish, cartCount: req.cartCount });
+        console.log("isInwish ::", isInwish);
+
+        res.render("product", { product, products, isInCart, isInwish, cartCount: req.cartCount });
     } catch (error) {
         console.error("Error finding product:", error);
     }
@@ -791,7 +761,7 @@ const profile = async (req, res) => {
         const email = req.session.user;
 
         if (!userId) {
-            res.redirect('/login');
+            res.redirect("/login");
         }
 
         const userdata = await user.findById(userId);
@@ -803,7 +773,7 @@ const profile = async (req, res) => {
         // Check if the user already has a referral code
         if (!userdata.referalcode) {
             // If not, generate a referral code based on the user's email
-            const userEmailWithoutDomain = email.split('@')[0];
+            const userEmailWithoutDomain = email.split("@")[0];
             const randomDigits = Math.floor(1000 + Math.random() * 9000); // Add random digits
             const referralCode = `${userEmailWithoutDomain}${randomDigits}`;
             userdata.referalcode = referralCode;
@@ -855,12 +825,10 @@ const profile = async (req, res) => {
             pageUrls,
         });
     } catch (error) {
-        console.error('Error in profile:', error);
+        console.error("Error in profile:", error);
         res.status(500).render("error", { error: "Internal Server Error" });
     }
 };
- 
-
 
 // =====================delete Address ====================
 const deleteAddress = async (req, res) => {
@@ -924,7 +892,7 @@ const orderStatusUpdation = async (req, res) => {
         if (!order) {
             return res.status(404).json({ message: "Order not found" });
         }
-        if (order.onlinePaymentStatus === 'initiated') {
+        if (order.onlinePaymentStatus === "initiated") {
             return res.status(404).json({ message: "Invalid request. Order not yet completed properly or payment failed" });
         }
 
@@ -1068,7 +1036,14 @@ const orderDetails = async (req, res) => {
         // Find orders from the database using the orderId
         const orders = await orderdb.find({ _id: orderId });
 
-        res.render("orderDetails", { orders,cartCount: req.cartCount, });
+        // Extracting the last 10 digits from the ObjectId
+        const last10Digits = orderId.slice(-8);
+
+        res.render("orderDetails", {
+            orders,
+            orderId: "Order No : # " + last10Digits, // Include the last 10 digits in the orderId
+            cartCount: req.cartCount,
+        });
     } catch (error) {
         console.error("Error fetching orders:", error);
         res.status(500).send("Internal Server Error");
@@ -1082,12 +1057,52 @@ const downloadInvoice = async (req, res) => {
         // Find orders from the database using the orderId
         const orders = await orderdb.find({ _id: orderId });
 
-        res.render("invoice", { orders });
+        // Assuming there is only one product in the Products array
+        const productId = req.query.productID;
+        // console.log("orders:", orders);
+        // Corrected the property name to "products" for comparison
+        const product = orders[0].Products.find((item) => item._id.$oid === productId);
+
+        console.log("orderId ::", orderId);
+        console.log("productId ::", productId);
+        console.log("product :", product);
+
+        res.render("invoice", { orders, product });
     } catch (error) {
         console.error("Error fetching orders:", error);
         res.status(500).send("Internal Server Error");
     }
 };
+
+
+
+const createinvoice = async (req, res) => {
+    try {
+        // Assuming you want to find orders based on the orderId
+        const orderId = req.params.orderId;
+        // Find orders from the database using the orderId
+        const orders = await orderdb.find({ _id: orderId });
+
+        // Assuming there is only one product in the Products array
+        const productId = req.query.productID;
+        // console.log("orders:", orders);
+        // Corrected the property name to "products" for comparison
+        const product = orders[0].Products.find((item) => item._id.$oid === productId);
+
+        console.log("orderId ::", orderId);
+        console.log("productId ::", productId);
+        console.log("product :", product);
+
+        res.render("invoiceDownload", { orders, product });
+    } catch (error) {
+        console.error("Error fetching orders:", error);
+        res.status(500).send("Internal Server Error");
+    }
+};
+
+
+
+
 
 
 
@@ -1115,6 +1130,19 @@ module.exports = {
     resetPasswordPost,
     orderDetails,
     downloadInvoice,
-    signOutUser
+    signOutUser,
+    createinvoice
 };
 
+// downloadInvoice
+
+// <% if (orders.coupon) { %>
+//     <tr>
+//       <td colspan="4">Coupon Discount (Code: <%= order.coupon.code %>)</td>
+//       <td class="total">-₹<%= orders.coupon.originalAmount %></td>
+//     </tr>
+//     <tr>
+//       <td colspan="4" class="grand total">FINAL TOTAL</td>
+//       <td class="grand total">₹<%= order.subtotal + (order.subtotal * 0.25) - order.coupon.originalAmount %></td>
+//     </tr>
+//   <% } %>
