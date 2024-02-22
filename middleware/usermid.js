@@ -2,7 +2,7 @@ const user = require("../model/usermodel");
 const islogin = async (req, res, next) => {
     try {
         if (req.session.user || process.env.NODE_ENV) {
-            if (process.env.NODE_ENV === "test") {
+            if (process.env.NODE_ENV === "tt") {
                 //mock user 1
                 req.session.user = process.env.mockUser;
                 req.session.userid = process.env.mockUserId;

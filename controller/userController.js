@@ -30,7 +30,7 @@ const home = async (req, res) => {
         if (Cart && Cart.products.length > 0) {
             products = await isInCart(products, userId);
         }
-        
+
         // Render the view with the products, banner, and cart count
         res.render("homepage", { products, banner, cartCount: req.cartCount });
     } catch (error) {
@@ -557,14 +557,14 @@ const isInCart = async (products, userId) => {
 
         // Create a map for faster lookups of cart productIds
         const cartProductIds = new Set(userCart.products.map((product) => product.productId.toString()));
-        
+
         // Check if each wishlist product is in the cart
         products.forEach((product) => {
             if (product._id) {
                 const isInCartCheck = cartProductIds.has(product._id.toString());
                 product.isInCart = isInCartCheck;
             } else {
-                console.error('ProductId is undefined for a product:', product);
+                console.error("ProductId is undefined for a product:", product);
             }
         });
 
@@ -574,7 +574,7 @@ const isInCart = async (products, userId) => {
         // return products.map(product => ({ ...product, isInCart: false }));
     }
 };
-   
+
 const isInWishlist = async (products, userId) => {
     try {
         const wishlist = await Wishlist.findOne({ user: userId });
@@ -734,6 +734,47 @@ const product = async (req, res) => {
 
     try {
         const product = await ptd.findOne({ _id: productId });
+
+        // Extract product name and manufacturer
+        const productName = product.name;
+        const manufacturer = product.manufacturer;
+
+        // Find related products with the same name and manufacturer (case-insensitive)
+        // const DiferentSizeProducts = await ptd.find({
+        //     $and: [
+        //         { name: { $regex: new RegExp(productName, "i") } },
+        //         { manufacturer: { $regex: new RegExp(manufacturer, "i") } },
+        //         { _id: { $ne: product._id } }, // Exclude the main product
+        //     ],
+        // });
+
+        const DiferentSizeProducts = await ptd.find({
+            $and: [
+                { name:productName },
+                { manufacturer:manufacturer},
+            ],
+        });
+
+
+
+        const DiferentSizeProductsListing = DiferentSizeProducts.map((product) => {
+            const { _id: productId, size } = product;
+            return { productId, size };
+        });
+        
+        // console.log("DiferentSizeProductsListing", DiferentSizeProductsListing);
+        
+
+
+        const productList = Object.values(DiferentSizeProductsListing);
+
+// Sort the array based on the 'size' property
+productList.sort((a, b) => a.size.localeCompare(b.size, undefined, { sensitivity: 'base' }));
+
+// Now, productList is sorted based on the 'size' property
+console.log("productList", productList);
+
+
         const products = await ptd.find().limit(4); // Use find() instead of findOne()
 
         const userId = req.session.userid;
@@ -754,7 +795,7 @@ const product = async (req, res) => {
         console.log("isInCart ::", isInCart);
         console.log("isInwish ::", isInwish);
 
-        res.render("product", { product, products, isInCart, isInwish, cartCount: req.cartCount });
+        res.render("product", { product, products, isInCart, isInwish, productList, cartCount: req.cartCount });
     } catch (error) {
         console.error("Error finding product:", error);
     }
@@ -834,71 +875,71 @@ const profile = async (req, res) => {
 
         if (!userId) {
             res.redirect("/login");
+        } else {
+            const userdata = await user.findById(userId);
+
+            if (!userdata) {
+                return res.status(404).send("User not found");
+            }
+
+            // Check if the user already has a referral code
+            if (!userdata.referalcode) {
+                // If not, generate a referral code based on the user's email
+                const userEmailWithoutDomain = email.split("@")[0];
+                const randomDigits = Math.floor(1000 + Math.random() * 9000); // Add random digits
+                const referralCode = `${userEmailWithoutDomain}${randomDigits}`;
+                userdata.referalcode = referralCode;
+                // Update the user's data with the referral code
+                await user.findByIdAndUpdate(userId, { referalcode: referralCode }, { new: true });
+            }
+
+            const addresses = userdata.addresses || [];
+
+            // Pagination for orders
+            const page = parseInt(req.query.page) || 1;
+            const pageSize = 10; // Adjust this value based on the desired number of orders per page
+
+            const totalOrders = await orderdb.countDocuments({ user: userId });
+            const totalPages = Math.ceil(totalOrders / pageSize);
+
+            const orders = await orderdb
+                .find({ user: userId })
+                .populate({
+                    path: "Products.products",
+                    model: "Product",
+                })
+                .skip((page - 1) * pageSize)
+                .limit(pageSize);
+
+            // Calculate pagination URLs
+            const pageUrls = Array.from({ length: totalPages }, (_, i) => `/profile?tab=orders&page=${i + 1}`);
+
+            // Define prevPageUrl and nextPageUrl
+            const prevPageUrl = page > 1 ? `/profile?tab=orders&page=${page - 1}` : null;
+            const nextPageUrl = page < totalPages ? `/profile?tab=orders&page=${page + 1}` : null;
+
+            const walletData = await WalletModel.findOne({ userId }).limit(15);
+
+            const selectedTab = req.query.tab || "defaultTab";
+            res.render("profile", {
+                addresses,
+                orders,
+                selectedTab,
+                userId,
+                userdata,
+                walletData,
+                referal: userdata.referalcode,
+                cartCount: req.cartCount,
+                currentPage: page,
+                totalPages,
+                prevPageUrl,
+                nextPageUrl,
+                pageUrls,
+            });
         }
-
-        const userdata = await user.findById(userId);
-
-        if (!userdata) {
-            return res.status(404).send("User not found");
-        }
-
-        // Check if the user already has a referral code
-        if (!userdata.referalcode) {
-            // If not, generate a referral code based on the user's email
-            const userEmailWithoutDomain = email.split("@")[0];
-            const randomDigits = Math.floor(1000 + Math.random() * 9000); // Add random digits
-            const referralCode = `${userEmailWithoutDomain}${randomDigits}`;
-            userdata.referalcode = referralCode;
-            // Update the user's data with the referral code
-            await user.findByIdAndUpdate(userId, { referalcode: referralCode }, { new: true });
-        }
-
-        const addresses = userdata.addresses || [];
-
-        // Pagination for orders
-        const page = parseInt(req.query.page) || 1;
-        const pageSize = 10; // Adjust this value based on the desired number of orders per page
-
-        const totalOrders = await orderdb.countDocuments({ user: userId });
-        const totalPages = Math.ceil(totalOrders / pageSize);
-
-        const orders = await orderdb
-            .find({ user: userId })
-            .populate({
-                path: "Products.products",
-                model: "Product",
-            })
-            .skip((page - 1) * pageSize)
-            .limit(pageSize);
-
-        // Calculate pagination URLs
-        const pageUrls = Array.from({ length: totalPages }, (_, i) => `/profile?tab=orders&page=${i + 1}`);
-
-        // Define prevPageUrl and nextPageUrl
-        const prevPageUrl = page > 1 ? `/profile?tab=orders&page=${page - 1}` : null;
-        const nextPageUrl = page < totalPages ? `/profile?tab=orders&page=${page + 1}` : null;
-
-        const walletData = await WalletModel.findOne({ userId }).limit(15);
-
-        const selectedTab = req.query.tab || "defaultTab";
-        res.render("profile", {
-            addresses,
-            orders,
-            selectedTab,
-            userId,
-            userdata,
-            walletData,
-            referal: userdata.referalcode,
-            cartCount: req.cartCount,
-            currentPage: page,
-            totalPages,
-            prevPageUrl,
-            nextPageUrl,
-            pageUrls,
-        });
     } catch (error) {
         console.error("Error in profile:", error);
-        res.status(500).render("error", { error: "Internal Server Error" });
+        // res.status(500).render("error", { error: "Internal Server Error" });
     }
 };
 

@@ -50,11 +50,16 @@ const userSchema = mongoose.Schema({
     },
     email: {
         type: String,
-        required: true
+        required: function () {
+            // Email is required for normal signup, not required for Google signup
+            return !this.googleId;
+        }
     },
     password: {
         type: String,
-        required: true
+        required: function () {
+            return !this.googleId;
+        }
     },
     phoneNo: {
         type: String,
@@ -67,7 +72,7 @@ const userSchema = mongoose.Schema({
     },
     otp: {
         type: Boolean,
-        required: true,
+        required: true,       
         default: false
     },
     Status: {
@@ -86,7 +91,22 @@ const userSchema = mongoose.Schema({
         type: String,
         required: false,
         index: { expireAfterSeconds: 120 } // TTL index, expires in 5 minutes
-    }
+    },
+    // Google OAuth fields
+    googleId: {
+        type: String,
+    },
+    googleAccessToken: {
+        type: String,
+    },
+    googleRefreshToken: {
+        type: String,
+    },
+    googleImage: {
+        type: String,
+    },
+    
+
 }, { versionKey: false });
 
 module.exports = mongoose.model('user', userSchema);

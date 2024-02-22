@@ -118,24 +118,26 @@
                                         </div><!-- End .product-nav -->
                                     </div><!-- End .details-filter-row -->
 
+
                                     <div class="details-filter-row details-row-size">
                                         <label for="size">Size:</label>
                                         <div class="select-custom">
-                                            <select name="size" id="size" class="form-control">
-                                                <option value="#" selected="selected">Select a size</option>
-                                                <% if (Array.isArray(product.size)) { %>
-                                                    <% product.size.forEach(size => { %>
-                                                        <option value="<%= size %>"><%= size %></option>
-                                                    <% }); %>
-                                                <% } else if (product.size) { %>
-                                                    <option value="<%= product.size %>"><%= product.size %></option>
-                                                <% } %>
-                                            </select>
+                                            <% productList.forEach(productSize => { %>
+                                                <div style="display: inline-block; margin-right: 10px;"> <!-- Adjust margin-right as needed -->
+                                                    <input type="radio" name="size" id="<%= `size${productSize.productId}-${productSize.size}` %>" value="<%= productSize.size %>" autocomplete="off"
+                                                        <% if (productSize.size === product.size) { %> checked <% } %>
+                                                        onclick="window.location.href='/product/<%= productSize.productId %>'">
+                                                    <label for="<%= `size${productSize.productId}-${productSize.size}` %>"><%= productSize.size %></label>
+                                                </div>
+                                            <% }); %>
                                         </div><!-- End .select-custom -->
-                                        
-                                        <a href="#" class="size-guide"><i class="icon-th-list"></i>size guide</a>
-                                    </div><!-- End .details-filter-row -->
+                                    </div>
                                     
+                                    
+                                    
+                                        
+                                      
+                                        <a href="#" class="size-guide"><i class="icon-th-list"></i>size guide</a>
                                     
                                     
                                     <!-- <div class="details-filter-row details-row-size">

@@ -6,6 +6,8 @@ const checkOutPage=require("../controller/checkOutPage")
 const userMid=require("../middleware/usermid")
 const session = require('express-session');
 const cartCountMiddleware = require('../middleware/cartCountMiddleware');
+const authController=require('../controller/authController');
+
 router.set("view engine","ejs")
 router.set('views','views/user')
 
@@ -16,7 +18,10 @@ router.use(session({
     saveUninitialized: true
   }));
 
+  router.get('/auth/google', authController.googleAuth);
 
+  router.get("/auth/google/callback", authController.googleCallback, authController.setupSession);
+  
 router.get('/',cartCountMiddleware,userController.home)
 
 
