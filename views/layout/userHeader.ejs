@@ -109,7 +109,7 @@
                                 <i class="icon-shopping-cart"></i>
                                 <% if (locals.cartCount && cartCount.count > 0) { %>
                                     <span class="cart-count"><%= cartCount.count %></span>
-                                    <span class="cart-txt">₹ <%= cartCount.subtotal.toFixed(2) %></span>
+                                    <span class="cart-txt">₹ <%= cartCount.subtotal %></span>
                                 <% } else { %>
                                     <span class="cart-count">0</span>
                                 <% } %>

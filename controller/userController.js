@@ -8,20 +8,34 @@ const mongoose = require("mongoose");
 const WalletModel = require("../model/wallet");
 const Wishlist = require("../model/wishlistModel");
 const Banner = require("../model/banner");
+const Cartdb = require("../model/cartmodel");
 
 const home = async (req, res) => {
     try {
         // Fetch products for the homepage
         let products = await ptd.find().limit(4);
-        
-        // Fetch the banner, providing a default empty object if none is found
-        let banner = await Banner.findOne() || 1;
 
+        // Fetch the banner, providing a default empty object if none is found
+        let banner = (await Banner.findOne()) || 1;
+
+        const userId = req.session.userid;
+        const wishlist = await Wishlist.findOne({ user: userId });
+
+        if (wishlist && wishlist.products.length > 0) {
+            products = await isInWishlist(products, userId);
+        }
+
+        const Cart = await Cartdb.findOne({ user: userId });
+
+        if (Cart && Cart.products.length > 0) {
+            products = await isInCart(products, userId);
+        }
+        
         // Render the view with the products, banner, and cart count
         res.render("homepage", { products, banner, cartCount: req.cartCount });
     } catch (error) {
         console.error("Error while showing all products", error);
-        
+
         // Handle the error accordingly, for example, redirect to an error page
         res.status(500).render("error", { error: "Internal Server Error" });
     }
@@ -537,9 +551,54 @@ const logincheck = async (req, res) => {
 //     }
 // };
 
+const isInCart = async (products, userId) => {
+    try {
+        const userCart = await Cartdb.findOne({ user: userId });
+
+        // Create a map for faster lookups of cart productIds
+        const cartProductIds = new Set(userCart.products.map((product) => product.productId.toString()));
+        
+        // Check if each wishlist product is in the cart
+        products.forEach((product) => {
+            if (product._id) {
+                const isInCartCheck = cartProductIds.has(product._id.toString());
+                product.isInCart = isInCartCheck;
+            } else {
+                console.error('ProductId is undefined for a product:', product);
+            }
+        });
+
+        return products;
+    } catch (error) {
+        console.error("Error checking isInCart:", error);
+        // return products.map(product => ({ ...product, isInCart: false }));
+    }
+};
+   
+const isInWishlist = async (products, userId) => {
+    try {
+        const wishlist = await Wishlist.findOne({ user: userId });
+        if (!wishlist) {
+            return products.map((product) => ({ ...product, isInWishlist: false }));
+        }
+
+        const WishlistProductIds = new Set(wishlist.products.map((product) => product.productId.toString()));
+
+        products.forEach((product) => {
+            const isInWish = WishlistProductIds.has(product._id.toString());
+            product.isInWishlist = isInWish;
+        });
+        //    console.log(products);
+        return products;
+    } catch (error) {
+        console.error("Error checking wishlist:", error);
+        // return products.map(product => ({ ...product, isInWishlist: false }));
+    }
+};
+
 const fullpdt = async (req, res) => {
     try {
-        console.log(req.query);
+        // console.log(req.query);
         const MainCat = req.params.MainCat;
         const page = parseInt(req.query.page) || 1; // Get the requested page from the query parameters
         const itemsPerPage = 12; // Adjust the number of items per page as needed
@@ -610,7 +669,7 @@ const fullpdt = async (req, res) => {
             sort.popularity = -1; // Sort by popularity in descending order
         }
 
-        const products = await ptd.find(query).sort(sort).skip(skip).limit(itemsPerPage);
+        let products = await ptd.find(query).sort(sort).skip(skip).limit(itemsPerPage);
         const sizes = await ptd.distinct("size", query);
         const uniqueSubNames = await ptd.distinct("category", query);
         const brands = await ptd.distinct("manufacturer", query);
@@ -633,6 +692,19 @@ const fullpdt = async (req, res) => {
         for (let i = 1; i <= totalPages; i++) {
             queryParams.set("page", i);
             pageUrls[i] = baseUrl + "?" + queryParams.toString();
+        }
+
+        const userId = req.session.userid;
+        const wishlist = await Wishlist.findOne({ user: userId });
+
+        if (wishlist && wishlist.products.length > 0) {
+            products = await isInWishlist(products, userId);
+        }
+
+        const Cart = await Cartdb.findOne({ user: userId });
+
+        if (Cart && Cart.products.length > 0) {
+            products = await isInCart(products, userId);
         }
 
         res.render("fullpdt", {
@@ -1074,8 +1146,6 @@ const downloadInvoice = async (req, res) => {
     }
 };
 
-
-
 const createinvoice = async (req, res) => {
     try {
         // Assuming you want to find orders based on the orderId
@@ -1099,12 +1169,6 @@ const createinvoice = async (req, res) => {
         res.status(500).send("Internal Server Error");
     }
 };
-
-
-
-
-
-
 
 module.exports = {
     home,
@@ -1131,7 +1195,7 @@ module.exports = {
     orderDetails,
     downloadInvoice,
     signOutUser,
-    createinvoice
+    createinvoice,
 };
 
 // downloadInvoice

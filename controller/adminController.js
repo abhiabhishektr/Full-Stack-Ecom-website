@@ -685,6 +685,53 @@ const addproduct = (req, res) => {
 
 
 
+// const addproduct = (req, res) => {
+//     const { name, description, price, size, category, gender, manufacturer, stockQuantity } = req.body;
+
+//     // Assuming req.files is an array of uploaded files
+//     const imagePromises = req.files.map((file) => {
+//         // Specify the desired width and height
+//         const width = 300;
+//         const height = 200;
+
+//         // Use sharp to resize the image
+//         return sharp(file.buffer) // Assuming file.buffer contains the image buffer
+//             .resize(width, height)
+//             .toBuffer()
+//             .then((resizedBuffer) => ({ filename: file.filename, buffer: resizedBuffer }));
+//     });
+
+//     // Wait for all image processing promises to resolve
+//     Promise.all(imagePromises)
+//         .then((resizedImages) => {
+//             // Extract filenames and assign to imageUrls
+//             const imageUrls = resizedImages.map((image) => image.filename);
+
+//             const newProducts = new newProduct({
+//                 name,
+//                 description,
+//                 price,
+//                 category,
+//                 size,
+//                 gender,
+//                 manufacturer,
+//                 stockQuantity,
+//                 imageUrls,
+//             });
+
+//             return newProducts.save();
+//         })
+//         .then((savedProduct) => {
+//             res.redirect("/allproducts");
+//         })
+//         .catch((error) => {
+//             console.error("Error adding product:", error);
+//             res.status(500).send("Internal Server Error");
+//         });
+// };
+
+
+
 
 
 

@@ -236,9 +236,7 @@
         }
     };
     
-</script>
 
-<script>
     $(document).on("click", ".btn-cart.go-to-cart-btn", function(event) {
         event.preventDefault();
         window.location.href = '/cart'; // Redirect to the cart page
@@ -257,8 +255,12 @@
 
                 Swal.fire('Success!', response.message, 'success');
                 var currentCount = $('.cart-count').text();
+                var currentAmt = $('.cart-txt').text().replace(/[^\d]/g, '');
                 var newCount = parseInt(currentCount) + 1;
-    
+                const productprice = '<%= product.price %>';
+
+                var newAmt = '₹ ' + (parseInt(productprice) + parseInt(currentAmt));
+                $('.cart-txt').text(newAmt)
                 // Add inline styles for transition effect
                 $('.cart-count').text(newCount).css({
                     'transition': 'all 0.5s ease',
@@ -433,16 +435,6 @@
                                     <a href="/product/<%= product.id %>">
                                         <img src="/uploads/<%= product.imageUrls[0] %>" alt="Product image" class="product-image">
                                     </a>
-                        
-                                    <div class="product-action-vertical">
-                                        <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>Add to Wishlist</span></a>
-                                        <a href="<%= product.quickViewUrl %>" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick View</span></a>
-                                        <a href="#" class="btn-product-icon btn-compare" title="Compare"><span>Compare</span></a>
-                                    </div><!-- End .product-action-vertical -->
-                        
-                                    <div class="product-action">
-                                        <a href="#" class="btn-product btn-cart"><span>Add to Cart</span></a>
-                                    </div><!-- End .product-action -->
                                 </figure><!-- End .product-media -->
                         
                                 <div class="product-body">
@@ -455,9 +447,8 @@
                                     </div><!-- End .product-price -->
                                     <div class="ratings-container">
                                         <div class="ratings">
-                                            <div class="ratings-val" style="width: <%= product.rating %>%;"></div><!-- End .ratings-val -->
+                                            <div class="ratings-val" style="width: <%= product.averageRating*20 %>%"></div><!-- End .ratings-val -->
                                         </div><!-- End .ratings -->
-                                        <span class="ratings-text">( <%= product.reviews %> Reviews )</span>
                                     </div><!-- End .rating-container -->
                                 </div><!-- End .product-body -->
                             </div><!-- End .product -->

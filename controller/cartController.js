@@ -266,11 +266,37 @@ const cartItemRemove = async (req, res) => {
 // ==========================wishlist==========================
 // ============================================================
 
+// const wishlist = async (req, res) => {
+//     try {
+//         const wishlistData = await Wishlist.findOne({ user: req.session.userid }).populate({
+//             path: "products.productId",
+//             model: "Product",
+//         });
+// // console.log(wishlistData.products[0].productId._id);
+//         res.render("wishlist", { cartCount: req.cartCount, wishlistData });
+//     } catch (error) {
+//         console.error("Error in wishlist route:", error);
+//         res.status(500).render("error", { error: "Internal Server Error" });
+//     }
+// };
+
 const wishlist = async (req, res) => {
     try {
         const wishlistData = await Wishlist.findOne({ user: req.session.userid }).populate({
             path: "products.productId",
             model: "Product",
+        });
+
+        // Fetch the user's cart
+        const userCart = await Cartdb.findOne({ user: req.session.userid });
+
+        // Create a map for faster lookups of cart productIds
+        const cartProductIds = new Set(userCart.products.map(product => product.productId.toString()));
+
+        // Check if each wishlist product is in the cart
+        wishlistData.products.forEach(product => {
+            const isInCart = cartProductIds.has(product.productId._id.toString());
+            product.isInCart = isInCart;
         });
 
         res.render("wishlist", { cartCount: req.cartCount, wishlistData });
@@ -280,13 +306,14 @@ const wishlist = async (req, res) => {
     }
 };
 
+
 const wishlistManagement = async (req, res) => {
     try {
         if (!req.session.userid) {
             res.status(200).json({ message: "No Login" });
         } else {
+            
             const { productId } = req.body; // Assuming you send productId in the request body
-
             const Wishlistcheck = await Wishlist.findOne({ user: req.session.userid });
 
             if (!Wishlistcheck) {
