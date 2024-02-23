@@ -133,15 +133,39 @@
                         <!-- ============================================================== -->
                         <li class="nav-item d-none d-md-block">
                             <a class="nav-link" href="javascript:void(0)">
-                                <form>
+                                <form id="searchForm">
                                     <div class="customize-input">
                                         <input class="form-control custom-shadow custom-radius border-0 bg-white"
-                                            type="search" placeholder="Search" aria-label="Search">
+                                            type="search" id="searchInput" placeholder="Search" aria-label="Search">
                                         <i class="form-control-icon" data-feather="search"></i>
                                     </div>
                                 </form>
                             </a>
                         </li>
+                        
+                        <script>
+                            // Get the search form and input
+                            const searchForm = document.getElementById('searchForm');
+                            const searchInput = document.getElementById('searchInput');
+                        
+                            // Add an event listener to the form for submission
+                            searchForm.addEventListener('submit', function (event) {
+                                event.preventDefault(); // Prevent the default form submission
+                        
+                                // Get the current URL and create a new URL object
+                                const currentUrl = new URL(window.location.href);
+                        
+                                // Get the search query from the input
+                                const searchQuery = searchInput.value.trim();
+                        
+                                // Append the search query as a parameter to the URL
+                                currentUrl.searchParams.set('search', searchQuery);
+                        
+                                // Redirect to the new URL
+                                window.location.href = currentUrl.toString();
+                            });
+                        </script>
+                        
                         <!-- ============================================================== -->
                         <!-- User profile and search -->
                         <!-- ============================================================== -->

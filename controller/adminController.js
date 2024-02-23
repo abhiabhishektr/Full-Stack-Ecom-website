@@ -213,19 +213,32 @@ const adminsignout = (req, res) => {
 const allusers = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const pageSize = 20; 
+        const pageSize = 20;
 
-        const totalUsers = await user.countDocuments();
+        // Get the search query from the request
+        const searchQuery = req.query.search || '';
+
+        // Build the search criteria
+        const searchCriteria = {
+            $or: [
+                { name: { $regex: searchQuery, $options: 'i' } }, // Search by user name
+                { email: { $regex: searchQuery, $options: 'i' } }, // Search by email
+                // Add more criteria as needed
+            ],
+        };
+
+        const totalUsers = await user.countDocuments(searchCriteria);
         const totalPages = Math.ceil(totalUsers / pageSize);
 
-        const users = await user.find()
+        const users = await user.find(searchCriteria)
             .skip((page - 1) * pageSize)
             .limit(pageSize);
 
         res.render("allusers", {
             users,
             currentPage: page,
-            totalPages
+            totalPages,
+            searchQuery
         });
     } catch (error) {
         console.log("Error while showing users", error);
@@ -268,11 +281,26 @@ const allproducts = async (req, res) => {
         const page = parseInt(req.query.page) || 1;
         const pageSize = 15; // Adjust this value based on the desired number of products per page
 
+        const searchQuery = req.query.search || "";
+
         // Assuming you fetch products with imageUrls from the database
-        let totalProducts = await newProduct.countDocuments({ productDeleted: { $ne: "deleted" } });
+        let query = { productDeleted: { $ne: "deleted" } };
+
+        if (searchQuery) {
+            // Search for either product name or manufacturer
+            const searchCondition = {
+                $or: [
+                    { name: { $regex: searchQuery, $options: 'i' } }, // Case-insensitive search on product name
+                    { manufacturer: { $regex: searchQuery, $options: 'i' } }, // Case-insensitive search on manufacturer
+                ]
+            };
+            query = { ...query, ...searchCondition };
+        }
+
+        let totalProducts = await newProduct.countDocuments(query);
         const totalPages = Math.ceil(totalProducts / pageSize);
 
-        let product = await newProduct.find({ productDeleted: { $ne: "deleted" } })
+        let product = await newProduct.find(query)
             .skip((page - 1) * pageSize)
             .limit(pageSize);
 
@@ -280,7 +308,8 @@ const allproducts = async (req, res) => {
         res.render("allProducts", {
             product,
             currentPage: page,
-            totalPages
+            totalPages,
+            searchQuery
         });
     } catch (error) {
         console.log("Error while showing all products", error);
@@ -288,6 +317,7 @@ const allproducts = async (req, res) => {
         res.status(500).render("error", { error: "Internal Server Error" });
     }
 };
+
 
 
 const newproducts = async (req, res) => {
@@ -735,32 +765,42 @@ const addproduct = (req, res) => {
 
 
 
-
 const OrdersAdmin = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const pageSize = 10; // Adjust this value based on the desired number of orders per page
+        const pageSize = 10;
 
-        // Find all orders
-        const totalOrders = await orderdb.countDocuments({ "onlinePaymentStatus": { $ne: "intiated" } });
+        // Get the search query from the request
+        const searchQuery = req.query.search || '';
+
+        // Build the search criteria
+        const searchCriteria = {
+            "onlinePaymentStatus": { $ne: "intiated" },
+            $or: [
+                { 'user.name': { $regex: searchQuery, $options: 'i' } }, // Search by user name
+                { 'Products.name': { $regex: searchQuery, $options: 'i' } }, // Search by product name
+                // Add more criteria as needed
+            ],
+        };
+
+        // Find all orders based on the search criteria
+        const totalOrders = await orderdb.countDocuments(searchCriteria);
         const totalPages = Math.ceil(totalOrders / pageSize);
 
-        const orders = await orderdb.find({ "onlinePaymentStatus": { $ne: "intiated" } })
+        const orders = await orderdb.find(searchCriteria)
             .populate({
                 path: "Products.products",
-                model: "Product", // Make sure it matches the model name for the Product
+                model: "Product",
             })
             .skip((page - 1) * pageSize)
             .limit(pageSize);
 
-            orders.forEach(order => {
-                order.last10Digits = order._id.toString().slice(-8);
-            });
-    
-        // Render the EJS file and pass the paginated orders data
-        res.render("OrdersAdmin", { orders, currentPage: page, totalPages });
+        orders.forEach(order => {
+            order.last10Digits = order._id.toString().slice(-8);
+        });
+
+        res.render("OrdersAdmin", { orders, currentPage: page, totalPages, searchQuery });
     } catch (error) {
-        // Handle any errors
         console.error(error);
         res.status(500).render("error", { error: "Internal server error" });
     }

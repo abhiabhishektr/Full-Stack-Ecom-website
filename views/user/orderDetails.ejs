@@ -85,8 +85,9 @@
         <div class="container">
             <div class="row ">
                 <div class="col-md-6">
-      <!-- Image -->
+      <a href="/product/<%=product.products%>">
       <img src="/uploads/<%= product.image %>" alt="Product Image" class="mr-3" style="max-width: 100px; max-height: 100px; object-fit: cover;">
+    </a>
       <div class="media-body d-flex flex-column align-items-start">
         <!-- Product Details -->
         <h5 class="mt-2"><%= product.name %></h5>
@@ -132,26 +133,26 @@
        
             <!-- Input fields for Ratings -->
             <div style="margin-bottom: 10px;">
-                <input type="radio" id="form1" name="rating" value="1">
+                <input type="radio" id="form1" name="rating" value="1" <% if (product.rating >= 1) { %> checked <% } %>>
                 <label for="form1"> 1</label>
         
-                <input type="radio" id="form2" name="rating" value="2">
+                <input type="radio" id="form2" name="rating" value="2" <% if (product.rating >= 2) { %> checked <% } %>>
                 <label for="form2"> 2</label>
         
-                <input type="radio" id="form3" name="rating" value="3">
+                <input type="radio" id="form3" name="rating" value="3" <% if (product.rating >= 3) { %> checked <% } %>>
                 <label for="form3"> 3</label>
         
-                <input type="radio" id="form4" name="rating" value="4">
+                <input type="radio" id="form4" name="rating" value="4" <% if (product.rating >= 4) { %> checked <% } %>>
                 <label for="form4"> 4</label>
         
-                <input type="radio" id="form5" name="rating" value="5">
+                <input type="radio" id="form5" name="rating" value="5" <% if (product.rating >= 5) { %> checked <% } %>>
                 <label for="form5"> 5</label>
             </div>
     
             <!-- Input field for Review -->
             <div class="form-group">
                 <label for="review">Review:</label>
-                <textarea class="form-control" id="review" name="review" rows="3" disabled></textarea>
+                <textarea class="form-control" id="review" name="review" rows="3" <% if (product.review) { %> disabled <% } %>> <%= product.review %> </textarea>
                 <p id="reviewError" style="color: red;"></p>
             </div>
     

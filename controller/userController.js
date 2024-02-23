@@ -772,7 +772,7 @@ const product = async (req, res) => {
 productList.sort((a, b) => a.size.localeCompare(b.size, undefined, { sensitivity: 'base' }));
 
 // Now, productList is sorted based on the 'size' property
-console.log("productList", productList);
+// console.log("productList", productList);
 
 
         const products = await ptd.find().limit(4); // Use find() instead of findOne()
@@ -792,8 +792,8 @@ console.log("productList", productList);
             isInwish = wishlistProductIds.includes(productId);
         }
 
-        console.log("isInCart ::", isInCart);
-        console.log("isInwish ::", isInwish);
+        // console.log("isInCart ::", isInCart);
+        // console.log("isInwish ::", isInwish);
 
         res.render("product", { product, products, isInCart, isInwish, productList, cartCount: req.cartCount });
     } catch (error) {
