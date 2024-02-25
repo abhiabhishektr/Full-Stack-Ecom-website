@@ -329,32 +329,11 @@ const allproducts = async (req, res) => {
 
 const newproducts = async (req, res) => {
     const Category = await categorydb.find();
-    res.render("newProduct", { Category });
+    res.render("addProducts", { Category });
 };
 
-<<<<<<< HEAD
-// const category = async (req, res) => {
-//     let existingCategory = req.query.existingCategory;
-//     if (existingCategory) {
-//         const Category = await categorydb.find();
-//         res.render("addcategory", { Category, existingCategory });
-//     } else {
-//         const Category = await categorydb.find();
-//         res.render("addcategory", { Category });
-//     }
-// };
-=======
 
-// <!-- <input type="file" id="imageCropFileInput" multiple="" accept=".jpg,.jpeg,.png">
-// <input type="hidden" id="profile_img_data">
-// <div class="img-preview"></div>
-// <div id="galleryImages"></div>
-// <div id="cropper">
-//   <canvas id="cropperImg" width="0" height="0"></canvas>
-//   <button class="cropImageBtn" id="cropImageBtn">Crop</button>
-// </div> -->
 
->>>>>>> origin/master
 const category = async (req, res) => {
     try {
         let existingCategory = req.query.existingCategory;
