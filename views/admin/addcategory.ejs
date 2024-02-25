@@ -197,10 +197,6 @@
   function applyOffer(categoryId) {
     const selectedOfferId = document.querySelector('input[name="selectedOffer' + categoryId + '"]:checked').value;
 
-    // Use AJAX or another method to send the selectedOfferId and categoryId to the backend
-    // For example, you can use the Fetch API or jQuery.ajax
-
-    // Example using Fetch API
     fetch('/applyOfferCategory', {
         method: 'POST',
         headers: {
