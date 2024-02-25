@@ -214,16 +214,17 @@ const allusers = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const pageSize = 20;
-
-        // Get the search query from the request
         const searchQuery = req.query.search || '';
 
-        // Build the search criteria
         const searchCriteria = {
-            $or: [
-                { name: { $regex: searchQuery, $options: 'i' } }, // Search by user name
-                { email: { $regex: searchQuery, $options: 'i' } }, // Search by email
-                // Add more criteria as needed
+            $and: [
+                {
+                    $or: [
+                        { name: { $regex: searchQuery, $options: 'i' } }, 
+                        { email: { $regex: searchQuery, $options: 'i' } },
+                    ],
+                },
+                { isDeleted: { $ne: true } }, // Exclude users with isDeleted: true
             ],
         };
 
@@ -247,6 +248,7 @@ const allusers = async (req, res) => {
 };
 
 
+
 const unblock = async (req, res) => {
     const id = await req.params.id;
     try {
@@ -267,14 +269,19 @@ const block = async (req, res) => {
     }
 };
 const userdelete = async (req, res) => {
-    const id = await req.params.id;
+    const id = req.params.id;
     try {
-        await user.deleteOne({ _id: id });
+        // Soft delete: Set the isDeleted and Status fields
+        await user.updateOne(
+            { _id: id },
+            { $set: { isDeleted: true, Status: false } }
+        );
         res.redirect("/allusers");
     } catch (error) {
-        console.log("error while deleting", +error);
+        console.log("Error while soft deleting:", error);
     }
 };
+
 
 const allproducts = async (req, res) => {
     try {

@@ -105,6 +105,9 @@ const userSchema = mongoose.Schema({
     googleImage: {
         type: String,
     },
+    isDeleted:{
+        type: Boolean,
+    }
     
 
 }, { versionKey: false });

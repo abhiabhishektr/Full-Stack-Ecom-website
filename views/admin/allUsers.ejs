@@ -44,20 +44,24 @@
                     </form>
                 </td>
                 
-                  
-                  <!-- For Blocking -->
+                <% if (user.Status) { %>
                   <td>
                     <form action="/userblock/<%= user._id %>" method="post">
                       <button type="submit" class="btn btn-warning">Block</button>
                     </form>
                   </td>
-                  
-                  <!-- For Unblocking -->
+                <% } else { %>
                   <td>
                     <form action="/userunblock/<%= user._id %>" method="post">
                       <button type="submit" class="btn btn-success">Unblock</button>
                     </form>
                   </td>
+                <% } %>
+                  <!-- For Blocking -->
+                  
+                  
+                  <!-- For Unblocking -->
+                
                   
   
 
